@@ -1,0 +1,266 @@
+import { useEffect, useState } from 'react';
+import { IconEdit, IconTrash } from '@tabler/icons-react';
+import api from '../api/client';
+
+const CATEGORIAS = ['senior', 'femenino', 'ninos', 'master'];
+const ROLES = ['central', 'asistente'];
+
+export default function Tarifas() {
+  const [campeonatos, setCampeonatos] = useState([]);
+  const [campeonatoId, setCampeonatoId] = useState('');
+  const [tarifas, setTarifas] = useState([]);
+
+  const [modalEditar, setModalEditar] = useState(null); // { id, categoria, categoriaOriginal, rol_arbitro, monto }
+  const [errorEditar, setErrorEditar] = useState(null);
+  const [nuevoRolMonto, setNuevoRolMonto] = useState('');
+  const [mensajeNuevoRol, setMensajeNuevoRol] = useState(null);
+  const [errorNuevoRol, setErrorNuevoRol] = useState(null);
+  const [confirmarEliminar, setConfirmarEliminar] = useState(null); // { id, etiqueta }
+  const [errorEliminar, setErrorEliminar] = useState(null);
+
+  useEffect(() => {
+    api.get('/campeonatos').then((res) => setCampeonatos(res.data));
+  }, []);
+
+  function cargarTarifas(id) {
+    setCampeonatoId(id);
+    if (!id) {
+      setTarifas([]);
+      return;
+    }
+    api.get(`/tarifas?campeonato_id=${id}`).then((res) => setTarifas(res.data));
+  }
+
+  function abrirEditar(t) {
+    setErrorEditar(null);
+    setMensajeNuevoRol(null);
+    setErrorNuevoRol(null);
+    setNuevoRolMonto('');
+    setModalEditar({ id: t.id, categoria: t.categoria, categoriaOriginal: t.categoria, rol_arbitro: t.rol_arbitro, monto: String(t.monto) });
+  }
+
+  async function guardarEdicion(e) {
+    e.preventDefault();
+    setErrorEditar(null);
+    try {
+      await api.put(`/tarifas/${modalEditar.id}`, {
+        categoria: modalEditar.categoria,
+        rol_arbitro: modalEditar.rol_arbitro,
+        monto: Number(modalEditar.monto),
+        viatico: 0,
+      });
+      setModalEditar(null);
+      cargarTarifas(campeonatoId);
+    } catch (err) {
+      setErrorEditar(err.response?.data?.error || 'Error al actualizar la tarifa');
+    }
+  }
+
+  async function agregarRolFaltante(rolFaltante) {
+    setErrorNuevoRol(null);
+    setMensajeNuevoRol(null);
+    try {
+      await api.post('/tarifas', {
+        campeonato_id: campeonatoId,
+        categoria: modalEditar.categoriaOriginal,
+        rol_arbitro: rolFaltante,
+        monto: Number(nuevoRolMonto),
+        viatico: 0,
+      });
+      setMensajeNuevoRol(`Tarifa de ${rolFaltante === 'central' ? 'Central' : 'Asistente'} agregada`);
+      setNuevoRolMonto('');
+      cargarTarifas(campeonatoId);
+    } catch (err) {
+      setErrorNuevoRol(err.response?.data?.error || 'Error al agregar la tarifa');
+    }
+  }
+
+  async function confirmarEliminarTarifa() {
+    setErrorEliminar(null);
+    try {
+      await api.delete(`/tarifas/${confirmarEliminar.id}`);
+      setConfirmarEliminar(null);
+      cargarTarifas(campeonatoId);
+    } catch (err) {
+      setErrorEliminar(err.response?.data?.error || 'Error al eliminar la tarifa');
+    }
+  }
+
+  return (
+    <div>
+      <h1 className="font-display text-2xl font-semibold text-navy-900 mb-4">Tarifas</h1>
+      <div className="mb-3 max-w-sm">
+        <label className="block text-xs text-gray-600 mb-1">Filtrar por campeonato</label>
+        <select
+          className="w-full border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-navy-600"
+          value={campeonatoId}
+          onChange={(e) => cargarTarifas(e.target.value)}
+        >
+          <option value="">Selecciona un campeonato</option>
+          {campeonatos.map((c) => (
+            <option key={c.id} value={c.id}>{c.nombre}</option>
+          ))}
+        </select>
+      </div>
+      <div className="bg-white border border-gray-200 rounded-lg overflow-hidden max-w-2xl">
+        <table className="w-full text-sm">
+          <thead className="bg-navy-50 text-navy-700 text-left">
+            <tr>
+              <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide">Categoría</th>
+              <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide">Rol</th>
+              <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide">Monto</th>
+              <th className="px-4 py-2.5"></th>
+            </tr>
+          </thead>
+          <tbody>
+            {tarifas.map((t) => (
+              <tr key={t.id} className="border-t border-gray-100 hover:bg-navy-50/40">
+                <td className="px-4 py-2.5 capitalize">{t.categoria}</td>
+                <td className="px-4 py-2.5 capitalize">{t.rol_arbitro}</td>
+                <td className="px-4 py-2.5 tabular-nums font-medium text-navy-900">${t.monto}</td>
+                <td className="px-4 py-2.5">
+                  <div className="flex gap-3">
+                    <button onClick={() => abrirEditar(t)} title="Editar" className="text-navy-600 hover:text-navy-900">
+                      <IconEdit size={16} />
+                    </button>
+                    <button
+                      onClick={() => { setErrorEliminar(null); setConfirmarEliminar({ id: t.id, etiqueta: `${t.categoria} · ${t.rol_arbitro}` }); }}
+                      title="Eliminar"
+                      className="text-gray-400 hover:text-card-red"
+                    >
+                      <IconTrash size={16} />
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+            {tarifas.length === 0 && (
+              <tr>
+                <td colSpan={4} className="px-4 py-8 text-center text-gray-400 text-sm">
+                  {campeonatoId ? 'Este campeonato no tiene tarifas registradas' : 'Selecciona un campeonato para ver sus tarifas'}
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Modal: editar tarifa */}
+      {modalEditar && (
+        <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center px-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-sm w-full p-5">
+            <h3 className="font-display text-lg font-semibold text-navy-900 mb-4">Editar tarifa</h3>
+            <form onSubmit={guardarEdicion} className="space-y-3">
+              <div>
+                <label className="block text-xs text-gray-600 mb-1">Categoría</label>
+                <select
+                  value={modalEditar.categoria}
+                  onChange={(e) => setModalEditar({ ...modalEditar, categoria: e.target.value })}
+                  className="w-full border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-navy-600"
+                >
+                  {CATEGORIAS.map((c) => <option key={c} value={c}>{c}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className="block text-xs text-gray-600 mb-1">Rol</label>
+                <select
+                  value={modalEditar.rol_arbitro}
+                  onChange={(e) => setModalEditar({ ...modalEditar, rol_arbitro: e.target.value })}
+                  className="w-full border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-navy-600"
+                >
+                  {ROLES.map((r) => <option key={r} value={r}>{r === 'central' ? 'Central' : 'Asistente'}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className="block text-xs text-gray-600 mb-1">Monto ($)</label>
+                <input
+                  type="number" step="0.01" min="0.01" required
+                  value={modalEditar.monto}
+                  onChange={(e) => setModalEditar({ ...modalEditar, monto: e.target.value })}
+                  className="w-full border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-navy-600"
+                />
+              </div>
+              {errorEditar && <p className="text-xs text-card-red-dark bg-card-red/10 px-2 py-1.5 rounded">{errorEditar}</p>}
+              <div className="flex justify-end gap-2 pt-1">
+                <button
+                  type="button"
+                  onClick={() => setModalEditar(null)}
+                  className="px-3 py-1.5 rounded text-sm font-medium border border-gray-300 text-gray-600 hover:bg-gray-50"
+                >
+                  Cancelar
+                </button>
+                <button className="px-3 py-1.5 rounded text-sm font-medium text-white bg-navy-900 hover:bg-navy-800">
+                  Guardar cambios
+                </button>
+              </div>
+            </form>
+
+            {(() => {
+              const rolFaltante = ROLES.find(
+                (r) => !tarifas.some((t) => t.categoria === modalEditar.categoriaOriginal && t.rol_arbitro === r)
+              );
+              if (!rolFaltante) return null;
+              const etiqueta = rolFaltante === 'central' ? 'Central' : 'Asistente';
+              return (
+                <div className="mt-4 pt-4 border-t border-gray-100">
+                  <p className="text-xs font-medium text-navy-700 mb-2">
+                    A "{modalEditar.categoriaOriginal}" le falta la tarifa de <strong>{etiqueta}</strong>
+                  </p>
+                  <div className="flex gap-2">
+                    <input
+                      type="number" step="0.01" min="0.01"
+                      placeholder={`Monto para ${etiqueta} ($)`}
+                      value={nuevoRolMonto}
+                      onChange={(e) => setNuevoRolMonto(e.target.value)}
+                      className="flex-1 border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-navy-600"
+                    />
+                    <button
+                      type="button"
+                      disabled={!nuevoRolMonto || Number(nuevoRolMonto) <= 0}
+                      onClick={() => agregarRolFaltante(rolFaltante)}
+                      className="px-3 py-1.5 rounded text-sm font-medium text-white bg-pitch-green hover:bg-pitch-green-dark disabled:opacity-50 whitespace-nowrap"
+                    >
+                      + Agregar
+                    </button>
+                  </div>
+                  {errorNuevoRol && <p className="text-xs text-card-red-dark bg-card-red/10 px-2 py-1.5 rounded mt-2">{errorNuevoRol}</p>}
+                  {mensajeNuevoRol && <p className="text-xs text-pitch-green-dark bg-pitch-green/10 px-2 py-1.5 rounded mt-2">{mensajeNuevoRol}</p>}
+                </div>
+              );
+            })()}
+          </div>
+        </div>
+      )}
+
+      {/* Modal: confirmar eliminación */}
+      {confirmarEliminar && (
+        <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center px-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-sm w-full p-5">
+            <h3 className="font-display text-lg font-semibold text-navy-900 mb-2">
+              ¿Eliminar la tarifa de {confirmarEliminar.etiqueta}?
+            </h3>
+            <p className="text-sm text-gray-500 mb-4">
+              Si intentas designar a alguien con esta combinación después de borrarla, el sistema
+              volverá a pedirte que la configures.
+            </p>
+            {errorEliminar && <p className="text-xs text-card-red-dark bg-card-red/10 px-2 py-1.5 rounded mb-3">{errorEliminar}</p>}
+            <div className="flex justify-end gap-2">
+              <button
+                onClick={() => setConfirmarEliminar(null)}
+                className="px-3 py-1.5 rounded text-sm font-medium border border-gray-300 text-gray-600 hover:bg-gray-50"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={confirmarEliminarTarifa}
+                className="px-3 py-1.5 rounded text-sm font-medium text-white bg-card-red hover:bg-card-red-dark"
+              >
+                Eliminar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
