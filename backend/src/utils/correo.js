@@ -1,18 +1,8 @@
-const nodemailer = require('nodemailer');
 require('dotenv').config();
 
-// Si no hay SMTP configurado en el .env, no falla: solo deja el enlace en
+// Si no hay Resend configurado en el .env, no falla: solo deja el enlace en
 // consola para poder seguir probando en desarrollo sin credenciales reales.
-const smtpConfigurado = !!(process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS);
-
-const transportador = smtpConfigurado
-  ? nodemailer.createTransport({
-      host: process.env.SMTP_HOST,
-      port: Number(process.env.SMTP_PORT) || 587,
-      secure: process.env.SMTP_SECURE === 'true',
-      auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
-    })
-  : null;
+const resendConfigurado = !!process.env.RESEND_API_KEY;
 
 // Envía el correo de recuperación de contraseña. No lanza si falla el envío
 // (para no filtrar por error si el correo existe o no); solo lo registra.
@@ -32,8 +22,8 @@ async function enviarCorreoRecuperacion(destinatario, nombre, enlace) {
     </div>
   `;
 
-  if (!smtpConfigurado) {
-    console.log('--- SMTP no configurado (.env). Enlace de recuperación para pruebas: ---');
+  if (!resendConfigurado) {
+    console.log('--- RESEND_API_KEY no configurada (.env). Enlace de recuperación para pruebas: ---');
     console.log(`Para: ${destinatario}`);
     console.log(enlace);
     console.log('---------------------------------------------------------------------');
@@ -41,12 +31,24 @@ async function enviarCorreoRecuperacion(destinatario, nombre, enlace) {
   }
 
   try {
-    await transportador.sendMail({
-      from: process.env.SMTP_FROM || process.env.SMTP_USER,
-      to: destinatario,
-      subject: asunto,
-      html,
+    const respuesta = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from: process.env.RESEND_FROM || 'RV16 Núcleo Arbitral <onboarding@resend.dev>',
+        to: [destinatario],
+        subject: asunto,
+        html,
+      }),
     });
+
+    if (!respuesta.ok) {
+      const detalle = await respuesta.text();
+      console.error('Error al enviar el correo de recuperación (Resend):', respuesta.status, detalle);
+    }
   } catch (error) {
     console.error('Error al enviar el correo de recuperación:', error);
   }
