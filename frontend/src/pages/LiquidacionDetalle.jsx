@@ -52,6 +52,16 @@ export default function LiquidacionDetalle() {
 
   useEffect(cargar, [id]);
 
+  // Refresca solo la conversación cada 5 segundos, para simular una
+  // conversación continua sin tener que recargar la página.
+  useEffect(() => {
+    const intervalo = setInterval(() => {
+      api.get(`/liquidaciones/${id}/mensajes`).then((res) => setMensajes(res.data));
+    }, 5000);
+
+    return () => clearInterval(intervalo);
+  }, [id]);
+
   useEffect(() => {
     finConversacionRef.current?.scrollIntoView({ block: 'nearest' });
   }, [mensajes]);
@@ -134,16 +144,16 @@ export default function LiquidacionDetalle() {
       <div className="flex items-start justify-between mb-6">
         <div>
           <h1 className="font-display text-2xl font-semibold text-navy-900 capitalize">
-             Liquidación {liquidacion.periodo}
+            Liquidación {liquidacion.periodo}
           </h1>
-           {esAdmin && (
-             <p className="text-sm text-navy-700 font-medium mt-0.5">
-               {liquidacion.nombres} {liquidacion.apellidos}
-             </p>
-)}
-<p className="text-sm text-gray-500 mt-1">
-  {liquidacion.fecha_inicio?.slice(0, 10)} → {liquidacion.fecha_fin?.slice(0, 10)}
-</p>
+          {esAdmin && (
+            <p className="text-sm text-navy-700 font-medium mt-0.5">
+              {liquidacion.nombres} {liquidacion.apellidos}
+            </p>
+          )}
+          <p className="text-sm text-gray-500 mt-1">
+            {liquidacion.fecha_inicio?.slice(0, 10)} → {liquidacion.fecha_fin?.slice(0, 10)}
+          </p>
         </div>
         <TarjetaEstado estado={liquidacion.estado} />
       </div>
@@ -211,18 +221,18 @@ export default function LiquidacionDetalle() {
 
       {liquidacion.estado !== 'pagada' && esAdmin && (
         liquidacion.respuesta_arbitro === 'aceptada' ? (
-           <button
-              onClick={pagar}
-              className="bg-pitch-green hover:bg-pitch-green-dark text-white text-sm px-4 py-2 rounded font-medium transition mb-6"
-           >
-             Marcar como pagada
-           </button>
+          <button
+            onClick={pagar}
+            className="bg-pitch-green hover:bg-pitch-green-dark text-white text-sm px-4 py-2 rounded font-medium transition mb-6"
+          >
+            Marcar como pagada
+          </button>
         ) : (
           <p className="text-xs text-gray-500 bg-gray-100 px-3 py-2 rounded mb-6 inline-block">
-             El árbitro debe confirmar que está de acuerdo antes de poder marcarla como pagada
+            El árbitro debe confirmar que está de acuerdo antes de poder marcarla como pagada
           </p>
-  )
-)}
+        )
+      )}
 
       {liquidacion.estado !== 'pagada' && (
         <>
