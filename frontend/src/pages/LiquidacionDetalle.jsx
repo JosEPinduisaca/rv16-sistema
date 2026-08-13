@@ -19,6 +19,17 @@ const ETIQUETA_RESPUESTA = {
   },
 };
 
+// En desarrollo, VITE_API_URL no está definida y esto queda vacío, así que
+// las rutas relativas de imagen_url se usan tal cual (como antes). En
+// producción, arma la URL completa hacia el backend (donde vive /uploads).
+const URL_BASE_ARCHIVOS = (import.meta.env.VITE_API_URL || '/api').replace(/\/api\/?$/, '');
+
+function urlCompleta(rutaRelativa) {
+  if (!rutaRelativa) return null;
+  if (rutaRelativa.startsWith('http')) return rutaRelativa; // ya es una URL completa
+  return `${URL_BASE_ARCHIVOS}${rutaRelativa}`;
+}
+
 export default function LiquidacionDetalle() {
   const { id } = useParams();
   const { usuario } = useAuth();
@@ -235,8 +246,8 @@ export default function LiquidacionDetalle() {
                     </p>
                     {m.mensaje && <p className="text-sm whitespace-pre-wrap">{m.mensaje}</p>}
                     {m.imagen_url && (
-                      <a href={m.imagen_url} target="_blank" rel="noreferrer">
-                        <img src={m.imagen_url} alt="Adjunto" className="mt-1.5 rounded max-h-48 border border-white/20" />
+                      <a href={urlCompleta(m.imagen_url)} target="_blank" rel="noreferrer">
+                        <img src={urlCompleta(m.imagen_url)} alt="Adjunto" className="mt-1.5 rounded max-h-48 border border-white/20" />
                       </a>
                     )}
                     <p className="text-[10px] opacity-60 mt-1">
