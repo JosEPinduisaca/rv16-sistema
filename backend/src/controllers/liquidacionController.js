@@ -234,16 +234,27 @@ async function obtenerLiquidacion(req, res) {
 }
 
 // PUT /api/liquidaciones/:id/pagar
+// PUT /api/liquidaciones/:id/pagar
 async function marcarComoPagada(req, res) {
   const { id } = req.params;
   try {
+    const liquidacion = await pool.query(
+      'SELECT respuesta_arbitro FROM liquidaciones WHERE id = $1',
+      [id]
+    );
+    if (liquidacion.rows.length === 0) {
+      return res.status(404).json({ error: 'Liquidación no encontrada' });
+    }
+    if (liquidacion.rows[0].respuesta_arbitro !== 'aceptada') {
+      return res.status(409).json({
+        error: 'El árbitro debe confirmar que está de acuerdo antes de marcar la liquidación como pagada',
+      });
+    }
+
     const resultado = await pool.query(
       `UPDATE liquidaciones SET estado = 'pagada', fecha_pago = NOW() WHERE id = $1 RETURNING *`,
       [id]
     );
-    if (resultado.rows.length === 0) {
-      return res.status(404).json({ error: 'Liquidación no encontrada' });
-    }
     // Una vez pagada, la conversación ya cumplió su propósito.
     await pool.query('DELETE FROM liquidacion_mensajes WHERE liquidacion_id = $1', [id]);
     res.json(resultado.rows[0]);

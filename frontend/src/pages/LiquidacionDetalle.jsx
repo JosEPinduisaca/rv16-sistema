@@ -134,11 +134,16 @@ export default function LiquidacionDetalle() {
       <div className="flex items-start justify-between mb-6">
         <div>
           <h1 className="font-display text-2xl font-semibold text-navy-900 capitalize">
-            Liquidación {liquidacion.periodo}
+             Liquidación {liquidacion.periodo}
           </h1>
-          <p className="text-sm text-gray-500 mt-1">
-            {liquidacion.fecha_inicio?.slice(0, 10)} → {liquidacion.fecha_fin?.slice(0, 10)}
-          </p>
+           {esAdmin && (
+             <p className="text-sm text-navy-700 font-medium mt-0.5">
+               {liquidacion.nombres} {liquidacion.apellidos}
+             </p>
+)}
+<p className="text-sm text-gray-500 mt-1">
+  {liquidacion.fecha_inicio?.slice(0, 10)} → {liquidacion.fecha_fin?.slice(0, 10)}
+</p>
         </div>
         <TarjetaEstado estado={liquidacion.estado} />
       </div>
@@ -205,13 +210,19 @@ export default function LiquidacionDetalle() {
       {error && <p className="text-xs text-card-red-dark bg-card-red/10 px-3 py-2 rounded mb-3">{error}</p>}
 
       {liquidacion.estado !== 'pagada' && esAdmin && (
-        <button
-          onClick={pagar}
-          className="bg-pitch-green hover:bg-pitch-green-dark text-white text-sm px-4 py-2 rounded font-medium transition mb-6"
-        >
-          Marcar como pagada
-        </button>
-      )}
+        liquidacion.respuesta_arbitro === 'aceptada' ? (
+           <button
+              onClick={pagar}
+              className="bg-pitch-green hover:bg-pitch-green-dark text-white text-sm px-4 py-2 rounded font-medium transition mb-6"
+           >
+             Marcar como pagada
+           </button>
+        ) : (
+          <p className="text-xs text-gray-500 bg-gray-100 px-3 py-2 rounded mb-6 inline-block">
+             El árbitro debe confirmar que está de acuerdo antes de poder marcarla como pagada
+          </p>
+  )
+)}
 
       {liquidacion.estado !== 'pagada' && (
         <>
