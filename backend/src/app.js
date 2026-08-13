@@ -12,7 +12,15 @@ const liquidacionRoutes = require('./routes/liquidacionRoutes');
 
 const app = express();
 
-app.use(cors());
+const origenesPermitidos = [
+  'http://localhost:5173',
+  process.env.FRONTEND_URL,
+].filter(Boolean);
+
+app.use(cors({
+  origin: origenesPermitidos,
+  credentials: true,
+}));
 app.use(express.json());
 app.use('/uploads', express.static(require('path').join(__dirname, '..', 'uploads')));
 
