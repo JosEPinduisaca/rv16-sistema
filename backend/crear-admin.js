@@ -10,7 +10,7 @@ const bcrypt = require('bcryptjs');
 const pool = require('./src/config/db');
 
 const EMAIL = 'admin@rv16.com';
-const PASSWORD_EN_TEXTO_PLANO = '123456';
+const PASSWORD_EN_TEXTO_PLANO = '123456.';
 const NOMBRES = 'Admin';
 const APELLIDOS = 'RV16';
 const CEDULA = '1234567890';
