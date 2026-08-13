@@ -29,13 +29,20 @@ const MAPA_ESTADOS = {
   pagada: 'verde',
 };
 
+// Algunos estados se muestran con un texto distinto al valor guardado en la
+// base de datos (por ejemplo "programado" se lee "Por programar" en pantalla).
+const ETIQUETAS_ESTADOS = {
+  programado: 'Por programar',
+};
+
 export default function TarjetaEstado({ estado, children }) {
   const color = MAPA_ESTADOS[estado] || 'gris';
+  const etiqueta = children || ETIQUETAS_ESTADOS[estado] || estado;
   return (
     <span
       className={`inline-flex items-center justify-center rounded px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide whitespace-nowrap ${ESTILOS[color]}`}
     >
-      {children || estado}
+      {etiqueta}
     </span>
   );
 }

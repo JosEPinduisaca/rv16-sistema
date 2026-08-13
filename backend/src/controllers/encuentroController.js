@@ -15,7 +15,7 @@ function fechaNoPasada(fecha) {
 
 // POST /api/encuentros
 async function crearEncuentro(req, res) {
-  const { campeonato_id, categoria, intensidad, fecha, hora, cancha } = req.body;
+  const { campeonato_id, categoria, intensidad, fecha, hora, cancha, modo_designacion } = req.body;
 
   if (!campeonato_id || !categoria || !intensidad || !fecha || !hora || !textoValido(cancha, 1)) {
     return res.status(400).json({ error: 'Faltan campos obligatorios o la cancha está vacía' });
@@ -25,6 +25,10 @@ async function crearEncuentro(req, res) {
   }
   if (!fechaNoPasada(fecha)) {
     return res.status(400).json({ error: 'La fecha no puede ser anterior al día de hoy' });
+  }
+  const modo = modo_designacion || 'normal';
+  if (!['normal', 'con_asistentes', 'dos_centrales'].includes(modo)) {
+    return res.status(400).json({ error: 'modo_designacion debe ser "normal", "con_asistentes" o "dos_centrales"' });
   }
 
   try {
@@ -37,9 +41,9 @@ async function crearEncuentro(req, res) {
     }
 
     const resultado = await pool.query(
-      `INSERT INTO encuentros (campeonato_id, categoria, intensidad, fecha, hora, cancha)
-       VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
-      [campeonato_id, categoria, intensidad, fecha, hora, cancha]
+      `INSERT INTO encuentros (campeonato_id, categoria, intensidad, fecha, hora, cancha, modo_designacion)
+       VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`,
+      [campeonato_id, categoria, intensidad, fecha, hora, cancha, modo]
     );
     res.status(201).json(resultado.rows[0]);
   } catch (error) {
@@ -104,7 +108,7 @@ async function listarConDesignaciones(req, res) {
 
     const resultado = await pool.query(`
       SELECT
-        e.id, e.fecha, e.hora, e.cancha, e.categoria, e.intensidad, e.estado,
+        e.id, e.fecha, e.hora, e.cancha, e.categoria, e.intensidad, e.estado, e.modo_designacion,
         c.id AS campeonato_id, c.nombre AS campeonato_nombre,
         COALESCE(
           json_agg(

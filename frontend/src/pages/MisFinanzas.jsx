@@ -44,7 +44,7 @@ export default function MisFinanzas() {
           <h1 className="font-display text-2xl font-semibold text-navy-900 mb-5">Mis finanzas</h1>
 
           <h2 className="text-sm font-semibold text-navy-900 uppercase tracking-wide mb-3">Mis liquidaciones</h2>
-          <div className="bg-white border border-gray-200 rounded-lg overflow-hidden mb-6">
+          <div className="bg-white border border-gray-200 rounded-lg overflow-x-auto mb-6">
             <table className="w-full text-sm">
               <thead className="bg-navy-50 text-navy-700 text-left">
                 <tr>
@@ -81,7 +81,7 @@ export default function MisFinanzas() {
           </div>
 
           <h2 className="text-sm font-semibold text-navy-900 uppercase tracking-wide mb-3">Mis adelantos</h2>
-          <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+          <div className="bg-white border border-gray-200 rounded-lg overflow-x-auto">
             <table className="w-full text-sm">
               <thead className="bg-navy-50 text-navy-700 text-left">
                 <tr>

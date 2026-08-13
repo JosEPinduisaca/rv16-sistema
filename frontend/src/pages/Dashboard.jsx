@@ -1,6 +1,14 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { IconUsers, IconTrophy, IconCalendarEvent, IconClipboardCheck } from '@tabler/icons-react';
+import {
+  IconUsers,
+  IconTrophy,
+  IconCalendarEvent,
+  IconClipboardCheck,
+  IconListDetails,
+  IconCalendarStats,
+  IconWallet,
+} from '@tabler/icons-react';
 import api from '../api/client';
 import { useAuth } from '../context/AuthContext';
 
@@ -17,6 +25,20 @@ function TarjetaStat({ icono: Icono, etiqueta, valor, to }) {
     </div>
   );
   return to ? <Link to={to}>{contenido}</Link> : contenido;
+}
+
+function TarjetaAtajo({ icono: Icono, etiqueta, to }) {
+  return (
+    <Link
+      to={to}
+      className="bg-white border border-gray-200 rounded-lg p-5 flex items-center gap-4 hover:border-navy-300 transition"
+    >
+      <div className="w-11 h-11 rounded-md bg-navy-50 text-navy-700 flex items-center justify-center shrink-0">
+        <Icono size={22} stroke={1.75} />
+      </div>
+      <p className="text-sm font-medium text-navy-800">{etiqueta}</p>
+    </Link>
+  );
 }
 
 export default function Dashboard() {
@@ -61,13 +83,12 @@ export default function Dashboard() {
       )}
 
       {usuario?.rol === 'arbitro' && (
-        <Link
-          to="/mis-designaciones"
-          className="inline-flex items-center gap-3 bg-white border border-gray-200 rounded-lg px-5 py-4 hover:border-navy-300 transition"
-        >
-          <IconClipboardCheck size={20} className="text-navy-700" stroke={1.75} />
-          <span className="text-sm font-medium text-navy-800">Ver mis designaciones</span>
-        </Link>
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <TarjetaAtajo icono={IconClipboardCheck} etiqueta="Mis designaciones" to="/mis-designaciones" />
+          <TarjetaAtajo icono={IconListDetails} etiqueta="Designación general" to="/designacion-general" />
+          <TarjetaAtajo icono={IconCalendarStats} etiqueta="Mi disponibilidad" to="/mi-disponibilidad" />
+          <TarjetaAtajo icono={IconWallet} etiqueta="Mis finanzas" to="/mis-finanzas" />
+        </div>
       )}
     </div>
   );

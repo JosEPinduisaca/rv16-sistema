@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { IconX } from '@tabler/icons-react';
+import { Link, useSearchParams } from 'react-router-dom';
+import { IconX, IconChevronDown, IconChevronRight } from '@tabler/icons-react';
 import api from '../api/client';
 import { useAuth } from '../context/AuthContext';
 import TarjetaEstado from '../components/TarjetaEstado';
@@ -17,11 +18,15 @@ const PALETA = [
 export default function DesignacionGeneral() {
   const { usuario } = useAuth();
   const puedeGestionar = usuario?.rol === 'administrador' || usuario?.rol === 'directivo';
+  const [searchParams] = useSearchParams();
   const [fecha, setFecha] = useState('');
   const [encuentros, setEncuentros] = useState([]);
   const [arbitros, setArbitros] = useState([]);
   const [arbitroResaltado, setArbitroResaltado] = useState('');
   const [cargando, setCargando] = useState(true);
+  const [expandidos, setExpandidos] = useState({}); // { nombreCampeonato: true/false }
+  const [confirmarQuitar, setConfirmarQuitar] = useState(null); // designacionId
+  const [error, setError] = useState(null);
 
   function cargar(f) {
     setCargando(true);
@@ -33,19 +38,77 @@ export default function DesignacionGeneral() {
   }
 
   useEffect(() => {
-    cargar(fecha);
     if (puedeGestionar) {
       api.get('/arbitros').then((res) => setArbitros(res.data));
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  async function quitarDesignacion(designacionId) {
-    if (!window.confirm('¿Quitar esta designación?')) return;
+  // Se ejecuta al entrar y también cada vez que cambian "?fecha=" o "?arbitro="
+  // en la URL (por ejemplo al llegar desde "Ver designaciones de un árbitro"),
+  // incluso si el componente ya estaba montado en esta misma ruta.
+  useEffect(() => {
+    const f = searchParams.get('fecha') || '';
+    const a = searchParams.get('arbitro') || '';
+    setFecha(f);
+    setArbitroResaltado(a);
+    cargar(f);
+  }, [searchParams]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Al llegar con "?arbitro=" en la URL, abre automáticamente el/los
+  // campeonato(s) donde ese árbitro tiene una designación, para no obligar
+  // a expandir todo a mano para ver el resaltado.
+  useEffect(() => {
+    const a = searchParams.get('arbitro');
+    if (!a || encuentros.length === 0) return;
+    const gruposConArbitro = new Set(
+      encuentros
+        .filter((e) => e.designados.some((d) => String(d.arbitro_id) === String(a)))
+        .map((e) => e.campeonato_nombre)
+    );
+    if (gruposConArbitro.size > 0) {
+      setExpandidos((prev) => {
+        const nuevo = { ...prev };
+        gruposConArbitro.forEach((g) => { nuevo[g] = true; });
+        return nuevo;
+      });
+    }
+  }, [encuentros, searchParams]);
+
+  function alternarExpandido(torneo) {
+    setExpandidos((prev) => ({ ...prev, [torneo]: !prev[torneo] }));
+  }
+
+  async function confirmarQuitarDesignacion() {
+    setError(null);
     try {
-      await api.delete(`/designaciones/${designacionId}`);
+      await api.delete(`/designaciones/${confirmarQuitar}`);
+      setConfirmarQuitar(null);
       cargar(fecha);
     } catch (err) {
-      alert(err.response?.data?.error || 'Error al quitar la designación');
+      setError(err.response?.data?.error || 'Error al quitar la designación');
+      setConfirmarQuitar(null);
+    }
+  }
+
+  async function publicarTodas() {
+    setError(null);
+    try {
+      const { data } = await api.put('/designaciones/publicar-todas', { fecha: fecha || undefined });
+      cargar(fecha);
+      if (data.actualizadas === 0) setError('No había designaciones pendientes de publicar.');
+    } catch (err) {
+      setError(err.response?.data?.error || 'Error al publicar');
+    }
+  }
+
+  async function despublicarTodas() {
+    setError(null);
+    try {
+      const { data } = await api.put('/designaciones/despublicar-todas', { fecha: fecha || undefined });
+      cargar(fecha);
+      if (data.actualizadas === 0) setError('No había designaciones publicadas para revertir.');
+    } catch (err) {
+      setError(err.response?.data?.error || 'Error al despublicar');
     }
   }
 
@@ -57,6 +120,92 @@ export default function DesignacionGeneral() {
   }, {});
 
   const nombresGrupos = Object.keys(grupos);
+  // Se reparten en 2 columnas: los de índice par van a la izquierda, los impares a la derecha
+  const columnaIzquierda = nombresGrupos.filter((_, i) => i % 2 === 0);
+  const columnaDerecha = nombresGrupos.filter((_, i) => i % 2 === 1);
+
+  function PanelCampeonato({ torneo, i }) {
+    const colorClase = PALETA[i % PALETA.length];
+    const abierto = !!expandidos[torneo];
+    const sinDesignarCount = grupos[torneo].filter((p) => p.designados.length === 0).length;
+
+    return (
+      <div className="bg-white border border-gray-200 rounded-lg overflow-hidden mb-4">
+        <button
+          onClick={() => alternarExpandido(torneo)}
+          className={`${colorClase} text-white w-full px-3 py-2.5 flex items-center justify-between text-left`}
+        >
+          <span className="font-display text-sm font-semibold tracking-wide truncate flex items-center gap-2">
+            {abierto ? <IconChevronDown size={16} /> : <IconChevronRight size={16} />}
+            {torneo}
+          </span>
+          <span className="text-[11px] opacity-90 whitespace-nowrap ml-2">
+            {grupos[torneo].length} partido{grupos[torneo].length === 1 ? '' : 's'}
+            {sinDesignarCount > 0 && ` · ${sinDesignarCount} sin designar`}
+          </span>
+        </button>
+
+        {abierto && (
+          <div className="divide-y divide-gray-100">
+            {grupos[torneo].map((p) => {
+              const tieneResaltado = arbitroResaltado && p.designados.some(
+                (d) => String(d.arbitro_id) === String(arbitroResaltado)
+              );
+              const sinDesignar = p.designados.length === 0;
+              let claseFila = sinDesignar ? 'bg-card-red/5' : 'bg-pitch-green/5';
+              if (tieneResaltado) {
+                claseFila = 'bg-card-yellow/20 ring-1 ring-inset ring-card-yellow-dark/40';
+              }
+              return (
+                <div key={p.id} className={`px-3 py-2.5 text-xs flex items-start gap-3 ${claseFila}`}>
+                  <span className="tabular-nums font-semibold text-navy-900 whitespace-nowrap pt-0.5">
+                    {p.hora?.slice(0, 5)}
+                  </span>
+                  <span className="text-gray-500 whitespace-nowrap pt-0.5">{p.cancha}</span>
+                  <div className="flex-1 min-w-0">
+                    {p.designados.length === 0 ? (
+                      <span className="text-gray-300 italic">sin designar</span>
+                    ) : (
+                      <div className="flex flex-col gap-1">
+                        {p.designados.map((d, idx) => {
+                          const esResaltado = arbitroResaltado && String(d.arbitro_id) === String(arbitroResaltado);
+                          return (
+                            <div key={idx} className="flex items-center gap-1.5">
+                              <span className={esResaltado ? 'font-semibold text-navy-900' : 'text-navy-800'}>
+                                {d.nombre} <span className="text-gray-400">· {d.rol}</span>
+                              </span>
+                              {puedeGestionar && (
+                                <button
+                                  onClick={() => setConfirmarQuitar(d.designacion_id)}
+                                  title="Quitar designación"
+                                  className="text-gray-300 hover:text-card-red transition"
+                                >
+                                  <IconX size={12} />
+                                </button>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                  <TarjetaEstado estado={p.estado} />
+                  {puedeGestionar && sinDesignar && (
+                    <Link
+                      to={`/designaciones?encuentro=${p.id}`}
+                      className="text-navy-600 hover:text-navy-900 hover:underline text-xs font-medium whitespace-nowrap pt-0.5"
+                    >
+                      Designar
+                    </Link>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -71,7 +220,7 @@ export default function DesignacionGeneral() {
             Ya designado
           </p>
         </div>
-        <div className="flex gap-3 flex-wrap">
+        <div className="flex gap-3 flex-wrap items-end">
           {puedeGestionar && (
             <div>
               <label className="block text-xs text-gray-600 mb-1">Resaltar árbitro</label>
@@ -96,6 +245,37 @@ export default function DesignacionGeneral() {
               className="border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-navy-600"
             />
           </div>
+          {nombresGrupos.length > 0 && (
+            <button
+              onClick={() => {
+                const todosAbiertos = nombresGrupos.every((t) => expandidos[t]);
+                const nuevo = {};
+                nombresGrupos.forEach((t) => { nuevo[t] = !todosAbiertos; });
+                setExpandidos(nuevo);
+              }}
+              className="text-xs text-navy-600 hover:underline mb-1.5"
+            >
+              {nombresGrupos.every((t) => expandidos[t]) ? 'Colapsar todos' : 'Expandir todos'}
+            </button>
+          )}
+          {puedeGestionar && (
+            <div className="flex gap-2">
+              <button
+                onClick={publicarTodas}
+                title={fecha ? `Publica todo lo revisado de ${fecha}` : 'Publica todo lo revisado (todas las fechas)'}
+                className="text-xs bg-pitch-green hover:bg-pitch-green-dark text-white px-3 py-1.5 rounded font-medium transition mb-1.5"
+              >
+                Publicar para los árbitros
+              </button>
+              <button
+                onClick={despublicarTodas}
+                title="Permite volver a editar lo ya publicado, sin quitarlo de la vista del árbitro"
+                className="text-xs bg-white border border-card-red-dark/30 text-card-red-dark hover:bg-card-red/5 px-3 py-1.5 rounded font-medium transition mb-1.5"
+              >
+                Despublicar
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
@@ -107,71 +287,44 @@ export default function DesignacionGeneral() {
         </div>
       )}
 
-      <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-        {nombresGrupos.map((torneo, i) => {
-          const colorClase = PALETA[i % PALETA.length];
-          return (
-            <div key={torneo} className="bg-white border border-gray-200 rounded-lg overflow-hidden">
-              <div className={`${colorClase} text-white px-3 py-2`}>
-                <p className="font-display text-sm font-semibold tracking-wide truncate">{torneo}</p>
-              </div>
-              <div className="divide-y divide-gray-100">
-                {grupos[torneo].map((p) => {
-                  const tieneResaltado = arbitroResaltado && p.designados.some(
-                    (d) => String(d.arbitro_id) === String(arbitroResaltado)
-                  );
-                  const sinDesignar = p.designados.length === 0;
-                  let claseFila = sinDesignar
-                    ? 'bg-card-red/5'   // sin designar todavía: se necesita atención
-                    : 'bg-pitch-green/5'; // ya tiene al menos un árbitro asignado
-                  if (tieneResaltado) {
-                    claseFila = 'bg-card-yellow/20 ring-1 ring-inset ring-card-yellow-dark/40';
-                  }
-                  return (
-                    <div
-                      key={p.id}
-                      className={`px-3 py-2.5 text-xs flex items-start gap-3 ${claseFila}`}
-                    >
-                      <span className="tabular-nums font-semibold text-navy-900 whitespace-nowrap pt-0.5">
-                        {p.hora?.slice(0, 5)}
-                      </span>
-                      <span className="text-gray-500 whitespace-nowrap pt-0.5">{p.cancha}</span>
-                      <div className="flex-1 min-w-0">
-                        {p.designados.length === 0 ? (
-                          <span className="text-gray-300 italic">sin designar</span>
-                        ) : (
-                          <div className="flex flex-col gap-1">
-                            {p.designados.map((d, idx) => {
-                              const esResaltado = arbitroResaltado && String(d.arbitro_id) === String(arbitroResaltado);
-                              return (
-                                <div key={idx} className="flex items-center gap-1.5">
-                                  <span className={esResaltado ? 'font-semibold text-navy-900' : 'text-navy-800'}>
-                                    {d.nombre} <span className="text-gray-400">· {d.rol}</span>
-                                  </span>
-                                  {puedeGestionar && (
-                                    <button
-                                      onClick={() => quitarDesignacion(d.designacion_id)}
-                                      title="Quitar designación"
-                                      className="text-gray-300 hover:text-card-red transition"
-                                    >
-                                      <IconX size={12} />
-                                    </button>
-                                  )}
-                                </div>
-                              );
-                            })}
-                          </div>
-                        )}
-                      </div>
-                      <TarjetaEstado estado={p.estado} />
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          );
-        })}
+      <div className="grid gap-0 lg:grid-cols-2 lg:gap-x-5">
+        <div>
+          {columnaIzquierda.map((torneo) => (
+            <PanelCampeonato key={torneo} torneo={torneo} i={nombresGrupos.indexOf(torneo)} />
+          ))}
+        </div>
+        <div>
+          {columnaDerecha.map((torneo) => (
+            <PanelCampeonato key={torneo} torneo={torneo} i={nombresGrupos.indexOf(torneo)} />
+          ))}
+        </div>
       </div>
+
+      {error && (
+        <p className="fixed bottom-4 right-4 bg-card-red text-white text-sm px-4 py-2 rounded shadow-lg">{error}</p>
+      )}
+
+      {confirmarQuitar && (
+        <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center px-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-sm w-full p-5">
+            <h3 className="font-display text-lg font-semibold text-navy-900 mb-2">¿Quitar esta designación?</h3>
+            <div className="flex justify-end gap-2">
+              <button
+                onClick={() => setConfirmarQuitar(null)}
+                className="px-3 py-1.5 rounded text-sm font-medium border border-gray-300 text-gray-600 hover:bg-gray-50"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={confirmarQuitarDesignacion}
+                className="px-3 py-1.5 rounded text-sm font-medium text-white bg-card-red hover:bg-card-red-dark"
+              >
+                Quitar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

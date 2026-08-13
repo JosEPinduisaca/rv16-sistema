@@ -1,5 +1,6 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
 const pool = require('../config/db');
 const {
   validarCedulaEcuatoriana,
@@ -8,9 +9,11 @@ const {
   soloLetras,
   textoValido,
 } = require('../utils/validaciones');
+const { enviarCorreoRecuperacion } = require('../utils/correo');
 require('dotenv').config();
 
 const ROLES_VALIDOS = ['administrador', 'directivo', 'arbitro'];
+const MAX_INTENTOS = 4;
 
 // POST /api/auth/registro
 // Solo debería usarse desde el panel de Administrador para crear usuarios
@@ -87,6 +90,11 @@ async function registro(req, res) {
 }
 
 // POST /api/auth/login
+// Bloquea la cuenta tras 4 intentos de contraseña incorrecta seguidos.
+// Si el email no corresponde a ninguna cuenta, no hay nada que bloquear
+// (no se debe poder bloquear la cuenta de otra persona solo adivinando su
+// correo), así que en ese caso se responde igual que siempre: "Credenciales
+// inválidas", sin dar pistas de si el correo existe o no.
 async function login(req, res) {
   const { email, password } = req.body;
 
@@ -105,10 +113,39 @@ async function login(req, res) {
     }
 
     const usuario = resultado.rows[0];
+
+    if (usuario.bloqueado) {
+      return res.status(423).json({
+        error: 'Tu cuenta está bloqueada por varios intentos fallidos. Usa "¿Olvidaste tu contraseña?" para recuperarla.',
+      });
+    }
+
     const passwordValido = await bcrypt.compare(password, usuario.password_hash);
 
     if (!passwordValido) {
-      return res.status(401).json({ error: 'Credenciales inválidas' });
+      const nuevosIntentos = usuario.intentos_fallidos + 1;
+      const seBloquea = nuevosIntentos >= MAX_INTENTOS;
+
+      await pool.query(
+        'UPDATE usuarios SET intentos_fallidos = $1, bloqueado = $2 WHERE id = $3',
+        [seBloquea ? 0 : nuevosIntentos, seBloquea, usuario.id]
+      );
+
+      if (seBloquea) {
+        return res.status(423).json({
+          error: 'Tu cuenta se bloqueó por 4 intentos fallidos. Usa "¿Olvidaste tu contraseña?" para recuperarla.',
+        });
+      }
+
+      const restantes = MAX_INTENTOS - nuevosIntentos;
+      return res.status(401).json({
+        error: `Credenciales inválidas. Te queda${restantes === 1 ? '' : 'n'} ${restantes} intento${restantes === 1 ? '' : 's'} antes de que se bloquee tu cuenta.`,
+      });
+    }
+
+    // Login correcto: limpia cualquier intento fallido anterior
+    if (usuario.intentos_fallidos > 0) {
+      await pool.query('UPDATE usuarios SET intentos_fallidos = 0 WHERE id = $1', [usuario.id]);
     }
 
     const token = jwt.sign(
@@ -130,6 +167,90 @@ async function login(req, res) {
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Error al iniciar sesión' });
+  }
+}
+
+// POST /api/auth/olvide-password
+// Genera un enlace de recuperación de un solo uso (válido 1 hora) y lo
+// envía al correo del usuario. Siempre responde el mismo mensaje genérico,
+// exista o no ese correo, para no revelar qué correos están registrados.
+async function olvidePassword(req, res) {
+  const { email } = req.body;
+  const mensajeGenerico = { mensaje: 'Si ese correo está registrado, te enviamos un enlace para restablecer tu contraseña.' };
+
+  if (!validarEmail(email)) {
+    return res.status(400).json({ error: 'Ingresa un correo válido' });
+  }
+
+  try {
+    const resultado = await pool.query(
+      'SELECT id, nombres, email FROM usuarios WHERE email = $1 AND activo = TRUE',
+      [email.trim().toLowerCase()]
+    );
+
+    if (resultado.rows.length === 0) {
+      return res.json(mensajeGenerico);
+    }
+
+    const usuario = resultado.rows[0];
+    const tokenPlano = crypto.randomBytes(32).toString('hex');
+    const tokenHash = crypto.createHash('sha256').update(tokenPlano).digest('hex');
+    const expira = new Date(Date.now() + 60 * 60 * 1000); // 1 hora
+
+    await pool.query(
+      'UPDATE usuarios SET reset_token = $1, reset_token_expira = $2 WHERE id = $3',
+      [tokenHash, expira, usuario.id]
+    );
+
+    const urlFrontend = process.env.FRONTEND_URL || 'http://localhost:5173';
+    const enlace = `${urlFrontend}/restablecer-password?token=${tokenPlano}`;
+    await enviarCorreoRecuperacion(usuario.email, usuario.nombres, enlace);
+
+    res.json(mensajeGenerico);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Error al procesar la solicitud' });
+  }
+}
+
+// POST /api/auth/restablecer-password
+// Valida el token recibido por correo y define la nueva contraseña.
+// También desbloquea la cuenta y limpia los intentos fallidos: es la forma
+// de recuperar el acceso si se llegó a bloquear.
+async function restablecerPassword(req, res) {
+  const { token, password_nueva } = req.body;
+
+  if (!token) {
+    return res.status(400).json({ error: 'Falta el token de recuperación' });
+  }
+  if (!password_nueva || password_nueva.length < 6) {
+    return res.status(400).json({ error: 'La nueva contraseña debe tener al menos 6 caracteres' });
+  }
+
+  try {
+    const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
+    const resultado = await pool.query(
+      'SELECT id FROM usuarios WHERE reset_token = $1 AND reset_token_expira > NOW()',
+      [tokenHash]
+    );
+
+    if (resultado.rows.length === 0) {
+      return res.status(400).json({ error: 'El enlace no es válido o ya expiró. Solicita uno nuevo.' });
+    }
+
+    const nuevoHash = await bcrypt.hash(password_nueva, 10);
+    await pool.query(
+      `UPDATE usuarios
+       SET password_hash = $1, reset_token = NULL, reset_token_expira = NULL,
+           intentos_fallidos = 0, bloqueado = FALSE
+       WHERE id = $2`,
+      [nuevoHash, resultado.rows[0].id]
+    );
+
+    res.json({ mensaje: 'Contraseña restablecida correctamente. Ya puedes iniciar sesión.' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Error al restablecer la contraseña' });
   }
 }
 
@@ -205,4 +326,12 @@ async function cambiarPassword(req, res) {
   }
 }
 
-module.exports = { registro, login, obtenerPerfilPropio, actualizarMiTelefono, cambiarPassword };
+module.exports = {
+  registro,
+  login,
+  olvidePassword,
+  restablecerPassword,
+  obtenerPerfilPropio,
+  actualizarMiTelefono,
+  cambiarPassword,
+};

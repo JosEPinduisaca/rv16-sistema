@@ -75,9 +75,11 @@ async function crearDesignacion(req, res) {
       return res.status(409).json({ error: 'Este árbitro ya está designado en este encuentro' });
     }
 
-    // 5b. Verificar el cupo de ese rol: 1 solo central, hasta 2 asistentes
-    //     (para las finales que requieren tripleta).
-    const limiteRol = rol_designacion === 'central' ? 1 : 2;
+    // 5b. Verificar el cupo de ese rol: normalmente 1 solo central y hasta 2
+    //     asistentes; si el encuentro está en modo "dos_centrales", se
+    //     permiten 2 centrales en vez de asistentes.
+    const esDosCentrales = encuentro.modo_designacion === 'dos_centrales';
+    const limiteRol = rol_designacion === 'central' ? (esDosCentrales ? 2 : 1) : 2;
     const ocupados = await pool.query(
       'SELECT id FROM designaciones WHERE encuentro_id = $1 AND rol_designacion = $2',
       [encuentro_id, rol_designacion]
@@ -85,7 +87,9 @@ async function crearDesignacion(req, res) {
     if (ocupados.rows.length >= limiteRol) {
       return res.status(409).json({
         error: rol_designacion === 'central'
-          ? 'Ya existe un árbitro designado como central para este encuentro. Quítalo primero si deseas reemplazarlo.'
+          ? (esDosCentrales
+              ? 'Ya hay 2 árbitros centrales designados para este encuentro (el máximo permitido).'
+              : 'Ya existe un árbitro designado como central para este encuentro. Quítalo primero si deseas reemplazarlo.')
           : 'Ya hay 2 asistentes designados para este encuentro (el máximo permitido).',
       });
     }
@@ -161,11 +165,13 @@ async function listarPorArbitro(req, res) {
   const { arbitroId } = req.params;
   try {
     const resultado = await pool.query(`
-      SELECT d.id, d.rol_designacion, d.estado, e.fecha, e.hora, e.cancha, e.categoria
+      SELECT d.id, d.rol_designacion, d.estado, e.id AS encuentro_id, e.fecha, e.hora, e.cancha,
+             e.categoria, e.intensidad, c.nombre AS campeonato_nombre
       FROM designaciones d
       JOIN encuentros e ON e.id = d.encuentro_id
+      JOIN campeonatos c ON c.id = e.campeonato_id
       WHERE d.arbitro_id = $1
-      ORDER BY e.fecha DESC, e.hora DESC
+      ORDER BY e.fecha ASC, e.hora ASC
     `, [arbitroId]);
     res.json(resultado.rows);
   } catch (error) {
@@ -216,4 +222,67 @@ async function eliminarDesignacion(req, res) {
   }
 }
 
-module.exports = { crearDesignacion, publicarDesignacion, listarPorArbitro, eliminarDesignacion };
+// PUT /api/designaciones/publicar-todas
+// body: { fecha } (opcional, si no viene aplica a todas). Publica en bloque
+// todas las designaciones que estén en "designado" — ya no se podrán editar
+// hasta que se despubliquen. Los árbitros siguen viendo sus designaciones
+// igual en "Mis designaciones", publicadas o no.
+async function publicarTodas(req, res) {
+  const { fecha } = req.body;
+  try {
+    const params = fecha ? [fecha] : [];
+    const filtroFecha = fecha ? 'AND e.fecha = $1' : '';
+    const resultado = await pool.query(`
+      UPDATE designaciones d SET estado = 'publicada', fecha_publicacion = NOW()
+      FROM encuentros e
+      WHERE d.encuentro_id = e.id AND d.estado = 'designado' ${filtroFecha}
+      RETURNING d.id, d.encuentro_id
+    `, params);
+
+    const encuentroIds = [...new Set(resultado.rows.map((r) => r.encuentro_id))];
+    if (encuentroIds.length > 0) {
+      await pool.query(`UPDATE encuentros SET estado = 'publicado' WHERE id = ANY($1)`, [encuentroIds]);
+    }
+
+    res.json({ actualizadas: resultado.rows.length });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Error al publicar las designaciones' });
+  }
+}
+
+// PUT /api/designaciones/despublicar-todas
+// Revierte una publicación en bloque: vuelven a estado "designado" y se
+// pueden editar de nuevo. No se borran ni dejan de ser visibles para el árbitro.
+async function despublicarTodas(req, res) {
+  const { fecha } = req.body;
+  try {
+    const params = fecha ? [fecha] : [];
+    const filtroFecha = fecha ? 'AND e.fecha = $1' : '';
+    const resultado = await pool.query(`
+      UPDATE designaciones d SET estado = 'designado', fecha_publicacion = NULL
+      FROM encuentros e
+      WHERE d.encuentro_id = e.id AND d.estado = 'publicada' ${filtroFecha}
+      RETURNING d.id, d.encuentro_id
+    `, params);
+
+    const encuentroIds = [...new Set(resultado.rows.map((r) => r.encuentro_id))];
+    if (encuentroIds.length > 0) {
+      await pool.query(`UPDATE encuentros SET estado = 'designado' WHERE id = ANY($1)`, [encuentroIds]);
+    }
+
+    res.json({ actualizadas: resultado.rows.length });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Error al despublicar las designaciones' });
+  }
+}
+
+module.exports = {
+  crearDesignacion,
+  publicarDesignacion,
+  publicarTodas,
+  despublicarTodas,
+  listarPorArbitro,
+  eliminarDesignacion,
+};

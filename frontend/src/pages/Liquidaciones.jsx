@@ -93,7 +93,7 @@ export default function Liquidaciones() {
         )}
       </div>
 
-      <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+      <div className="bg-white border border-gray-200 rounded-lg overflow-x-auto">
         <table className="w-full text-sm">
           <thead className="bg-navy-50 text-navy-700 text-left">
             <tr>

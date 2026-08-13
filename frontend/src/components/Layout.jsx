@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import {
   IconLayoutDashboard,
@@ -11,6 +12,8 @@ import {
   IconCalendarStats,
   IconListDetails,
   IconLogout,
+  IconMenu2,
+  IconX,
 } from '@tabler/icons-react';
 import { useAuth } from '../context/AuthContext';
 
@@ -62,6 +65,7 @@ export default function Layout() {
   const navigate = useNavigate();
   const location = useLocation();
   const enlaces = enlacesPorRol[usuario?.rol] || [];
+  const [menuAbierto, setMenuAbierto] = useState(false);
 
   function cerrarSesion() {
     logout();
@@ -72,16 +76,37 @@ export default function Layout() {
 
   return (
     <div className="min-h-screen flex bg-navy-50">
-      <aside className="w-60 bg-navy-900 text-white flex flex-col shrink-0">
-        <div className="flex items-center gap-3 px-5 py-5 border-b border-white/10">
-          <img src="/logo-rv16.png" alt="RV16" className="w-9 h-9 object-contain" />
-          <div className="leading-tight">
-            <p className="font-display text-sm font-semibold tracking-wide">RV16</p>
-            <p className="text-[10px] text-navy-500 uppercase tracking-wider">Núcleo arbitral</p>
+      {/* Fondo oscuro para cerrar el menú al tocar fuera, solo en móvil */}
+      {menuAbierto && (
+        <div
+          onClick={() => setMenuAbierto(false)}
+          className="fixed inset-0 bg-black/40 z-30 md:hidden"
+        />
+      )}
+
+      <aside
+        className={`fixed md:static inset-y-0 left-0 z-40 w-64 md:w-60 bg-navy-900 text-white flex flex-col shrink-0 transform transition-transform duration-200 ease-in-out ${
+          menuAbierto ? 'translate-x-0' : '-translate-x-full'
+        } md:translate-x-0`}
+      >
+        <div className="flex items-center justify-between gap-3 px-5 py-5 border-b border-white/10">
+          <div className="flex items-center gap-3">
+            <img src="/logo-rv16.png" alt="RV16" className="w-9 h-9 object-contain" />
+            <div className="leading-tight">
+              <p className="font-display text-sm font-semibold tracking-wide">RV16</p>
+              <p className="text-[10px] text-navy-500 uppercase tracking-wider">Núcleo arbitral</p>
+            </div>
           </div>
+          <button
+            onClick={() => setMenuAbierto(false)}
+            className="md:hidden text-navy-300 hover:text-white"
+            aria-label="Cerrar menú"
+          >
+            <IconX size={20} />
+          </button>
         </div>
 
-        <nav className="flex-1 px-3 py-4 space-y-0.5">
+        <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
           {enlaces.map((enlace) => {
             const activo = location.pathname === enlace.to;
             const Icono = ICONOS[enlace.label] || IconLayoutDashboard;
@@ -89,6 +114,7 @@ export default function Layout() {
               <Link
                 key={enlace.to}
                 to={enlace.to}
+                onClick={() => setMenuAbierto(false)}
                 className={`flex items-center gap-3 px-3 py-2.5 rounded-md text-sm transition ${
                   activo
                     ? 'bg-navy-700 text-white font-medium'
@@ -123,7 +149,22 @@ export default function Layout() {
       </aside>
 
       <div className="flex-1 min-w-0">
-        <main className="max-w-6xl mx-auto px-8 py-8">
+        {/* Barra superior solo en móvil/tablet, con botón para abrir el menú */}
+        <div className="md:hidden flex items-center gap-3 bg-navy-900 text-white px-4 py-3 sticky top-0 z-20">
+          <button
+            onClick={() => setMenuAbierto(true)}
+            className="text-white shrink-0"
+            aria-label="Abrir menú"
+          >
+            <IconMenu2 size={22} />
+          </button>
+          <img src="/logo-rv16.png" alt="RV16" className="w-6 h-6 object-contain shrink-0" />
+          <span className="font-display text-sm font-semibold tracking-wide truncate">
+            RV16 · Núcleo arbitral
+          </span>
+        </div>
+
+        <main className="max-w-6xl mx-auto px-4 sm:px-6 md:px-8 py-6 md:py-8">
           <Outlet />
         </main>
       </div>

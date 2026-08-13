@@ -143,7 +143,7 @@ export default function Campeonatos() {
           <span className="inline-block w-3 h-3 rounded-sm bg-card-red/25 align-middle ml-4 mr-1" />
           Ya terminado
         </p>
-        <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+        <div className="bg-white border border-gray-200 rounded-lg overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="bg-navy-50 text-navy-700 text-left">
               <tr>

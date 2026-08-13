@@ -73,7 +73,7 @@ export default function Adelantos() {
           <span className="inline-block w-3 h-3 rounded-sm align-middle mx-1" style={{ backgroundColor: colorPorAntiguedad(MAX_DIAS_DEGRADADO) }} />
           {MAX_DIAS_DEGRADADO}+ días esperando.
         </p>
-        <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+        <div className="bg-white border border-gray-200 rounded-lg overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="bg-navy-50 text-navy-700 text-left">
               <tr>

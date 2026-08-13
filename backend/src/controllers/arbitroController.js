@@ -34,6 +34,10 @@ async function obtenerPerfilPropio(req, res) {
 async function listarDisponibilidad(req, res) {
   const { id } = req.params;
   try {
+    // Los registros de disponibilidad ya no sirven una vez pasada la fecha:
+    // se limpian solos para no acumular historial innecesario.
+    await pool.query('DELETE FROM disponibilidad WHERE fecha < CURRENT_DATE');
+
     const resultado = await pool.query(
       `SELECT id, fecha, disponible, comentario FROM disponibilidad
        WHERE arbitro_id = $1 ORDER BY fecha DESC LIMIT 60`,
@@ -124,6 +128,7 @@ async function listarCandidatos(req, res) {
       SELECT
         a.id, u.nombres, u.apellidos, a.nivel, a.penalizacion_activa,
         COALESCE(d.disponible, TRUE) AS disponible,
+        d.comentario AS comentario_disponibilidad,
         (
           NOT a.penalizacion_activa
           AND COALESCE(d.disponible, TRUE)
@@ -137,6 +142,10 @@ async function listarCandidatos(req, res) {
       JOIN usuarios u ON u.id = a.usuario_id
       LEFT JOIN disponibilidad d ON d.arbitro_id = a.id AND d.fecha = $1::date
       WHERE u.activo = TRUE
+        AND NOT EXISTS (
+          SELECT 1 FROM designaciones d3
+          WHERE d3.arbitro_id = a.id AND d3.encuentro_id = $5
+        )
         AND NOT EXISTS (
           SELECT 1 FROM designaciones d2
           JOIN encuentros e2 ON e2.id = d2.encuentro_id
@@ -154,7 +163,7 @@ async function listarCandidatos(req, res) {
           WHEN 'nuevo' THEN 3
         END,
         u.apellidos ASC
-    `, [fecha, intensidad, hora, cancha]);
+    `, [fecha, intensidad, hora, cancha, encuentro_id]);
 
     res.json(resultado.rows);
   } catch (error) {
@@ -216,7 +225,19 @@ async function registrarDisponibilidad(req, res) {
   const { id } = req.params; // id de arbitro
   const { fecha, disponible, comentario } = req.body;
 
+  if (!fecha) {
+    return res.status(400).json({ error: 'La fecha es obligatoria' });
+  }
+  const hoy = new Date();
+  hoy.setHours(0, 0, 0, 0);
+  if (new Date(fecha) < hoy) {
+    return res.status(400).json({ error: 'No puedes registrar disponibilidad para una fecha pasada' });
+  }
+
   try {
+    // Aprovecha esta escritura para limpiar registros de fechas ya pasadas.
+    await pool.query('DELETE FROM disponibilidad WHERE fecha < CURRENT_DATE');
+
     const resultado = await pool.query(`
       INSERT INTO disponibilidad (arbitro_id, fecha, disponible, comentario)
       VALUES ($1, $2, $3, $4)

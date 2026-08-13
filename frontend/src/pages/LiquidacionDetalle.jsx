@@ -132,7 +132,7 @@ export default function LiquidacionDetalle() {
         <TarjetaEstado estado={liquidacion.estado} />
       </div>
 
-      <div className="grid grid-cols-3 gap-4 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
         <div className="bg-white border border-gray-200 rounded-lg p-4">
           <p className="text-xs text-gray-500 uppercase tracking-wide">Monto bruto</p>
           <p className="font-display text-xl font-semibold text-navy-900 mt-1">${liquidacion.monto_bruto}</p>
@@ -148,7 +148,7 @@ export default function LiquidacionDetalle() {
       </div>
 
       <h2 className="text-sm font-semibold text-navy-900 uppercase tracking-wide mb-3">Partidos incluidos</h2>
-      <div className="bg-white border border-gray-200 rounded-lg overflow-hidden mb-6">
+      <div className="bg-white border border-gray-200 rounded-lg overflow-x-auto mb-6">
         <table className="w-full text-sm">
           <thead className="bg-navy-50 text-navy-700 text-left">
             <tr>
@@ -176,7 +176,7 @@ export default function LiquidacionDetalle() {
       {liquidacion.adelantos_descontados.length > 0 && (
         <>
           <h2 className="text-sm font-semibold text-navy-900 uppercase tracking-wide mb-3">Adelantos descontados</h2>
-          <div className="bg-white border border-gray-200 rounded-lg overflow-hidden mb-6">
+          <div className="bg-white border border-gray-200 rounded-lg overflow-x-auto mb-6">
             <table className="w-full text-sm">
               <tbody>
                 {liquidacion.adelantos_descontados.map((a) => (
@@ -207,12 +207,12 @@ export default function LiquidacionDetalle() {
           {/* Estado + botón rápido de aceptar */}
           <div className={`rounded-lg p-3 mb-4 flex items-center justify-between flex-wrap gap-2 ${respuestaInfo.clase}`}>
             <p className="text-sm font-medium">{respuestaInfo.texto}</p>
-            {!esAdmin && liquidacion.respuesta_arbitro === 'pendiente' && (
+            {!esAdmin && liquidacion.respuesta_arbitro !== 'aceptada' && (
               <button
                 onClick={() => responder('aceptada')}
                 className="bg-pitch-green hover:bg-pitch-green-dark text-white text-xs px-3 py-1.5 rounded font-medium transition whitespace-nowrap"
               >
-                ✓ Todo está correcto
+                ✓ Ya está resuelto, todo correcto
               </button>
             )}
           </div>

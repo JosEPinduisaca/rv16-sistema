@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import api from '../api/client';
 
+const hoyISO = () => new Date().toISOString().slice(0, 10);
+
 export default function Disponibilidad() {
   const [arbitroId, setArbitroId] = useState(null);
   const [registros, setRegistros] = useState([]);
@@ -40,7 +42,7 @@ export default function Disponibilidad() {
           Marca los días en que no puedes ser designado. Por defecto se asume que estás disponible.
         </p>
 
-        <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+        <div className="bg-white border border-gray-200 rounded-lg overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="bg-navy-50 text-navy-700 text-left">
               <tr>
@@ -82,6 +84,7 @@ export default function Disponibilidad() {
             <label className="block text-xs text-gray-600 mb-1">Fecha</label>
             <input
               type="date" required
+              min={hoyISO()}
               value={form.fecha}
               onChange={(e) => setForm({ ...form, fecha: e.target.value })}
               className="w-full border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-navy-600"
@@ -91,15 +94,19 @@ export default function Disponibilidad() {
             <label className="block text-xs text-gray-600 mb-1">¿Estás disponible?</label>
             <select
               value={form.disponible ? 'si' : 'no'}
-              onChange={(e) => setForm({ ...form, disponible: e.target.value === 'si' })}
+              onChange={(e) => {
+                const disponible = e.target.value === 'si';
+                setForm({ ...form, disponible, comentario: disponible ? '' : form.comentario });
+              }}
               className="w-full border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-navy-600"
             >
               <option value="si">Sí, disponible</option>
               <option value="no">No disponible</option>
             </select>
           </div>
+          {!form.disponible && (
           <div>
-            <label className="block text-xs text-gray-600 mb-1">Comentario (opcional)</label>
+            <label className="block text-xs text-gray-600 mb-1">¿Por qué no puedes? (opcional)</label>
             <input
               value={form.comentario}
               onChange={(e) => setForm({ ...form, comentario: e.target.value })}
@@ -107,6 +114,7 @@ export default function Disponibilidad() {
               className="w-full border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-navy-600"
             />
           </div>
+          )}
           {error && <p className="text-xs text-card-red-dark bg-card-red/10 px-2 py-1.5 rounded">{error}</p>}
           {mensaje && <p className="text-xs text-pitch-green-dark bg-pitch-green/10 px-2 py-1.5 rounded">{mensaje}</p>}
           <button className="w-full bg-navy-900 hover:bg-navy-800 text-white py-2 rounded text-sm font-medium transition">

@@ -49,6 +49,12 @@ function textoValido(valor, minLength = 2) {
   return typeof valor === 'string' && valor.trim().length >= minLength;
 }
 
+// Nombre de categoría de tarifa (ej. "Senior", "Sub 15", "Categoría A"):
+// letras, números y espacios, entre 2 y 40 caracteres.
+function categoriaValida(texto) {
+  return typeof texto === 'string' && /^[A-Za-zÁÉÍÓÚáéíóúÑñÜü0-9\s]{2,40}$/.test(texto.trim());
+}
+
 // Un monto monetario estrictamente positivo (mayor a cero).
 function esMontoPositivo(valor) {
   const n = Number(valor);
@@ -67,6 +73,7 @@ module.exports = {
   validarTelefono,
   soloLetras,
   textoValido,
+  categoriaValida,
   esMontoPositivo,
   esMontoNoNegativo,
 };

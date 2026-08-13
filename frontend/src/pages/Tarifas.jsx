@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { IconEdit, IconTrash } from '@tabler/icons-react';
 import api from '../api/client';
 
-const CATEGORIAS = ['senior', 'femenino', 'ninos', 'master'];
 const ROLES = ['central', 'asistente'];
 
 export default function Tarifas() {
@@ -10,7 +9,10 @@ export default function Tarifas() {
   const [campeonatoId, setCampeonatoId] = useState('');
   const [tarifas, setTarifas] = useState([]);
 
-  const [modalEditar, setModalEditar] = useState(null); // { id, categoria, categoriaOriginal, rol_arbitro, monto }
+  const [modalNueva, setModalNueva] = useState(null); // { categoria, monto }
+  const [errorNueva, setErrorNueva] = useState(null);
+
+  const [modalEditar, setModalEditar] = useState(null); // { id, categoria, rol_arbitro, monto }
   const [errorEditar, setErrorEditar] = useState(null);
   const [nuevoRolMonto, setNuevoRolMonto] = useState('');
   const [mensajeNuevoRol, setMensajeNuevoRol] = useState(null);
@@ -31,12 +33,37 @@ export default function Tarifas() {
     api.get(`/tarifas?campeonato_id=${id}`).then((res) => setTarifas(res.data));
   }
 
+  // --- Crear categoría nueva (siempre arranca con la tarifa "central") ---
+  function abrirNuevaCategoria() {
+    setErrorNueva(null);
+    setModalNueva({ categoria: '', monto: '' });
+  }
+
+  async function crearCategoria(e) {
+    e.preventDefault();
+    setErrorNueva(null);
+    try {
+      await api.post('/tarifas', {
+        campeonato_id: campeonatoId,
+        categoria: modalNueva.categoria,
+        rol_arbitro: 'central',
+        monto: Number(modalNueva.monto),
+        viatico: 0,
+      });
+      setModalNueva(null);
+      cargarTarifas(campeonatoId);
+    } catch (err) {
+      setErrorNueva(err.response?.data?.error || 'Error al crear la categoría');
+    }
+  }
+
+  // --- Editar (solo el monto; categoría y rol quedan fijos) ---
   function abrirEditar(t) {
     setErrorEditar(null);
     setMensajeNuevoRol(null);
     setErrorNuevoRol(null);
     setNuevoRolMonto('');
-    setModalEditar({ id: t.id, categoria: t.categoria, categoriaOriginal: t.categoria, rol_arbitro: t.rol_arbitro, monto: String(t.monto) });
+    setModalEditar({ id: t.id, categoria: t.categoria, rol_arbitro: t.rol_arbitro, monto: String(t.monto) });
   }
 
   async function guardarEdicion(e) {
@@ -44,8 +71,6 @@ export default function Tarifas() {
     setErrorEditar(null);
     try {
       await api.put(`/tarifas/${modalEditar.id}`, {
-        categoria: modalEditar.categoria,
-        rol_arbitro: modalEditar.rol_arbitro,
         monto: Number(modalEditar.monto),
         viatico: 0,
       });
@@ -62,7 +87,7 @@ export default function Tarifas() {
     try {
       await api.post('/tarifas', {
         campeonato_id: campeonatoId,
-        categoria: modalEditar.categoriaOriginal,
+        categoria: modalEditar.categoria,
         rol_arbitro: rolFaltante,
         monto: Number(nuevoRolMonto),
         viatico: 0,
@@ -89,20 +114,30 @@ export default function Tarifas() {
   return (
     <div>
       <h1 className="font-display text-2xl font-semibold text-navy-900 mb-4">Tarifas</h1>
-      <div className="mb-3 max-w-sm">
-        <label className="block text-xs text-gray-600 mb-1">Filtrar por campeonato</label>
-        <select
-          className="w-full border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-navy-600"
-          value={campeonatoId}
-          onChange={(e) => cargarTarifas(e.target.value)}
+      <div className="mb-3 flex items-end gap-3 max-w-2xl">
+        <div className="flex-1 max-w-sm">
+          <label className="block text-xs text-gray-600 mb-1">Filtrar por campeonato</label>
+          <select
+            className="w-full border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-navy-600"
+            value={campeonatoId}
+            onChange={(e) => cargarTarifas(e.target.value)}
+          >
+            <option value="">Selecciona un campeonato</option>
+            {campeonatos.map((c) => (
+              <option key={c.id} value={c.id}>{c.nombre}</option>
+            ))}
+          </select>
+        </div>
+        <button
+          type="button"
+          disabled={!campeonatoId}
+          onClick={abrirNuevaCategoria}
+          className="px-3 py-1.5 rounded text-sm font-medium text-white bg-pitch-green hover:bg-pitch-green-dark disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
         >
-          <option value="">Selecciona un campeonato</option>
-          {campeonatos.map((c) => (
-            <option key={c.id} value={c.id}>{c.nombre}</option>
-          ))}
-        </select>
+          + Nueva categoría
+        </button>
       </div>
-      <div className="bg-white border border-gray-200 rounded-lg overflow-hidden max-w-2xl">
+      <div className="bg-white border border-gray-200 rounded-lg overflow-x-auto max-w-2xl">
         <table className="w-full text-sm">
           <thead className="bg-navy-50 text-navy-700 text-left">
             <tr>
@@ -145,7 +180,54 @@ export default function Tarifas() {
         </table>
       </div>
 
-      {/* Modal: editar tarifa */}
+      {/* Modal: crear categoría nueva (siempre arranca en "central") */}
+      {modalNueva && (
+        <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center px-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-sm w-full p-5">
+            <h3 className="font-display text-lg font-semibold text-navy-900 mb-1">Nueva categoría</h3>
+            <p className="text-xs text-gray-500 mb-4">
+              Se crea con la tarifa de <strong>Central</strong>. Luego, si la necesitas, podrás
+              agregar la de Asistente desde "Editar".
+            </p>
+            <form onSubmit={crearCategoria} className="space-y-3">
+              <div>
+                <label className="block text-xs text-gray-600 mb-1">Nombre de la categoría</label>
+                <input
+                  autoFocus required
+                  placeholder="Ej. Sub 15, Veteranos, Categoría A"
+                  value={modalNueva.categoria}
+                  onChange={(e) => setModalNueva({ ...modalNueva, categoria: e.target.value })}
+                  className="w-full border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-navy-600"
+                />
+              </div>
+              <div>
+                <label className="block text-xs text-gray-600 mb-1">Monto Central ($)</label>
+                <input
+                  type="number" step="0.01" min="0.01" required
+                  value={modalNueva.monto}
+                  onChange={(e) => setModalNueva({ ...modalNueva, monto: e.target.value })}
+                  className="w-full border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-navy-600"
+                />
+              </div>
+              {errorNueva && <p className="text-xs text-card-red-dark bg-card-red/10 px-2 py-1.5 rounded">{errorNueva}</p>}
+              <div className="flex justify-end gap-2 pt-1">
+                <button
+                  type="button"
+                  onClick={() => setModalNueva(null)}
+                  className="px-3 py-1.5 rounded text-sm font-medium border border-gray-300 text-gray-600 hover:bg-gray-50"
+                >
+                  Cancelar
+                </button>
+                <button className="px-3 py-1.5 rounded text-sm font-medium text-white bg-navy-900 hover:bg-navy-800">
+                  Crear categoría
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Modal: editar tarifa (categoría y rol fijos; solo el monto cambia) */}
       {modalEditar && (
         <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center px-4">
           <div className="bg-white rounded-lg shadow-xl max-w-sm w-full p-5">
@@ -153,23 +235,19 @@ export default function Tarifas() {
             <form onSubmit={guardarEdicion} className="space-y-3">
               <div>
                 <label className="block text-xs text-gray-600 mb-1">Categoría</label>
-                <select
+                <input
+                  disabled
                   value={modalEditar.categoria}
-                  onChange={(e) => setModalEditar({ ...modalEditar, categoria: e.target.value })}
-                  className="w-full border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-navy-600"
-                >
-                  {CATEGORIAS.map((c) => <option key={c} value={c}>{c}</option>)}
-                </select>
+                  className="w-full border border-gray-200 rounded px-3 py-1.5 text-sm bg-gray-100 text-gray-500 cursor-not-allowed capitalize"
+                />
               </div>
               <div>
                 <label className="block text-xs text-gray-600 mb-1">Rol</label>
-                <select
-                  value={modalEditar.rol_arbitro}
-                  onChange={(e) => setModalEditar({ ...modalEditar, rol_arbitro: e.target.value })}
-                  className="w-full border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-navy-600"
-                >
-                  {ROLES.map((r) => <option key={r} value={r}>{r === 'central' ? 'Central' : 'Asistente'}</option>)}
-                </select>
+                <input
+                  disabled
+                  value={modalEditar.rol_arbitro === 'central' ? 'Central' : 'Asistente'}
+                  className="w-full border border-gray-200 rounded px-3 py-1.5 text-sm bg-gray-100 text-gray-500 cursor-not-allowed"
+                />
               </div>
               <div>
                 <label className="block text-xs text-gray-600 mb-1">Monto ($)</label>
@@ -197,14 +275,14 @@ export default function Tarifas() {
 
             {(() => {
               const rolFaltante = ROLES.find(
-                (r) => !tarifas.some((t) => t.categoria === modalEditar.categoriaOriginal && t.rol_arbitro === r)
+                (r) => !tarifas.some((t) => t.categoria === modalEditar.categoria && t.rol_arbitro === r)
               );
               if (!rolFaltante) return null;
               const etiqueta = rolFaltante === 'central' ? 'Central' : 'Asistente';
               return (
                 <div className="mt-4 pt-4 border-t border-gray-100">
                   <p className="text-xs font-medium text-navy-700 mb-2">
-                    A "{modalEditar.categoriaOriginal}" le falta la tarifa de <strong>{etiqueta}</strong>
+                    A "{modalEditar.categoria}" le falta la tarifa de <strong>{etiqueta}</strong>
                   </p>
                   <div className="flex gap-2">
                     <input

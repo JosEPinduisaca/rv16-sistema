@@ -5,15 +5,21 @@ import api from '../api/client';
 import TarjetaEstado from '../components/TarjetaEstado';
 
 const INTENSIDADES = ['alta', 'media', 'baja'];
+const MODOS_ENCUENTRO = [
+  { v: 'normal', l: 'Normal' },
+  { v: 'con_asistentes', l: 'Con asistentes' },
+  { v: 'dos_centrales', l: 'Dos centrales' },
+];
 const hoyISO = () => new Date().toISOString().slice(0, 10);
 
 const FORM_VACIO = {
   campeonato_id: '', categoria: '', intensidad: INTENSIDADES[0], fecha: '', hora: '',
-  cantidad_canchas: '1', tipo_numeracion: 'numeros',
+  mas_de_una_cancha: 'no', cantidad_canchas: '2', tipo_numeracion: 'numeros',
+  modo_designacion: 'normal',
 };
 const FILTROS_ESTADO = [
   { value: '', label: 'Todos' },
-  { value: 'programado', label: 'Programados' },
+  { value: 'programado', label: 'Programar' },
   { value: 'designado', label: 'Designados' },
   { value: 'publicado', label: 'Publicados' },
 ];
@@ -51,7 +57,12 @@ export default function Encuentros() {
 
   async function alSeleccionarCampeonato(campeonatoId, destino = 'form') {
     if (destino === 'form') {
-      setForm((prev) => ({ ...prev, campeonato_id: campeonatoId, categoria: '' }));
+      setForm((prev) => ({
+        ...prev,
+        campeonato_id: campeonatoId,
+        categoria: '',
+        modo_designacion: prev.modo_designacion === 'con_asistentes' ? 'normal' : prev.modo_designacion,
+      }));
     } else {
       setModalEditar((prev) => ({ ...prev, campeonato_id: campeonatoId, categoria: '' }));
     }
@@ -85,7 +96,7 @@ export default function Encuentros() {
       return;
     }
 
-    const cantidad = Number(form.cantidad_canchas) || 1;
+    const cantidad = form.mas_de_una_cancha === 'si' ? (Number(form.cantidad_canchas) || 2) : 1;
     const nombreBase = nombreCampeonato(form.campeonato_id);
 
     function etiquetaCancha(i) {
@@ -107,6 +118,7 @@ export default function Encuentros() {
           fecha: form.fecha,
           hora: form.hora,
           cancha,
+          modo_designacion: form.modo_designacion,
         });
         idCreado = data.id;
         creados++;
@@ -119,7 +131,11 @@ export default function Encuentros() {
       // Solo tiene sentido ofrecer el atajo de "Añadir asistentes" cuando se
       // creó un único encuentro (con varias canchas no sabríamos a cuál ir)
       // y cuando esa categoría ya tiene tarifa de Asistente configurada.
-      setUltimoEncuentroId(creados === 1 && tieneTarifaAsistente(categoriaCreada) ? idCreado : null);
+      setUltimoEncuentroId(
+        creados === 1 && (tieneTarifaAsistente(categoriaCreada) || form.modo_designacion === 'dos_centrales')
+          ? idCreado
+          : null
+      );
       setForm(FORM_VACIO);
       setCategoriasDisponibles([]);
       setTarifasCampeonato([]);
@@ -180,6 +196,23 @@ export default function Encuentros() {
     }
   }
 
+  // "Con asistentes" solo se ofrece si la categoría elegida ya tiene tarifa
+  // de Asistente configurada para ese campeonato.
+  const modosDisponibles = form.categoria && tieneTarifaAsistente(form.categoria)
+    ? MODOS_ENCUENTRO
+    : MODOS_ENCUENTRO.filter((m) => m.v !== 'con_asistentes');
+
+  function alElegirCategoria(nuevaCategoria) {
+    setForm((prev) => ({
+      ...prev,
+      categoria: nuevaCategoria,
+      modo_designacion:
+        prev.modo_designacion === 'con_asistentes' && !tieneTarifaAsistente(nuevaCategoria)
+          ? 'normal'
+          : prev.modo_designacion,
+    }));
+  }
+
   return (
     <div className="grid md:grid-cols-3 gap-6">
       <div className="md:col-span-2">
@@ -197,7 +230,7 @@ export default function Encuentros() {
             </button>
           ))}
         </div>
-        <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+        <div className="bg-white border border-gray-200 rounded-lg overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="bg-navy-50 text-navy-700 text-left">
               <tr>
@@ -251,6 +284,12 @@ export default function Encuentros() {
       <div>
         <h2 className="text-sm font-semibold text-navy-900 uppercase tracking-wide mb-3">Ingresar encuentro</h2>
         <form onSubmit={ingresar} className="bg-white border border-gray-200 rounded-lg p-4 space-y-3">
+          {!form.campeonato_id && (
+            <div className="bg-card-yellow/20 border border-card-yellow-dark/40 text-card-yellow-dark text-sm font-semibold rounded-md px-3 py-2 text-center">
+              Primero elige un campeonato
+            </div>
+          )}
+          {/* 1. Campeonato primero: de él dependen categoría y tarifas */}
           <div>
             <label className="block text-xs text-gray-600 mb-1">Campeonato</label>
             <select
@@ -265,19 +304,22 @@ export default function Encuentros() {
               ))}
             </select>
           </div>
+
+          {/* 2. Categoría, depende del campeonato elegido: solo aparece
+              una vez que se eligió el campeonato */}
+          {form.campeonato_id && (
           <div>
             <label className="block text-xs text-gray-600 mb-1">Categoría</label>
             <select
               required
-              disabled={!form.campeonato_id}
               value={form.categoria}
-              onChange={(e) => setForm({ ...form, categoria: e.target.value })}
-              className="w-full border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-navy-600 disabled:bg-gray-50"
+              onChange={(e) => alElegirCategoria(e.target.value)}
+              className="w-full border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-navy-600"
             >
-              <option value="">{form.campeonato_id ? 'Selecciona...' : 'Primero elige un campeonato'}</option>
+              <option value="">Selecciona...</option>
               {categoriasDisponibles.map((c) => <option key={c} value={c}>{c}</option>)}
             </select>
-            {form.campeonato_id && categoriasDisponibles.length === 0 && (
+            {categoriasDisponibles.length === 0 && (
               <p className="text-[11px] text-card-red-dark mt-1">Este campeonato no tiene tarifas configuradas todavía.</p>
             )}
             {form.categoria && tieneTarifaAsistente(form.categoria) && (
@@ -286,6 +328,11 @@ export default function Encuentros() {
               </p>
             )}
           </div>
+          )}
+
+          {/* 3. El resto del formulario aparece una vez que se eligió la categoría */}
+          {form.categoria && (
+          <>
           <div>
             <label className="block text-xs text-gray-600 mb-1">Intensidad</label>
             <select
@@ -296,55 +343,103 @@ export default function Encuentros() {
               {INTENSIDADES.map((i) => <option key={i} value={i}>{i}</option>)}
             </select>
           </div>
-          <div>
-            <label className="block text-xs text-gray-600 mb-1">Fecha</label>
-            <input
-              type="date" required
-              min={hoyISO()}
-              value={form.fecha}
-              onChange={(e) => setForm({ ...form, fecha: e.target.value })}
-              className="w-full border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-navy-600"
-            />
+
+          {/* Fecha y hora juntos en una sola línea */}
+          <div className="grid grid-cols-2 gap-2">
+            <div>
+              <label className="block text-xs text-gray-600 mb-1">Fecha</label>
+              <input
+                type="date" required
+                min={hoyISO()}
+                value={form.fecha}
+                onChange={(e) => setForm({ ...form, fecha: e.target.value })}
+                className="w-full border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-navy-600"
+              />
+            </div>
+            <div>
+              <label className="block text-xs text-gray-600 mb-1">Hora</label>
+              <input
+                type="time" required
+                value={form.hora}
+                onChange={(e) => setForm({ ...form, hora: e.target.value })}
+                className="w-full border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-navy-600"
+              />
+            </div>
           </div>
-          <div>
-            <label className="block text-xs text-gray-600 mb-1">Hora</label>
-            <input
-              type="time" required
-              value={form.hora}
-              onChange={(e) => setForm({ ...form, hora: e.target.value })}
-              className="w-full border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-navy-600"
-            />
-            <p className="text-[11px] text-gray-500 mt-0.5">No puede ser 00:00.</p>
-          </div>
-          <div className="bg-card-yellow/15 border border-card-yellow-dark/30 rounded-md p-3">
-            <label className="block text-xs font-semibold text-card-yellow-dark mb-1">
-              ¿Cuántas canchas se usan en este horario?
+
+          {/* Modo del encuentro: "Con asistentes" solo aparece si la categoría
+              elegida ya tiene tarifa de Asistente configurada */}
+          <div className="bg-navy-50 border border-navy-100 rounded-md p-3">
+            <label className="block text-xs font-bold text-navy-900 mb-2 tracking-wide">
+              Este encuentro es:
             </label>
-            <input
-              type="number" min="1" max="20" step="1" required
-              value={form.cantidad_canchas}
-              onChange={(e) => setForm({ ...form, cantidad_canchas: e.target.value })}
-              className="w-full border border-card-yellow-dark/40 rounded px-3 py-1.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-card-yellow-dark"
-            />
-            {Number(form.cantidad_canchas) > 1 && (
-              <div className="mt-2">
-                <label className="block text-xs text-gray-600 mb-1">Numerar las canchas con...</label>
-                <select
-                  value={form.tipo_numeracion}
-                  onChange={(e) => setForm({ ...form, tipo_numeracion: e.target.value })}
-                  className="w-full border border-gray-300 rounded px-3 py-1.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-navy-600"
+            <div className={`grid gap-1.5 ${modosDisponibles.length === 2 ? 'grid-cols-2' : 'grid-cols-3'}`}>
+              {modosDisponibles.map((op) => (
+                <button
+                  key={op.v}
+                  type="button"
+                  onClick={() => setForm({ ...form, modo_designacion: op.v })}
+                  className={`text-xs font-semibold px-2 py-2 rounded-md border transition ${
+                    form.modo_designacion === op.v
+                      ? 'bg-navy-900 text-white border-navy-900'
+                      : 'bg-white text-navy-700 border-navy-200 hover:border-navy-400'
+                  }`}
                 >
-                  <option value="numeros">Números (1, 2, 3...)</option>
-                  <option value="letras">Letras (A, B, C...)</option>
-                </select>
+                  {op.l}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* ¿Más de una cancha en este horario? Sí/No */}
+          <div className="bg-card-yellow/15 border border-card-yellow-dark/30 rounded-md p-3">
+            <label className="block text-xs font-semibold text-card-yellow-dark mb-1.5">
+              ¿Es más de una cancha en este horario?
+            </label>
+            <div className="inline-flex rounded-md border border-card-yellow-dark/40 overflow-hidden text-xs">
+              {[{ v: 'no', l: 'No' }, { v: 'si', l: 'Sí' }].map((op) => (
+                <button
+                  key={op.v}
+                  type="button"
+                  onClick={() => setForm({ ...form, mas_de_una_cancha: op.v })}
+                  className={`px-4 py-1.5 font-medium transition ${
+                    form.mas_de_una_cancha === op.v ? 'bg-card-yellow-dark text-white' : 'bg-white text-gray-600'
+                  }`}
+                >
+                  {op.l}
+                </button>
+              ))}
+            </div>
+
+            {form.mas_de_una_cancha === 'si' && (
+              <div className="mt-2 space-y-2">
+                <div>
+                  <label className="block text-xs text-gray-600 mb-1">¿Cuántas canchas?</label>
+                  <input
+                    type="number" min="2" max="20" step="1" required
+                    value={form.cantidad_canchas}
+                    onChange={(e) => setForm({ ...form, cantidad_canchas: e.target.value })}
+                    className="w-full border border-card-yellow-dark/40 rounded px-3 py-1.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-card-yellow-dark"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs text-gray-600 mb-1">Numerar las canchas con...</label>
+                  <select
+                    value={form.tipo_numeracion}
+                    onChange={(e) => setForm({ ...form, tipo_numeracion: e.target.value })}
+                    className="w-full border border-gray-300 rounded px-3 py-1.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-navy-600"
+                  >
+                    <option value="numeros">Números (1, 2, 3...)</option>
+                    <option value="letras">Letras (A, B, C...)</option>
+                  </select>
+                </div>
+                <p className="text-[11px] text-gray-600">
+                  Se crearán {form.cantidad_canchas} encuentros en el mismo horario, uno por cancha.
+                </p>
               </div>
             )}
-            <p className="text-[11px] text-gray-600 mt-2">
-              {Number(form.cantidad_canchas) > 1
-                ? `Se crearán ${form.cantidad_canchas} encuentros en el mismo horario, uno por cancha.`
-                : 'Se usará el nombre del campeonato como nombre de la cancha.'}
-            </p>
           </div>
+
           {error && <p className="text-xs text-card-red-dark bg-card-red/10 px-2 py-1.5 rounded">{error}</p>}
           {mensaje && (
             <div className="bg-pitch-green/10 rounded px-2 py-1.5 space-y-2">
@@ -354,7 +449,7 @@ export default function Encuentros() {
                   to={`/designaciones?encuentro=${ultimoEncuentroId}`}
                   className="inline-block bg-navy-900 hover:bg-navy-800 text-white text-xs px-3 py-1.5 rounded font-medium transition"
                 >
-                  + Añadir asistentes
+                  + Designar ahora
                 </Link>
               )}
             </div>
@@ -362,6 +457,8 @@ export default function Encuentros() {
           <button className="w-full bg-navy-900 hover:bg-navy-800 text-white py-2 rounded text-sm font-medium transition">
             Ingresar encuentro
           </button>
+          </>
+          )}
         </form>
       </div>
 
@@ -392,23 +489,25 @@ export default function Encuentros() {
                   {INTENSIDADES.map((i) => <option key={i} value={i}>{i}</option>)}
                 </select>
               </div>
-              <div>
-                <label className="block text-xs text-gray-600 mb-1">Fecha</label>
-                <input
-                  type="date" required
-                  value={modalEditar.fecha}
-                  onChange={(e) => setModalEditar({ ...modalEditar, fecha: e.target.value })}
-                  className="w-full border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-navy-600"
-                />
-              </div>
-              <div>
-                <label className="block text-xs text-gray-600 mb-1">Hora</label>
-                <input
-                  type="time" required
-                  value={modalEditar.hora}
-                  onChange={(e) => setModalEditar({ ...modalEditar, hora: e.target.value })}
-                  className="w-full border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-navy-600"
-                />
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="block text-xs text-gray-600 mb-1">Fecha</label>
+                  <input
+                    type="date" required
+                    value={modalEditar.fecha}
+                    onChange={(e) => setModalEditar({ ...modalEditar, fecha: e.target.value })}
+                    className="w-full border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-navy-600"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs text-gray-600 mb-1">Hora</label>
+                  <input
+                    type="time" required
+                    value={modalEditar.hora}
+                    onChange={(e) => setModalEditar({ ...modalEditar, hora: e.target.value })}
+                    className="w-full border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-navy-600"
+                  />
+                </div>
               </div>
               <div>
                 <label className="block text-xs text-gray-600 mb-1">Cancha</label>
