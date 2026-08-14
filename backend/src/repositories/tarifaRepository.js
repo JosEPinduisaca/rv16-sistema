@@ -35,9 +35,11 @@ async function listar(campeonatoId) {
   return resultado.rows;
 }
 
+// `viatico` en null significa "no lo mandaron": se conserva el valor
+// existente en vez de resetearlo a 0.
 async function actualizar(id, monto, viatico) {
   const resultado = await pool.query(
-    `UPDATE tarifas SET monto = $1, viatico = $2 WHERE id = $3 RETURNING *`,
+    `UPDATE tarifas SET monto = $1, viatico = COALESCE($2, viatico) WHERE id = $3 RETURNING *`,
     [monto, viatico, id]
   );
   return resultado.rows[0] || null;

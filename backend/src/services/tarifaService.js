@@ -76,7 +76,7 @@ async function actualizarTarifa(id, { monto, viatico }) {
     throw new AppError(400, 'El viático no puede ser negativo');
   }
 
-  const actualizada = await repo.actualizar(id, monto, viatico || 0);
+  const actualizada = await repo.actualizar(id, monto, viatico === undefined ? null : viatico);
   if (!actualizada) {
     throw new AppError(404, 'Tarifa no encontrada');
   }

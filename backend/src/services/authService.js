@@ -46,12 +46,11 @@ async function registro({ cedula, nombres, apellidos, email, password, telefono,
     throw new AppError(400, errores.join('. '));
   }
 
-  // NOTA: el chequeo de email duplicado usa `email` tal cual llega (sin trim
-  // ni lowercase), mientras que el INSERT sí lo normaliza — así estaba en el
-  // controlador original, se conserva igual (posible inconsistencia preexistente).
+  const emailNormalizado = email.trim().toLowerCase();
+
   const [existeCedula, existeEmail] = await Promise.all([
     repo.buscarPorCedula(cedula),
-    repo.buscarPorEmail(email),
+    repo.buscarPorEmail(emailNormalizado),
   ]);
 
   const erroresDuplicado = [];
@@ -71,7 +70,7 @@ async function registro({ cedula, nombres, apellidos, email, password, telefono,
     cedula,
     nombres: nombres.trim(),
     apellidos: apellidos.trim(),
-    email: email.trim().toLowerCase(),
+    email: emailNormalizado,
     passwordHash,
     telefono: telefono || null,
     rol,
