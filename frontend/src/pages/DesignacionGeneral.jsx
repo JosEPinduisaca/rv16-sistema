@@ -213,25 +213,25 @@ export default function DesignacionGeneral() {
     <div>
       <div className="flex items-end justify-between mb-5 flex-wrap gap-3">
         <div>
-          <h1 className="font-display text-2xl font-semibold text-navy-900">Designación general</h1>
-          <p className="text-sm text-gray-500 mt-1">Cronograma completo del día, todas las canchas</p>
+          <h1 className="font-display text-2xl font-semibold text-navy-900">{t('titulo')}</h1>
+          <p className="text-sm text-gray-500 mt-1">{t('subtitulo')}</p>
           <p className="text-xs text-gray-500 mt-1.5">
             <span className="inline-block w-3 h-3 rounded-sm bg-card-red/25 align-middle mr-1" />
-            Sin designar
+            {t('leyenda.sinDesignar')}
             <span className="inline-block w-3 h-3 rounded-sm bg-pitch-green/25 align-middle ml-4 mr-1" />
-            Ya designado
+            {t('leyenda.yaDesignado')}
           </p>
         </div>
         <div className="flex gap-3 flex-wrap items-end">
           {puedeGestionar && (
             <div>
-              <label className="block text-xs text-gray-600 mb-1">Resaltar árbitro</label>
+              <label className="block text-xs text-gray-600 mb-1">{t('filtros.resaltarArbitro')}</label>
               <select
                 value={arbitroResaltado}
                 onChange={(e) => setArbitroResaltado(e.target.value)}
                 className="border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-navy-600"
               >
-                <option value="">Ninguno</option>
+                <option value="">{t('filtros.ninguno')}</option>
                 {arbitros.map((a) => (
                   <option key={a.id} value={a.id}>{a.nombres} {a.apellidos}</option>
                 ))}
@@ -239,7 +239,7 @@ export default function DesignacionGeneral() {
             </div>
           )}
           <div>
-            <label className="block text-xs text-gray-600 mb-1">Filtrar por fecha</label>
+            <label className="block text-xs text-gray-600 mb-1">{t('filtros.filtrarPorFecha')}</label>
             <input
               type="date"
               value={fecha}
@@ -257,35 +257,35 @@ export default function DesignacionGeneral() {
               }}
               className="text-xs text-navy-600 hover:underline mb-1.5"
             >
-              {nombresGrupos.every((t) => expandidos[t]) ? 'Colapsar todos' : 'Expandir todos'}
+              {nombresGrupos.every((tor) => expandidos[tor]) ? t('acciones.colapsarTodos') : t('acciones.expandirTodos')}
             </button>
           )}
           {puedeGestionar && (
             <div className="flex flex-wrap gap-2">
               <button
                 onClick={publicarTodas}
-                title={fecha ? `Publica todo lo revisado de ${fecha}` : 'Publica todo lo revisado (todas las fechas)'}
+                title={fecha ? t('titulos.publicarConFecha', { fecha }) : t('titulos.publicarSinFecha')}
                 className="text-xs bg-pitch-green hover:bg-pitch-green-dark text-white px-3 py-1.5 rounded font-medium transition mb-1.5"
               >
-                Publicar para los árbitros
+                {t('acciones.publicarParaArbitros')}
               </button>
               <button
                 onClick={despublicarTodas}
-                title="Permite volver a editar lo ya publicado, sin quitarlo de la vista del árbitro"
+                title={t('titulos.despublicar')}
                 className="text-xs bg-white border border-card-red-dark/30 text-card-red-dark hover:bg-card-red/5 px-3 py-1.5 rounded font-medium transition mb-1.5"
               >
-                Despublicar
+                {t('acciones.despublicar')}
               </button>
             </div>
           )}
         </div>
       </div>
 
-      {cargando && <p className="text-sm text-gray-500">Cargando...</p>}
+      {cargando && <p className="text-sm text-gray-500">{t('common:estado.cargando')}</p>}
 
       {!cargando && nombresGrupos.length === 0 && (
         <div className="bg-white border border-gray-200 rounded-lg px-4 py-8 text-center text-gray-400 text-sm">
-          No hay encuentros {fecha ? 'para esa fecha' : 'registrados'}
+          {fecha ? t('mensajes.vacioConFecha') : t('mensajes.vacioSinFecha')}
         </div>
       )}
 

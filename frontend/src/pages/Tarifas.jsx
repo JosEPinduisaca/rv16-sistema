@@ -232,10 +232,10 @@ export default function Tarifas() {
       {modalEditar && (
         <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center px-4">
           <div className="bg-white rounded-lg shadow-xl max-w-sm w-full p-5">
-            <h3 className="font-display text-lg font-semibold text-navy-900 mb-4">Editar tarifa</h3>
+            <h3 className="font-display text-lg font-semibold text-navy-900 mb-4">{t('modal.editar.titulo')}</h3>
             <form onSubmit={guardarEdicion} className="space-y-3">
               <div>
-                <label className="block text-xs text-gray-600 mb-1">Categoría</label>
+                <label className="block text-xs text-gray-600 mb-1">{t('modal.editar.categoria')}</label>
                 <input
                   disabled
                   value={modalEditar.categoria}
@@ -243,15 +243,15 @@ export default function Tarifas() {
                 />
               </div>
               <div>
-                <label className="block text-xs text-gray-600 mb-1">Rol</label>
+                <label className="block text-xs text-gray-600 mb-1">{t('modal.editar.rol')}</label>
                 <input
                   disabled
-                  value={modalEditar.rol_arbitro === 'central' ? 'Central' : 'Asistente'}
+                  value={t(`roles.${modalEditar.rol_arbitro}`)}
                   className="w-full border border-gray-200 rounded px-3 py-1.5 text-sm bg-gray-100 text-gray-500 cursor-not-allowed"
                 />
               </div>
               <div>
-                <label className="block text-xs text-gray-600 mb-1">Monto ($)</label>
+                <label className="block text-xs text-gray-600 mb-1">{t('modal.editar.monto')}</label>
                 <input
                   type="number" step="0.01" min="0.01" required
                   value={modalEditar.monto}
@@ -266,10 +266,10 @@ export default function Tarifas() {
                   onClick={() => setModalEditar(null)}
                   className="px-3 py-1.5 rounded text-sm font-medium border border-gray-300 text-gray-600 hover:bg-gray-50"
                 >
-                  Cancelar
+                  {t('common:acciones.cancelar')}
                 </button>
                 <button className="px-3 py-1.5 rounded text-sm font-medium text-white bg-navy-900 hover:bg-navy-800">
-                  Guardar cambios
+                  {t('common:acciones.guardarCambios')}
                 </button>
               </div>
             </form>
@@ -279,16 +279,16 @@ export default function Tarifas() {
                 (r) => !tarifas.some((t) => t.categoria === modalEditar.categoria && t.rol_arbitro === r)
               );
               if (!rolFaltante) return null;
-              const etiqueta = rolFaltante === 'central' ? 'Central' : 'Asistente';
+              const etiqueta = t(`roles.${rolFaltante}`);
               return (
                 <div className="mt-4 pt-4 border-t border-gray-100">
                   <p className="text-xs font-medium text-navy-700 mb-2">
-                    A "{modalEditar.categoria}" le falta la tarifa de <strong>{etiqueta}</strong>
+                    {t('modal.editar.faltaTarifaPre', { categoria: modalEditar.categoria })} <strong>{etiqueta}</strong>{t('modal.editar.faltaTarifaPost', { defaultValue: '' })}
                   </p>
                   <div className="flex gap-2">
                     <input
                       type="number" step="0.01" min="0.01"
-                      placeholder={`Monto para ${etiqueta} ($)`}
+                      placeholder={t('modal.editar.montoParaPlaceholder', { rol: etiqueta })}
                       value={nuevoRolMonto}
                       onChange={(e) => setNuevoRolMonto(e.target.value)}
                       className="flex-1 border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-navy-600"
@@ -299,7 +299,7 @@ export default function Tarifas() {
                       onClick={() => agregarRolFaltante(rolFaltante)}
                       className="px-3 py-1.5 rounded text-sm font-medium text-white bg-pitch-green hover:bg-pitch-green-dark disabled:opacity-50 whitespace-nowrap"
                     >
-                      + Agregar
+                      {t('modal.editar.agregar')}
                     </button>
                   </div>
                   {errorNuevoRol && <p className="text-xs text-card-red-dark bg-card-red/10 px-2 py-1.5 rounded mt-2">{errorNuevoRol}</p>}
