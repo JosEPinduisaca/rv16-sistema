@@ -2,6 +2,7 @@
   "titulo": "Referees",
   "columnas": {
     "nombre": "Name",
+    "cedula": "National ID",
     "email": "Email",
     "nivel": "Level",
     "estado": "Status",
