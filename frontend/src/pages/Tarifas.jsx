@@ -283,7 +283,7 @@ export default function Tarifas() {
               return (
                 <div className="mt-4 pt-4 border-t border-gray-100">
                   <p className="text-xs font-medium text-navy-700 mb-2">
-                    {t('modal.editar.faltaTarifaPre', { categoria: modalEditar.categoria })} <strong>{etiqueta}</strong>{t('modal.editar.faltaTarifaPost', { defaultValue: '' })}
+                    {t('modal.editar.faltaTarifaPre', { categoria: modalEditar.categoria })} <strong>{etiqueta}</strong>{t('modal.editar.faltaTarifaPost')}
                   </p>
                   <div className="flex gap-2">
                     <input

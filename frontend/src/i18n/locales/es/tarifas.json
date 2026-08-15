@@ -41,6 +41,7 @@
       "rol": "Rol",
       "monto": "Monto ($)",
       "faltaTarifaPre": "A \"{{categoria}}\" le falta la tarifa de",
+      "faltaTarifaPost": "",
       "montoParaPlaceholder": "Monto para {{rol}} ($)",
       "agregar": "+ Agregar"
     },
