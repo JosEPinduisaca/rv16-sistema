@@ -312,19 +312,19 @@ export default function Designaciones() {
           {resultado.creadas.map((c, idx) => (
             <div key={c.designacion.id} className="bg-white border border-pitch-green/30 rounded-lg p-4">
               <div className="flex items-center justify-between mb-2">
-                <p className="text-sm text-navy-900 font-semibold">{c.etiqueta} designado</p>
+                <p className="text-sm text-navy-900 font-semibold">{t('resultado.etiquetaDesignado', { etiqueta: c.etiqueta })}</p>
                 <TarjetaEstado estado={c.designacion.estado} />
               </div>
               <p className="text-sm text-gray-600">
-                Pago estimado: ${c.pago_estimado.monto} + ${c.pago_estimado.viatico} viático
-                = <strong className="text-navy-900 tabular-nums">${c.pago_estimado.total}</strong>
+                {t('resultado.pagoEstimado', { monto: c.pago_estimado.monto, viatico: c.pago_estimado.viatico })}{' '}
+                <strong className="text-navy-900 tabular-nums">${c.pago_estimado.total}</strong>
               </p>
               {c.designacion.estado !== 'publicada' && (
                 <button
                   onClick={() => publicar(c.designacion.id, idx)}
                   className="mt-3 bg-pitch-green hover:bg-pitch-green-dark text-white text-xs px-3 py-2 rounded font-medium transition"
                 >
-                  Publicar designación
+                  {t('resultado.publicarDesignacion')}
                 </button>
               )}
             </div>
@@ -346,14 +346,14 @@ export default function Designaciones() {
         {encuentroId && noDisponibles.length > 0 && (
           <div className="bg-card-red/5 border border-card-red/30 rounded-lg p-4 sticky top-4">
             <h3 className="text-xs font-bold text-card-red-dark uppercase tracking-wide mb-2">
-              No disponibles ({noDisponibles.length})
+              {t('panel.noDisponibles', { count: noDisponibles.length })}
             </h3>
             <div className="space-y-2">
               {noDisponibles.map((c) => (
                 <div key={c.id} className="bg-white border border-card-red/20 rounded-md px-3 py-2 text-xs">
                   <p className="font-medium text-navy-900">{c.nombres} {c.apellidos}</p>
                   <p className="text-gray-500 mt-0.5">
-                    {c.comentario_disponibilidad || 'Sin comentario'}
+                    {c.comentario_disponibilidad || t('mensajes.sinComentario')}
                   </p>
                 </div>
               ))}

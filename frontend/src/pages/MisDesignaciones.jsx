@@ -133,7 +133,7 @@ export default function MisDesignaciones() {
                   <td className="px-4 py-2.5">
                     <div className="flex items-center gap-1.5">
                       <TarjetaEstado estado={d.estado} />
-                      {pasado && <span className="text-[10px] text-gray-400 uppercase tracking-wide">Cumplido</span>}
+                      {pasado && <span className="text-[10px] text-gray-400 uppercase tracking-wide">{t('cumplido')}</span>}
                     </div>
                   </td>
                 </tr>
@@ -143,10 +143,10 @@ export default function MisDesignaciones() {
               <tr>
                 <td colSpan={6} className="px-4 py-8 text-center text-gray-400 text-sm">
                   {modo === 'proximas'
-                    ? 'No tienes designaciones próximas'
+                    ? t('vacio.proximas')
                     : fechaFiltro
-                      ? 'No hay designaciones en esa fecha'
-                      : 'Aún no tienes designaciones anteriores'}
+                      ? t('vacio.fechaEspecifica')
+                      : t('vacio.historial')}
                 </td>
               </tr>
             )}

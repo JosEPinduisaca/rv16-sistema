@@ -115,16 +115,16 @@ export default function Tarifas() {
 
   return (
     <div>
-      <h1 className="font-display text-2xl font-semibold text-navy-900 mb-4">Tarifas</h1>
+      <h1 className="font-display text-2xl font-semibold text-navy-900 mb-4">{t('titulo')}</h1>
       <div className="mb-3 flex items-end flex-wrap gap-3 max-w-2xl">
         <div className="flex-1 max-w-sm">
-          <label className="block text-xs text-gray-600 mb-1">Filtrar por campeonato</label>
+          <label className="block text-xs text-gray-600 mb-1">{t('campos.filtrarCampeonato')}</label>
           <select
             className="w-full border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-navy-600"
             value={campeonatoId}
             onChange={(e) => cargarTarifas(e.target.value)}
           >
-            <option value="">Selecciona un campeonato</option>
+            <option value="">{t('campos.seleccionaCampeonato')}</option>
             {campeonatos.map((c) => (
               <option key={c.id} value={c.id}>{c.nombre}</option>
             ))}
@@ -136,16 +136,16 @@ export default function Tarifas() {
           onClick={abrirNuevaCategoria}
           className="px-3 py-1.5 rounded text-sm font-medium text-white bg-pitch-green hover:bg-pitch-green-dark disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
         >
-          + Nueva categoría
+          {t('nuevaCategoria')}
         </button>
       </div>
       <div className="bg-white border border-gray-200 rounded-lg overflow-x-auto max-w-2xl">
         <table className="w-full text-sm">
           <thead className="bg-navy-50 text-navy-700 text-left">
             <tr>
-              <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide">Categoría</th>
-              <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide">Rol</th>
-              <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide">Monto</th>
+              <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide">{t('columnas.categoria')}</th>
+              <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide">{t('columnas.rol')}</th>
+              <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide">{t('columnas.monto')}</th>
               <th className="px-4 py-2.5"></th>
             </tr>
           </thead>
