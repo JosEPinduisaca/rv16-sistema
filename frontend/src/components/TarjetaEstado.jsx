@@ -1,3 +1,5 @@
+import { useTranslation } from 'react-i18next';
+
 // Insignia de estado con la proporción de una tarjeta de árbitro (3:4).
 // El color codifica el estado: verde = confirmado/ok, amarillo = pendiente/atención,
 // rojo = bloqueado/cancelado, azul = informativo.
@@ -27,17 +29,16 @@ const MAPA_ESTADOS = {
   aceptada: 'azul',
   observada: 'rojo',
   pagada: 'verde',
-};
-
-// Algunos estados se muestran con un texto distinto al valor guardado en la
-// base de datos (por ejemplo "programado" se lee "Por programar" en pantalla).
-const ETIQUETAS_ESTADOS = {
-  programado: 'Por programar',
+  activo: 'verde',
+  desactivado: 'rojo',
+  si: 'verde',
+  no: 'rojo',
 };
 
 export default function TarjetaEstado({ estado, children }) {
+  const { t } = useTranslation('estados');
   const color = MAPA_ESTADOS[estado] || 'gris';
-  const etiqueta = children || ETIQUETAS_ESTADOS[estado] || estado;
+  const etiqueta = children || t(estado, { defaultValue: estado });
   return (
     <span
       className={`inline-flex items-center justify-center rounded px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide whitespace-nowrap ${ESTILOS[color]}`}

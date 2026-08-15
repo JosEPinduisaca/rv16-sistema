@@ -1,0 +1,69 @@
+{
+  "titulo": "Referees",
+  "columnas": {
+    "nombre": "Name",
+    "email": "Email",
+    "nivel": "Level",
+    "estado": "Status",
+    "acciones": "Actions"
+  },
+  "vacio": "No referees registered",
+  "niveles": {
+    "formacion": "In training",
+    "con_experiencia": "Experienced",
+    "nuevo": "New"
+  },
+  "acciones": {
+    "guardarNivel": "Save level"
+  },
+  "registrar": {
+    "titulo": "Register referee",
+    "boton": "Register referee"
+  },
+  "campos": {
+    "cedula": "National ID",
+    "cedulaPlaceholder": "Enter the 10-digit national ID",
+    "nombres": "First names",
+    "soloLetras": "Letters only",
+    "apellidos": "Last names",
+    "email": "Email",
+    "telefono": "Phone",
+    "telefonoPlaceholder": "7 to 10 digits",
+    "passwordTemporal": "Temporary password"
+  },
+  "mensajes": {
+    "errorCargar": "Could not load the list of referees",
+    "errorEstado": "Error updating the status",
+    "errorNivel": "Error updating the level",
+    "editado": "Referee updated successfully",
+    "errorEditar": "Error updating the referee",
+    "eliminado": "{{nombre}} was deleted successfully",
+    "errorEliminar": "Error deleting the referee",
+    "desactivado": "{{nombre}} was deactivated (their history is kept)",
+    "errorDesactivar": "Error deactivating the referee",
+    "eliminadoConHistorial": "{{nombre}} and all their history were permanently deleted",
+    "registrado": "Referee {{nombres}} {{apellidos}} registered successfully",
+    "errorRegistrar": "Error registering the referee"
+  },
+  "modal": {
+    "editar": {
+      "titulo": "Edit referee"
+    },
+    "confirmarEliminar": {
+      "titulo": "Delete {{nombre}}?",
+      "texto": "This action cannot be undone. If the referee already has assignments, advances, or settlements on record, the system won't allow deleting them (use \"Deactivate\" instead)."
+    },
+    "preguntaHistorial": {
+      "titulo": "{{nombre}} has history in the system",
+      "texto": "They have assignments, advances, settlements, or availability on record. What would you like to do?",
+      "opcionDesactivar": {
+        "titulo": "Just deactivate",
+        "descripcion": "They will no longer be able to log in or be assigned, but their full history is kept."
+      },
+      "opcionEliminar": {
+        "titulo": "Delete completely from the system",
+        "descripcion": "Also deletes their assignments, advances, and settlements. This cannot be undone."
+      }
+    }
+  }
+}

@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import api from '../api/client';
 
 export default function RestablecerPassword() {
+  const { t } = useTranslation(['restablecerPassword', 'common']);
   const [searchParams] = useSearchParams();
   const token = searchParams.get('token') || '';
 
@@ -18,7 +20,7 @@ export default function RestablecerPassword() {
     setMensaje(null);
 
     if (password !== confirmar) {
-      setError('Las contraseñas no coinciden');
+      setError(t('mensajes.contrasenasNoCoinciden'));
       return;
     }
 
@@ -30,7 +32,7 @@ export default function RestablecerPassword() {
       });
       setMensaje(data.mensaje);
     } catch (err) {
-      setError(err.response?.data?.error || 'Error al restablecer la contraseña');
+      setError(err.response?.data?.error || t('mensajes.errorRestablecer'));
     } finally {
       setEnviando(false);
     }
@@ -39,11 +41,11 @@ export default function RestablecerPassword() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-navy-50 px-6">
       <div className="w-full max-w-sm bg-white border border-gray-200 rounded-lg p-6">
-        <h1 className="font-display text-xl font-semibold text-navy-900 mb-1">Restablecer contraseña</h1>
+        <h1 className="font-display text-xl font-semibold text-navy-900 mb-1">{t('titulo')}</h1>
 
         {!token && (
           <p className="text-sm text-card-red-dark bg-card-red/10 px-3 py-2 rounded-md mt-3">
-            Este enlace no es válido. Solicita uno nuevo desde la pantalla de inicio de sesión.
+            {t('enlaceInvalido')}
           </p>
         )}
 
@@ -54,18 +56,18 @@ export default function RestablecerPassword() {
               to="/login"
               className="block text-center w-full bg-navy-900 hover:bg-navy-800 text-white py-2.5 rounded-md text-sm font-semibold transition"
             >
-              Ir a iniciar sesión
+              {t('irIniciarSesion')}
             </Link>
           </div>
         )}
 
         {token && !mensaje && (
           <>
-            <p className="text-sm text-gray-500 mb-6">Elige tu nueva contraseña.</p>
+            <p className="text-sm text-gray-500 mb-6">{t('subtitulo')}</p>
             <form onSubmit={manejarEnvio} className="space-y-4">
               <div>
                 <label className="block text-xs font-medium text-navy-700 uppercase tracking-wide mb-1.5">
-                  Nueva contraseña
+                  {t('campos.nuevaContrasena')}
                 </label>
                 <input
                   type="password"
@@ -73,13 +75,13 @@ export default function RestablecerPassword() {
                   minLength={6}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
+                  placeholder={t('campos.contrasenaPlaceholder')}
                   className="w-full border border-gray-300 rounded-md px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-navy-600"
                 />
               </div>
               <div>
                 <label className="block text-xs font-medium text-navy-700 uppercase tracking-wide mb-1.5">
-                  Confirmar contraseña
+                  {t('campos.confirmarContrasena')}
                 </label>
                 <input
                   type="password"
@@ -87,7 +89,7 @@ export default function RestablecerPassword() {
                   minLength={6}
                   value={confirmar}
                   onChange={(e) => setConfirmar(e.target.value)}
-                  placeholder="••••••••"
+                  placeholder={t('campos.contrasenaPlaceholder')}
                   className="w-full border border-gray-300 rounded-md px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-navy-600"
                 />
               </div>
@@ -101,7 +103,7 @@ export default function RestablecerPassword() {
                 disabled={enviando}
                 className="w-full bg-navy-900 hover:bg-navy-800 text-white py-2.5 rounded-md text-sm font-semibold transition disabled:opacity-50"
               >
-                {enviando ? 'Guardando...' : 'Guardar nueva contraseña'}
+                {enviando ? t('botones.guardando') : t('botones.guardar')}
               </button>
             </form>
           </>

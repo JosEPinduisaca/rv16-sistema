@@ -1,0 +1,45 @@
+{
+  "app": {
+    "nombre": "RV16",
+    "eslogan": "Referee association"
+  },
+  "nav": {
+    "inicio": "Home",
+    "arbitros": "Referees",
+    "campeonatos": "Championships",
+    "tarifas": "Rates",
+    "encuentros": "Matches",
+    "designaciones": "Assignments",
+    "designacionGeneral": "General assignments",
+    "adelantos": "Advances",
+    "liquidaciones": "Settlements",
+    "misDesignaciones": "My assignments",
+    "misFinanzas": "My finances",
+    "miDisponibilidad": "My availability"
+  },
+  "acciones": {
+    "guardar": "Save",
+    "guardarCambios": "Save changes",
+    "cancelar": "Cancel",
+    "editar": "Edit",
+    "eliminar": "Delete",
+    "desactivar": "Deactivate",
+    "reactivar": "Reactivate",
+    "registrar": "Register",
+    "ver": "View",
+    "verDetalle": "View detail",
+    "aprobar": "Approve",
+    "rechazar": "Reject",
+    "cerrarSesion": "Log out",
+    "abrirMenu": "Open menu",
+    "cerrarMenu": "Close menu"
+  },
+  "estado": {
+    "cargando": "Loading..."
+  },
+  "idioma": {
+    "es": "ES",
+    "en": "EN",
+    "cambiar": "Change language"
+  }
+}

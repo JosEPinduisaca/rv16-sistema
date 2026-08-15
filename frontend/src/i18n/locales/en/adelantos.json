@@ -1,0 +1,28 @@
+{
+  "titulo": "Advances",
+  "leyenda": {
+    "intro": "Sorted by priority: oldest pending requests first. The color shows how long they've been waiting —",
+    "recienPedido": "just requested →",
+    "diasEsperando": "{{max}}+ days waiting."
+  },
+  "columnas": {
+    "arbitro": "Referee",
+    "fechaPedida": "Requested on",
+    "espera": "Waiting",
+    "monto": "Amount",
+    "estado": "Status",
+    "esperaDias_one": "{{count}} day",
+    "esperaDias_other": "{{count}} days"
+  },
+  "vacio": "No advances have been registered yet",
+  "registrarAdelanto": "Register advance",
+  "campos": {
+    "arbitro": "Referee",
+    "seleccionar": "Select...",
+    "monto": "Amount ($)"
+  },
+  "mensajes": {
+    "errorSolicitar": "Error requesting the advance",
+    "errorActualizar": "Error updating the advance"
+  }
+}

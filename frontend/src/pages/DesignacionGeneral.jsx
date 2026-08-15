@@ -259,7 +259,7 @@ export default function DesignacionGeneral() {
             </button>
           )}
           {puedeGestionar && (
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               <button
                 onClick={publicarTodas}
                 title={fecha ? `Publica todo lo revisado de ${fecha}` : 'Publica todo lo revisado (todas las fechas)'}

@@ -279,8 +279,8 @@ export default function Designaciones() {
                         ) : (
                           <span className="w-3.5 shrink-0" />
                         )}
-                        <span className="flex-1 text-navy-900">{c.nombres} {c.apellidos}</span>
-                        <span className="text-xs text-gray-400 capitalize">{c.nivel?.replace('_', ' ')}</span>
+                        <span className="flex-1 min-w-0 truncate text-navy-900">{c.nombres} {c.apellidos}</span>
+                        <span className="text-xs text-gray-400 capitalize shrink-0">{c.nivel?.replace('_', ' ')}</span>
                         {!c.disponible && <TarjetaEstado estado="cancelado">No disp.</TarjetaEstado>}
                         {c.penalizacion_activa && <TarjetaEstado estado="cancelado">Penal.</TarjetaEstado>}
                       </label>
@@ -295,9 +295,7 @@ export default function Designaciones() {
           )}
 
           {error && (
-            <div className="bg-card-red/10 border border-card-red/30 text-card-red-dark text-sm px-3 py-2 rounded-md">
-              {error}
-            </div>
+            <p className="text-xs text-card-red-dark bg-card-red/10 px-2 py-1.5 rounded">{error}</p>
           )}
 
           <button
@@ -391,10 +389,10 @@ export default function Designaciones() {
                   <button
                     key={a.id}
                     onClick={() => verDesignacionesDe(a)}
-                    className="w-full text-left px-3 py-2 text-sm hover:bg-navy-50 transition flex items-center justify-between"
+                    className="w-full text-left px-3 py-2 text-sm hover:bg-navy-50 transition flex items-center gap-2 justify-between"
                   >
-                    <span className="text-navy-900">{a.nombres} {a.apellidos}</span>
-                    <span className="text-xs text-gray-400 capitalize">{a.nivel?.replace('_', ' ')}</span>
+                    <span className="text-navy-900 min-w-0 truncate">{a.nombres} {a.apellidos}</span>
+                    <span className="text-xs text-gray-400 capitalize shrink-0">{a.nivel?.replace('_', ' ')}</span>
                   </button>
                 ))}
                 {arbitrosFiltrados.length === 0 && (

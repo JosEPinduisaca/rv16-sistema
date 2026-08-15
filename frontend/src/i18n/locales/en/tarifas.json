@@ -1,0 +1,53 @@
+{
+  "titulo": "Rates",
+  "campos": {
+    "filtrarCampeonato": "Filter by championship",
+    "seleccionaCampeonato": "Select a championship"
+  },
+  "nuevaCategoria": "+ New category",
+  "columnas": {
+    "categoria": "Category",
+    "rol": "Role",
+    "monto": "Amount"
+  },
+  "roles": {
+    "central": "Central",
+    "asistente": "Assistant"
+  },
+  "vacio": {
+    "sinCampeonato": "Select a championship to see its rates",
+    "sinTarifas": "This championship has no rates registered"
+  },
+  "mensajes": {
+    "errorCrearCategoria": "Error creating the category",
+    "errorActualizar": "Error updating the rate",
+    "rolAgregado": "{{rol}} rate added",
+    "errorAgregarRol": "Error adding the rate",
+    "errorEliminar": "Error deleting the rate"
+  },
+  "modal": {
+    "nuevaCategoria": {
+      "titulo": "New category",
+      "textoPre": "Created with the",
+      "textoPost": "rate. Later, if you need it, you can add the Assistant one from \"Edit\".",
+      "nombreCategoria": "Category name",
+      "nombreCategoriaPlaceholder": "E.g. Under 15, Veterans, Category A",
+      "montoCentral": "Central amount ($)",
+      "boton": "Create category"
+    },
+    "editar": {
+      "titulo": "Edit rate",
+      "categoria": "Category",
+      "rol": "Role",
+      "monto": "Amount ($)",
+      "faltaTarifaPre": "\"{{categoria}}\" is missing the",
+      "faltaTarifaPost": "rate",
+      "montoParaPlaceholder": "Amount for {{rol}} ($)",
+      "agregar": "+ Add"
+    },
+    "confirmarEliminar": {
+      "titulo": "Delete the {{etiqueta}} rate?",
+      "texto": "If you try to assign someone with this combination after deleting it, the system will ask you to set it up again."
+    }
+  }
+}

@@ -1,0 +1,52 @@
+{
+  "titulo": "Tarifas",
+  "campos": {
+    "filtrarCampeonato": "Filtrar por campeonato",
+    "seleccionaCampeonato": "Selecciona un campeonato"
+  },
+  "nuevaCategoria": "+ Nueva categoría",
+  "columnas": {
+    "categoria": "Categoría",
+    "rol": "Rol",
+    "monto": "Monto"
+  },
+  "roles": {
+    "central": "Central",
+    "asistente": "Asistente"
+  },
+  "vacio": {
+    "sinCampeonato": "Selecciona un campeonato para ver sus tarifas",
+    "sinTarifas": "Este campeonato no tiene tarifas registradas"
+  },
+  "mensajes": {
+    "errorCrearCategoria": "Error al crear la categoría",
+    "errorActualizar": "Error al actualizar la tarifa",
+    "rolAgregado": "Tarifa de {{rol}} agregada",
+    "errorAgregarRol": "Error al agregar la tarifa",
+    "errorEliminar": "Error al eliminar la tarifa"
+  },
+  "modal": {
+    "nuevaCategoria": {
+      "titulo": "Nueva categoría",
+      "textoPre": "Se crea con la tarifa de",
+      "textoPost": ". Luego, si la necesitas, podrás agregar la de Asistente desde \"Editar\".",
+      "nombreCategoria": "Nombre de la categoría",
+      "nombreCategoriaPlaceholder": "Ej. Sub 15, Veteranos, Categoría A",
+      "montoCentral": "Monto Central ($)",
+      "boton": "Crear categoría"
+    },
+    "editar": {
+      "titulo": "Editar tarifa",
+      "categoria": "Categoría",
+      "rol": "Rol",
+      "monto": "Monto ($)",
+      "faltaTarifaPre": "A \"{{categoria}}\" le falta la tarifa de",
+      "montoParaPlaceholder": "Monto para {{rol}} ($)",
+      "agregar": "+ Agregar"
+    },
+    "confirmarEliminar": {
+      "titulo": "¿Eliminar la tarifa de {{etiqueta}}?",
+      "texto": "Si intentas designar a alguien con esta combinación después de borrarla, el sistema volverá a pedirte que la configures."
+    }
+  }
+}

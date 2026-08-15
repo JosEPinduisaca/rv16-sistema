@@ -1,0 +1,10 @@
+{
+  "saludo": "Hi, {{nombre}}",
+  "sesionComo": "Signed in as",
+  "stats": {
+    "arbitrosRegistrados": "Registered referees",
+    "campeonatosActivos": "Active championships",
+    "encuentrosTotales": "Total matches",
+    "sinDesignar": "Not yet assigned"
+  }
+}

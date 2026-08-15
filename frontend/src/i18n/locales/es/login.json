@@ -1,0 +1,32 @@
+{
+  "alt": {
+    "escudo": "Escudo RV16"
+  },
+  "panelIzquierdo": {
+    "subtitulo": "Sistema de gestión de designaciones y pagos",
+    "fundado": "Fundado el 16 de mayo del 2018"
+  },
+  "titulo": "Iniciar sesión",
+  "subtitulo": "Ingresa con tu cuenta del núcleo arbitral",
+  "campos": {
+    "email": "Email",
+    "emailPlaceholder": "tu@rv16.com",
+    "contrasena": "Contraseña",
+    "contrasenaPlaceholder": "••••••••"
+  },
+  "botones": {
+    "ingresando": "Ingresando...",
+    "ingresar": "Ingresar",
+    "olvideContrasena": "¿Olvidaste tu contraseña?"
+  },
+  "modal": {
+    "titulo": "Recuperar contraseña",
+    "cerrarAriaLabel": "Cerrar",
+    "descripcion": "Escribe tu correo. Si está registrado, te enviaremos un enlace para restablecer tu contraseña.",
+    "enviando": "Enviando...",
+    "enviar": "Enviar enlace de recuperación"
+  },
+  "mensajes": {
+    "errorSolicitud": "Error al procesar la solicitud"
+  }
+}

@@ -1,8 +1,11 @@
 import { useEffect, useState } from 'react';
+import { IconCheck, IconX } from '@tabler/icons-react';
 import api from '../api/client';
 import TarjetaEstado from '../components/TarjetaEstado';
 
 const MAX_DIAS_DEGRADADO = 14; // a partir de estos días, el color queda en naranja tope
+// Gradiente continuo por antigüedad: no puede expresarse con los tokens de
+// color discretos de index.css, por eso interpola rgb() directamente.
 const COLOR_INICIO = [255, 247, 224]; // crema
 const COLOR_FIN = [251, 146, 60]; // naranja
 
@@ -104,18 +107,20 @@ export default function Adelantos() {
                     <td className="px-4 py-2.5"><TarjetaEstado estado={a.estado} /></td>
                     <td className="px-4 py-2.5">
                       {esPendiente && (
-                        <div className="flex gap-2 whitespace-nowrap">
+                        <div className="flex gap-3 whitespace-nowrap">
                           <button
                             onClick={() => cambiarEstado(a.id, 'aprobado')}
-                            className="text-pitch-green-dark hover:underline text-xs font-medium"
+                            title="Aprobar"
+                            className="text-pitch-green hover:text-pitch-green-dark"
                           >
-                            Aprobar
+                            <IconCheck size={17} />
                           </button>
                           <button
                             onClick={() => cambiarEstado(a.id, 'rechazado')}
-                            className="text-card-red-dark hover:underline text-xs font-medium"
+                            title="Rechazar"
+                            className="text-card-red hover:text-card-red-dark"
                           >
-                            Rechazar
+                            <IconX size={17} />
                           </button>
                         </div>
                       )}

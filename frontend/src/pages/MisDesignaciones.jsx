@@ -53,7 +53,7 @@ export default function MisDesignaciones() {
     <div>
       <div className="flex items-end justify-between flex-wrap gap-3 mb-4">
         <h1 className="font-display text-2xl font-semibold text-navy-900">Mis designaciones</h1>
-        <div className="flex items-end gap-3">
+        <div className="flex items-end flex-wrap gap-3">
           <div className="inline-flex rounded-md border border-gray-300 overflow-hidden text-xs">
             {[
               { value: 'proximas', label: 'Próximas' },
@@ -72,7 +72,7 @@ export default function MisDesignaciones() {
           </div>
           {modo === 'historial' && (
             <div>
-              <label className="block text-[11px] text-gray-500 mb-1">Buscar una fecha específica</label>
+              <label className="block text-xs text-gray-600 mb-1">Buscar una fecha específica</label>
               <input
                 type="date"
                 value={fechaFiltro}

@@ -187,7 +187,7 @@ export default function LiquidacionDetalle() {
           </thead>
           <tbody>
             {liquidacion.detalle.map((d, i) => (
-              <tr key={i} className="border-t border-gray-100">
+              <tr key={i} className="border-t border-gray-100 hover:bg-navy-50/40">
                 <td className="px-4 py-2.5">{d.fecha?.slice(0, 10)} · {d.hora}</td>
                 <td className="px-4 py-2.5">{d.cancha}</td>
                 <td className="px-4 py-2.5 capitalize">{d.categoria}</td>
@@ -206,7 +206,7 @@ export default function LiquidacionDetalle() {
             <table className="w-full text-sm">
               <tbody>
                 {liquidacion.adelantos_descontados.map((a) => (
-                  <tr key={a.id} className="border-t border-gray-100 first:border-t-0">
+                  <tr key={a.id} className="border-t border-gray-100 first:border-t-0 hover:bg-navy-50/40">
                     <td className="px-4 py-2.5 text-gray-500">{a.fecha_solicitud?.slice(0, 10)}</td>
                     <td className="px-4 py-2.5 tabular-nums text-card-red-dark text-right">-${a.monto}</td>
                   </tr>
@@ -217,7 +217,7 @@ export default function LiquidacionDetalle() {
         </>
       )}
 
-      {error && <p className="text-xs text-card-red-dark bg-card-red/10 px-3 py-2 rounded mb-3">{error}</p>}
+      {error && <p className="text-xs text-card-red-dark bg-card-red/10 px-2 py-1.5 rounded mb-3">{error}</p>}
 
       {liquidacion.estado !== 'pagada' && esAdmin && (
         liquidacion.respuesta_arbitro === 'aceptada' ? (

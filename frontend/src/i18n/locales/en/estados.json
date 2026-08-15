@@ -1,0 +1,22 @@
+{
+  "programado": "To schedule",
+  "designado": "Assigned",
+  "publicado": "Published",
+  "jugado": "Played",
+  "cancelado": "Cancelled",
+  "propuesta": "Proposed",
+  "confirmada": "Confirmed",
+  "publicada": "Published",
+  "pendiente": "Pending",
+  "aprobado": "Approved",
+  "rechazado": "Rejected",
+  "descontado": "Deducted",
+  "generada": "Generated",
+  "aceptada": "Accepted",
+  "observada": "Flagged",
+  "pagada": "Paid",
+  "activo": "Active",
+  "desactivado": "Deactivated",
+  "si": "Yes",
+  "no": "No"
+}

@@ -1,0 +1,33 @@
+{
+  "titulo": "Settlements",
+  "filtros": {
+    "buscarArbitro": "Search referee",
+    "buscarPlaceholder": "By name...",
+    "periodo": "Period",
+    "todos": "All",
+    "quincenal": "Biweekly",
+    "mensual": "Monthly",
+    "desde": "From",
+    "hasta": "To",
+    "limpiar": "Clear filters"
+  },
+  "columnas": {
+    "arbitro": "Referee",
+    "periodo": "Period",
+    "rango": "Range",
+    "bruto": "Gross",
+    "adelantos": "Advances",
+    "neto": "Net",
+    "estado": "Status",
+    "respuestaArbitro": "Referee response"
+  },
+  "respuesta": {
+    "pendiente": "No response yet",
+    "aceptada": "✓ Accepted",
+    "rechazada": "✗ Disputed"
+  },
+  "vacio": {
+    "sinFiltros": "No settlements have been generated yet",
+    "conFiltros": "No results match those filters"
+  }
+}

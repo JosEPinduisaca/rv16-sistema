@@ -114,7 +114,7 @@ export default function Tarifas() {
   return (
     <div>
       <h1 className="font-display text-2xl font-semibold text-navy-900 mb-4">Tarifas</h1>
-      <div className="mb-3 flex items-end gap-3 max-w-2xl">
+      <div className="mb-3 flex items-end flex-wrap gap-3 max-w-2xl">
         <div className="flex-1 max-w-sm">
           <label className="block text-xs text-gray-600 mb-1">Filtrar por campeonato</label>
           <select

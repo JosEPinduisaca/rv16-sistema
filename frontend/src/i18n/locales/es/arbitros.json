@@ -1,0 +1,69 @@
+{
+  "titulo": "Árbitros",
+  "columnas": {
+    "nombre": "Nombre",
+    "email": "Email",
+    "nivel": "Nivel",
+    "estado": "Estado",
+    "acciones": "Acciones"
+  },
+  "vacio": "No hay árbitros registrados",
+  "niveles": {
+    "formacion": "En formación",
+    "con_experiencia": "Con experiencia",
+    "nuevo": "Nuevo"
+  },
+  "acciones": {
+    "guardarNivel": "Guardar nivel"
+  },
+  "registrar": {
+    "titulo": "Registrar árbitro",
+    "boton": "Registrar árbitro"
+  },
+  "campos": {
+    "cedula": "Cédula",
+    "cedulaPlaceholder": "Ingrese los 10 dígitos de la cédula",
+    "nombres": "Nombres",
+    "soloLetras": "Solo letras",
+    "apellidos": "Apellidos",
+    "email": "Email",
+    "telefono": "Teléfono",
+    "telefonoPlaceholder": "7 a 10 dígitos",
+    "passwordTemporal": "Contraseña temporal"
+  },
+  "mensajes": {
+    "errorCargar": "No se pudo cargar la lista de árbitros",
+    "errorEstado": "Error al actualizar el estado",
+    "errorNivel": "Error al actualizar el nivel",
+    "editado": "Árbitro actualizado correctamente",
+    "errorEditar": "Error al actualizar el árbitro",
+    "eliminado": "{{nombre}} fue eliminado correctamente",
+    "errorEliminar": "Error al eliminar el árbitro",
+    "desactivado": "{{nombre}} fue desactivado (conserva su historial)",
+    "errorDesactivar": "Error al desactivar el árbitro",
+    "eliminadoConHistorial": "{{nombre}} y todo su historial fueron eliminados por completo",
+    "registrado": "Árbitro {{nombres}} {{apellidos}} registrado correctamente",
+    "errorRegistrar": "Error al registrar el árbitro"
+  },
+  "modal": {
+    "editar": {
+      "titulo": "Editar árbitro"
+    },
+    "confirmarEliminar": {
+      "titulo": "¿Eliminar a {{nombre}}?",
+      "texto": "Esta acción no se puede deshacer. Si el árbitro ya tiene designaciones, adelantos o liquidaciones registradas, el sistema no permitirá eliminarlo (usa \"Desactivar\" en ese caso)."
+    },
+    "preguntaHistorial": {
+      "titulo": "{{nombre}} tiene historial en el sistema",
+      "texto": "Tiene designaciones, adelantos, liquidaciones o disponibilidad registrada. ¿Qué quieres hacer?",
+      "opcionDesactivar": {
+        "titulo": "Solo desactivarlo",
+        "descripcion": "Ya no podrá iniciar sesión ni ser designado, pero su historial se conserva completo."
+      },
+      "opcionEliminar": {
+        "titulo": "Eliminar del sistema por completo",
+        "descripcion": "Borra también sus designaciones, adelantos y liquidaciones. No se puede deshacer."
+      }
+    }
+  }
+}

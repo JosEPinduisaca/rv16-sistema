@@ -1,19 +1,22 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { IconEdit, IconUserOff, IconUserCheck, IconTrash, IconDeviceFloppy } from '@tabler/icons-react';
 import api from '../api/client';
 import { useAuth } from '../context/AuthContext';
+import TarjetaEstado from '../components/TarjetaEstado';
 
 const NIVELES = ['formacion', 'con_experiencia', 'nuevo'];
-const ETIQUETA_NIVEL = {
-  formacion: 'En formación',
-  con_experiencia: 'Con experiencia',
-  nuevo: 'Nuevo',
-};
 const FORM_VACIO = { cedula: '', nombres: '', apellidos: '', email: '', password: '', telefono: '' };
 const soloLetras = (v) => v.replace(/[^A-Za-zÁÉÍÓÚáéíóúÑñÜü\s]/g, '');
 const soloDigitos = (v) => v.replace(/\D/g, '');
 
 export default function Arbitros() {
+  const { t } = useTranslation(['arbitros', 'common']);
+  const ETIQUETA_NIVEL = {
+    formacion: t('niveles.formacion'),
+    con_experiencia: t('niveles.con_experiencia'),
+    nuevo: t('niveles.nuevo'),
+  };
   const { usuario } = useAuth();
   const puedeGestionar = usuario?.rol === 'administrador' || usuario?.rol === 'directivo';
   const esAdmin = usuario?.rol === 'administrador';
@@ -204,11 +207,7 @@ export default function Arbitros() {
                     )}
                   </td>
                   <td className="px-4 py-2.5">
-                    {a.activo ? (
-                      <span className="text-pitch-green-dark text-xs font-medium">Activo</span>
-                    ) : (
-                      <span className="text-card-red-dark text-xs font-medium">Desactivado</span>
-                    )}
+                    <TarjetaEstado estado={a.activo ? 'activo' : 'desactivado'} />
                   </td>
                   {esAdmin && (
                     <td className="px-4 py-2.5">

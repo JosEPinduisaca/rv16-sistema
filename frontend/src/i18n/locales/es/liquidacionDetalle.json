@@ -1,0 +1,55 @@
+{
+  "volver": {
+    "liquidaciones": "Volver a liquidaciones",
+    "regresar": "Regresar"
+  },
+  "titulo": {
+    "liquidacionPeriodo": "Liquidación {{periodo}}"
+  },
+  "stats": {
+    "montoBruto": "Monto bruto",
+    "adelantos": "Adelantos",
+    "netoAPagar": "Neto a pagar"
+  },
+  "partidosIncluidos": "Partidos incluidos",
+  "columnas": {
+    "fecha": "Fecha",
+    "cancha": "Cancha",
+    "categoria": "Categoría",
+    "rol": "Rol",
+    "monto": "Monto"
+  },
+  "adelantosDescontados": "Adelantos descontados",
+  "acciones": {
+    "marcarPagada": "Marcar como pagada",
+    "esperandoConfirmacion": "El árbitro debe confirmar que está de acuerdo antes de poder marcarla como pagada",
+    "confirmarTodoCorrecto": "✓ Ya está resuelto, todo correcto"
+  },
+  "respuesta": {
+    "pendienteAdmin": "Esperando respuesta del árbitro",
+    "pendienteArbitro": "Revisa esta liquidación y responde cuando quieras",
+    "aceptadaAdmin": "El árbitro confirmó que todo está correcto",
+    "aceptadaArbitro": "Confirmaste que todo está correcto",
+    "rechazadaAdmin": "El árbitro marcó desacuerdo",
+    "rechazadaArbitro": "Estoy en desacuerdo con esta liquidación"
+  },
+  "conversacion": {
+    "titulo": "Conversación",
+    "vacio": "Aún no hay mensajes.",
+    "vacioSugerencia": "Si algo no cuadra, escribe aquí y adjunta una foto si hace falta.",
+    "rolAdmin": "Admin",
+    "rolArbitro": "Árbitro",
+    "placeholderMensaje": "Escribe un mensaje...",
+    "adjuntarFoto": "📎 Adjuntar foto",
+    "enviando": "Enviando...",
+    "enviar": "Enviar",
+    "vistaPrevia": "Vista previa",
+    "adjunto": "Adjunto"
+  },
+  "mensajes": {
+    "errorPagar": "Error al marcar como pagada",
+    "errorResponder": "Error al enviar tu respuesta",
+    "errorVacio": "Escribe un mensaje o adjunta una imagen",
+    "errorEnviar": "Error al enviar el mensaje"
+  }
+}

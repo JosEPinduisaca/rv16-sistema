@@ -1,0 +1,32 @@
+{
+  "alt": {
+    "escudo": "RV16 shield"
+  },
+  "panelIzquierdo": {
+    "subtitulo": "Assignment and payment management system",
+    "fundado": "Founded on May 16, 2018"
+  },
+  "titulo": "Sign in",
+  "subtitulo": "Sign in with your referee association account",
+  "campos": {
+    "email": "Email",
+    "emailPlaceholder": "you@rv16.com",
+    "contrasena": "Password",
+    "contrasenaPlaceholder": "••••••••"
+  },
+  "botones": {
+    "ingresando": "Signing in...",
+    "ingresar": "Sign in",
+    "olvideContrasena": "Forgot your password?"
+  },
+  "modal": {
+    "titulo": "Recover password",
+    "cerrarAriaLabel": "Close",
+    "descripcion": "Enter your email. If it's registered, we'll send you a link to reset your password.",
+    "enviando": "Sending...",
+    "enviar": "Send recovery link"
+  },
+  "mensajes": {
+    "errorSolicitud": "Error processing the request"
+  }
+}

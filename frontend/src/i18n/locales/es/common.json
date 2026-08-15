@@ -1,0 +1,45 @@
+{
+  "app": {
+    "nombre": "RV16",
+    "eslogan": "Núcleo arbitral"
+  },
+  "nav": {
+    "inicio": "Inicio",
+    "arbitros": "Árbitros",
+    "campeonatos": "Campeonatos",
+    "tarifas": "Tarifas",
+    "encuentros": "Encuentros",
+    "designaciones": "Designaciones",
+    "designacionGeneral": "Designación general",
+    "adelantos": "Adelantos",
+    "liquidaciones": "Liquidaciones",
+    "misDesignaciones": "Mis designaciones",
+    "misFinanzas": "Mis finanzas",
+    "miDisponibilidad": "Mi disponibilidad"
+  },
+  "acciones": {
+    "guardar": "Guardar",
+    "guardarCambios": "Guardar cambios",
+    "cancelar": "Cancelar",
+    "editar": "Editar",
+    "eliminar": "Eliminar",
+    "desactivar": "Desactivar",
+    "reactivar": "Reactivar",
+    "registrar": "Registrar",
+    "ver": "Ver",
+    "verDetalle": "Ver detalle",
+    "aprobar": "Aprobar",
+    "rechazar": "Rechazar",
+    "cerrarSesion": "Cerrar sesión",
+    "abrirMenu": "Abrir menú",
+    "cerrarMenu": "Cerrar menú"
+  },
+  "estado": {
+    "cargando": "Cargando..."
+  },
+  "idioma": {
+    "es": "ES",
+    "en": "EN",
+    "cambiar": "Cambiar idioma"
+  }
+}

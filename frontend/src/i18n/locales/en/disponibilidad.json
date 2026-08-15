@@ -1,0 +1,23 @@
+{
+  "titulo": "My availability",
+  "subtitulo": "Mark the days you can't be assigned. By default you're assumed to be available.",
+  "columnas": {
+    "fecha": "Date",
+    "disponible": "Available",
+    "comentario": "Comment"
+  },
+  "vacio": "You haven't registered any availability yet",
+  "registrarDia": "Register a day",
+  "campos": {
+    "fecha": "Date",
+    "disponiblePregunta": "Are you available?",
+    "siDisponible": "Yes, available",
+    "noDisponible": "Not available",
+    "motivo": "Why not? (optional)",
+    "motivoPlaceholder": "E.g. family trip"
+  },
+  "mensajes": {
+    "guardado": "Availability saved",
+    "errorGuardar": "Error saving availability"
+  }
+}

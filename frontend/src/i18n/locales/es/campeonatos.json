@@ -1,0 +1,48 @@
+{
+  "titulo": "Campeonatos",
+  "leyenda": {
+    "porTerminar": "Por terminar (≤ {{dias}} días)",
+    "terminado": "Ya terminado"
+  },
+  "columnas": {
+    "nombre": "Nombre",
+    "inicio": "Inicio",
+    "fin": "Fin",
+    "acciones": "Acciones"
+  },
+  "vacio": "Aún no hay campeonatos",
+  "categorias": {
+    "senior": "Señor",
+    "master": "Master",
+    "femenino": "Femenino",
+    "ninos": "Niños"
+  },
+  "nuevo": {
+    "titulo": "Nuevo campeonato",
+    "boton": "Crear"
+  },
+  "campos": {
+    "nombre": "Nombre del campeonato o liga",
+    "soloLetras": "Solo letras",
+    "fechaInicio": "Fecha inicio",
+    "fechaFin": "Fecha fin",
+    "tarifaBaseTitulo": "Tarifa base por categoría (opcional)",
+    "tarifaBaseTexto": "Se crea como rol Central (la intensidad no afecta el pago). Si necesitas tarifa de Asistente u otras, agrégalas después en \"Tarifas\"."
+  },
+  "mensajes": {
+    "creadoConTarifas": "Campeonato creado con {{cantidad}} tarifa(s). Puedes ajustar montos en \"Tarifas\".",
+    "creado": "Campeonato creado correctamente.",
+    "errorCrear": "Error al crear el campeonato",
+    "errorActualizar": "Error al actualizar el campeonato",
+    "errorEliminar": "Error al eliminar el campeonato"
+  },
+  "modal": {
+    "editar": {
+      "titulo": "Editar campeonato"
+    },
+    "confirmarEliminar": {
+      "titulo": "¿Eliminar {{nombre}}?",
+      "texto": "Esta acción no se puede deshacer. Si ya tiene encuentros registrados, el sistema no permitirá eliminarlo para no perder ese historial."
+    }
+  }
+}

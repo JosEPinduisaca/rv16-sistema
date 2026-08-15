@@ -1,0 +1,23 @@
+{
+  "titulo": "Mi disponibilidad",
+  "subtitulo": "Marca los días en que no puedes ser designado. Por defecto se asume que estás disponible.",
+  "columnas": {
+    "fecha": "Fecha",
+    "disponible": "Disponible",
+    "comentario": "Comentario"
+  },
+  "vacio": "Aún no has registrado disponibilidad",
+  "registrarDia": "Registrar un día",
+  "campos": {
+    "fecha": "Fecha",
+    "disponiblePregunta": "¿Estás disponible?",
+    "siDisponible": "Sí, disponible",
+    "noDisponible": "No disponible",
+    "motivo": "¿Por qué no puedes? (opcional)",
+    "motivoPlaceholder": "Ej: viaje familiar"
+  },
+  "mensajes": {
+    "guardado": "Disponibilidad guardada",
+    "errorGuardar": "Error al guardar la disponibilidad"
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "programado": "Por programar",
+  "designado": "Designado",
+  "publicado": "Publicado",
+  "jugado": "Jugado",
+  "cancelado": "Cancelado",
+  "propuesta": "Propuesta",
+  "confirmada": "Confirmada",
+  "publicada": "Publicada",
+  "pendiente": "Pendiente",
+  "aprobado": "Aprobado",
+  "rechazado": "Rechazado",
+  "descontado": "Descontado",
+  "generada": "Generada",
+  "aceptada": "Aceptada",
+  "observada": "Observada",
+  "pagada": "Pagada",
+  "activo": "Activo",
+  "desactivado": "Desactivado",
+  "si": "Sí",
+  "no": "No"
+}

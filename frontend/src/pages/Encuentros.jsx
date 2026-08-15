@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { IconTrash } from '@tabler/icons-react';
+import { IconEdit, IconTrash } from '@tabler/icons-react';
 import api from '../api/client';
 import TarjetaEstado from '../components/TarjetaEstado';
 
@@ -252,8 +252,8 @@ export default function Encuentros() {
                   <td className="px-4 py-2.5"><TarjetaEstado estado={en.estado} /></td>
                   <td className="px-4 py-2.5">
                     <div className="flex items-center gap-3">
-                      <button onClick={() => abrirEditar(en)} className="text-navy-600 hover:text-navy-900 hover:underline text-xs font-medium">
-                        Editar
+                      <button onClick={() => abrirEditar(en)} title="Editar" className="text-navy-600 hover:text-navy-900">
+                        <IconEdit size={16} />
                       </button>
                       <Link to={`/designaciones?encuentro=${en.id}`} className="text-navy-600 hover:text-navy-900 hover:underline text-xs font-medium">
                         Designar
@@ -403,7 +403,7 @@ export default function Encuentros() {
                   type="button"
                   onClick={() => setForm({ ...form, mas_de_una_cancha: op.v })}
                   className={`px-4 py-1.5 font-medium transition ${
-                    form.mas_de_una_cancha === op.v ? 'bg-card-yellow-dark text-white' : 'bg-white text-gray-600'
+                    form.mas_de_una_cancha === op.v ? 'bg-card-yellow-dark text-white' : 'bg-white text-gray-600 hover:bg-gray-50'
                   }`}
                 >
                   {op.l}

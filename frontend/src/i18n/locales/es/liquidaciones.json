@@ -1,0 +1,33 @@
+{
+  "titulo": "Liquidaciones",
+  "filtros": {
+    "buscarArbitro": "Buscar árbitro",
+    "buscarPlaceholder": "Por nombre...",
+    "periodo": "Período",
+    "todos": "Todos",
+    "quincenal": "Quincenal",
+    "mensual": "Mensual",
+    "desde": "Desde",
+    "hasta": "Hasta",
+    "limpiar": "Limpiar filtros"
+  },
+  "columnas": {
+    "arbitro": "Árbitro",
+    "periodo": "Período",
+    "rango": "Rango",
+    "bruto": "Bruto",
+    "adelantos": "Adelantos",
+    "neto": "Neto",
+    "estado": "Estado",
+    "respuestaArbitro": "Respuesta árbitro"
+  },
+  "respuesta": {
+    "pendiente": "Sin responder",
+    "aceptada": "✓ Aceptada",
+    "rechazada": "✗ Desacuerdo"
+  },
+  "vacio": {
+    "sinFiltros": "Aún no hay liquidaciones generadas",
+    "conFiltros": "Ningún resultado coincide con esos filtros"
+  }
+}

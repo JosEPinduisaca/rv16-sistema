@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import {
   IconUsers,
   IconTrophy,
@@ -42,6 +43,7 @@ function TarjetaAtajo({ icono: Icono, etiqueta, to }) {
 }
 
 export default function Dashboard() {
+  const { t } = useTranslation(['dashboard', 'common']);
   const { usuario } = useAuth();
   const [stats, setStats] = useState({ arbitros: 0, campeonatos: 0, encuentros: 0, pendientes: 0 });
 

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import {
   IconLayoutDashboard,
   IconUsers,
@@ -16,56 +17,63 @@ import {
   IconX,
 } from '@tabler/icons-react';
 import { useAuth } from '../context/AuthContext';
+import { IDIOMA_STORAGE_KEY } from '../i18n';
 
 const ICONOS = {
-  Inicio: IconLayoutDashboard,
-  'Árbitros': IconUsers,
-  Campeonatos: IconTrophy,
-  Tarifas: IconCash,
-  Encuentros: IconCalendarEvent,
-  Designaciones: IconClipboardCheck,
-  'Mis designaciones': IconClipboardCheck,
-  'Designación general': IconListDetails,
-  Adelantos: IconReceipt2,
-  Liquidaciones: IconWallet,
-  'Mis finanzas': IconWallet,
-  'Mi disponibilidad': IconCalendarStats,
+  inicio: IconLayoutDashboard,
+  arbitros: IconUsers,
+  campeonatos: IconTrophy,
+  tarifas: IconCash,
+  encuentros: IconCalendarEvent,
+  designaciones: IconClipboardCheck,
+  misDesignaciones: IconClipboardCheck,
+  designacionGeneral: IconListDetails,
+  adelantos: IconReceipt2,
+  liquidaciones: IconWallet,
+  misFinanzas: IconWallet,
+  miDisponibilidad: IconCalendarStats,
 };
 
 const enlacesPorRol = {
   administrador: [
-    { to: '/', label: 'Inicio' },
-    { to: '/arbitros', label: 'Árbitros' },
-    { to: '/campeonatos', label: 'Campeonatos' },
-    { to: '/tarifas', label: 'Tarifas' },
-    { to: '/encuentros', label: 'Encuentros' },
-    { to: '/designaciones', label: 'Designaciones' },
-    { to: '/designacion-general', label: 'Designación general' },
-    { to: '/adelantos', label: 'Adelantos' },
-    { to: '/liquidaciones', label: 'Liquidaciones' },
+    { to: '/', key: 'inicio' },
+    { to: '/arbitros', key: 'arbitros' },
+    { to: '/campeonatos', key: 'campeonatos' },
+    { to: '/tarifas', key: 'tarifas' },
+    { to: '/encuentros', key: 'encuentros' },
+    { to: '/designaciones', key: 'designaciones' },
+    { to: '/designacion-general', key: 'designacionGeneral' },
+    { to: '/adelantos', key: 'adelantos' },
+    { to: '/liquidaciones', key: 'liquidaciones' },
   ],
   directivo: [
-    { to: '/', label: 'Inicio' },
-    { to: '/arbitros', label: 'Árbitros' },
-    { to: '/encuentros', label: 'Encuentros' },
-    { to: '/designaciones', label: 'Designaciones' },
-    { to: '/designacion-general', label: 'Designación general' },
+    { to: '/', key: 'inicio' },
+    { to: '/arbitros', key: 'arbitros' },
+    { to: '/encuentros', key: 'encuentros' },
+    { to: '/designaciones', key: 'designaciones' },
+    { to: '/designacion-general', key: 'designacionGeneral' },
   ],
   arbitro: [
-    { to: '/', label: 'Inicio' },
-    { to: '/mis-designaciones', label: 'Mis designaciones' },
-    { to: '/designacion-general', label: 'Designación general' },
-    { to: '/mi-disponibilidad', label: 'Mi disponibilidad' },
-    { to: '/mis-finanzas', label: 'Mis finanzas' },
+    { to: '/', key: 'inicio' },
+    { to: '/mis-designaciones', key: 'misDesignaciones' },
+    { to: '/designacion-general', key: 'designacionGeneral' },
+    { to: '/mi-disponibilidad', key: 'miDisponibilidad' },
+    { to: '/mis-finanzas', key: 'misFinanzas' },
   ],
 };
 
 export default function Layout() {
+  const { t, i18n } = useTranslation('common');
   const { usuario, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const enlaces = enlacesPorRol[usuario?.rol] || [];
   const [menuAbierto, setMenuAbierto] = useState(false);
+
+  function cambiarIdioma(idioma) {
+    i18n.changeLanguage(idioma);
+    localStorage.setItem(IDIOMA_STORAGE_KEY, idioma);
+  }
 
   function cerrarSesion() {
     logout();
@@ -94,13 +102,13 @@ export default function Layout() {
             <img src="/logo-rv16.png" alt="RV16" className="w-9 h-9 object-contain" />
             <div className="leading-tight">
               <p className="font-display text-sm font-semibold tracking-wide">RV16</p>
-              <p className="text-[10px] text-navy-500 uppercase tracking-wider">Núcleo arbitral</p>
+              <p className="text-[10px] text-navy-500 uppercase tracking-wider">{t('app.eslogan')}</p>
             </div>
           </div>
           <button
             onClick={() => setMenuAbierto(false)}
             className="md:hidden text-navy-300 hover:text-white"
-            aria-label="Cerrar menú"
+            aria-label={t('acciones.cerrarMenu')}
           >
             <IconX size={20} />
           </button>
@@ -109,7 +117,7 @@ export default function Layout() {
         <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
           {enlaces.map((enlace) => {
             const activo = location.pathname === enlace.to;
-            const Icono = ICONOS[enlace.label] || IconLayoutDashboard;
+            const Icono = ICONOS[enlace.key] || IconLayoutDashboard;
             return (
               <Link
                 key={enlace.to}
@@ -122,7 +130,7 @@ export default function Layout() {
                 }`}
               >
                 <Icono size={18} stroke={1.75} />
-                {enlace.label}
+                {t(`nav.${enlace.key}`)}
               </Link>
             );
           })}
@@ -138,12 +146,27 @@ export default function Layout() {
               <p className="text-[11px] text-navy-500 capitalize">{usuario?.rol}</p>
             </div>
           </div>
+
+          <div className="inline-flex w-full rounded-md border border-white/15 overflow-hidden text-xs mb-2" role="group" aria-label={t('idioma.cambiar')}>
+            {['es', 'en'].map((idioma) => (
+              <button
+                key={idioma}
+                onClick={() => cambiarIdioma(idioma)}
+                className={`flex-1 py-1.5 font-medium transition ${
+                  i18n.resolvedLanguage === idioma ? 'bg-white/15 text-white' : 'text-navy-100/60 hover:bg-white/5'
+                }`}
+              >
+                {t(`idioma.${idioma}`)}
+              </button>
+            ))}
+          </div>
+
           <button
             onClick={cerrarSesion}
             className="w-full flex items-center gap-2 px-3 py-2 rounded-md text-sm text-navy-100/70 hover:bg-white/5 hover:text-white transition"
           >
             <IconLogout size={18} stroke={1.75} />
-            Cerrar sesión
+            {t('acciones.cerrarSesion')}
           </button>
         </div>
       </aside>
@@ -154,13 +177,13 @@ export default function Layout() {
           <button
             onClick={() => setMenuAbierto(true)}
             className="text-white shrink-0"
-            aria-label="Abrir menú"
+            aria-label={t('acciones.abrirMenu')}
           >
             <IconMenu2 size={22} />
           </button>
           <img src="/logo-rv16.png" alt="RV16" className="w-6 h-6 object-contain shrink-0" />
           <span className="font-display text-sm font-semibold tracking-wide truncate">
-            RV16 · Núcleo arbitral
+            RV16 · {t('app.eslogan')}
           </span>
         </div>
 

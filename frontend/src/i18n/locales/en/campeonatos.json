@@ -1,0 +1,48 @@
+{
+  "titulo": "Championships",
+  "leyenda": {
+    "porTerminar": "Ending soon (≤ {{dias}} days)",
+    "terminado": "Already ended"
+  },
+  "columnas": {
+    "nombre": "Name",
+    "inicio": "Start",
+    "fin": "End",
+    "acciones": "Actions"
+  },
+  "vacio": "No championships yet",
+  "categorias": {
+    "senior": "Senior",
+    "master": "Master",
+    "femenino": "Women's",
+    "ninos": "Kids"
+  },
+  "nuevo": {
+    "titulo": "New championship",
+    "boton": "Create"
+  },
+  "campos": {
+    "nombre": "Championship or league name",
+    "soloLetras": "Letters only",
+    "fechaInicio": "Start date",
+    "fechaFin": "End date",
+    "tarifaBaseTitulo": "Base rate by category (optional)",
+    "tarifaBaseTexto": "Created with the Central role (intensity doesn't affect pay). If you need an Assistant rate or others, add them later in \"Rates\"."
+  },
+  "mensajes": {
+    "creadoConTarifas": "Championship created with {{cantidad}} rate(s). You can adjust amounts in \"Rates\".",
+    "creado": "Championship created successfully.",
+    "errorCrear": "Error creating the championship",
+    "errorActualizar": "Error updating the championship",
+    "errorEliminar": "Error deleting the championship"
+  },
+  "modal": {
+    "editar": {
+      "titulo": "Edit championship"
+    },
+    "confirmarEliminar": {
+      "titulo": "Delete {{nombre}}?",
+      "texto": "This action cannot be undone. If it already has matches on record, the system won't allow deleting it to avoid losing that history."
+    }
+  }
+}

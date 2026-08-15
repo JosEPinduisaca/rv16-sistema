@@ -1,0 +1,10 @@
+{
+  "saludo": "Hola, {{nombre}}",
+  "sesionComo": "Sesión iniciada como",
+  "stats": {
+    "arbitrosRegistrados": "Árbitros registrados",
+    "campeonatosActivos": "Campeonatos activos",
+    "encuentrosTotales": "Encuentros totales",
+    "sinDesignar": "Sin designar"
+  }
+}
