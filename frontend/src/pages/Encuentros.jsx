@@ -284,23 +284,23 @@ export default function Encuentros() {
       </div>
 
       <div>
-        <h2 className="text-sm font-semibold text-navy-900 uppercase tracking-wide mb-3">Ingresar encuentro</h2>
+        <h2 className="text-sm font-semibold text-navy-900 uppercase tracking-wide mb-3">{t('form.titulo')}</h2>
         <form onSubmit={ingresar} className="bg-white border border-gray-200 rounded-lg p-4 space-y-3">
           {!form.campeonato_id && (
             <div className="bg-card-yellow/20 border border-card-yellow-dark/40 text-card-yellow-dark text-sm font-semibold rounded-md px-3 py-2 text-center">
-              Primero elige un campeonato
+              {t('form.primeroCampeonato')}
             </div>
           )}
           {/* 1. Campeonato primero: de él dependen categoría y tarifas */}
           <div>
-            <label className="block text-xs text-gray-600 mb-1">Campeonato</label>
+            <label className="block text-xs text-gray-600 mb-1">{t('form.campeonato')}</label>
             <select
               required
               value={form.campeonato_id}
               onChange={(e) => alSeleccionarCampeonato(e.target.value, 'form')}
               className="w-full border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-navy-600"
             >
-              <option value="">Selecciona...</option>
+              <option value="">{t('form.selecciona')}</option>
               {campeonatos.map((c) => (
                 <option key={c.id} value={c.id}>{c.nombre}</option>
               ))}
@@ -311,22 +311,22 @@ export default function Encuentros() {
               una vez que se eligió el campeonato */}
           {form.campeonato_id && (
           <div>
-            <label className="block text-xs text-gray-600 mb-1">Categoría</label>
+            <label className="block text-xs text-gray-600 mb-1">{t('form.categoria')}</label>
             <select
               required
               value={form.categoria}
               onChange={(e) => alElegirCategoria(e.target.value)}
               className="w-full border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-navy-600"
             >
-              <option value="">Selecciona...</option>
+              <option value="">{t('form.selecciona')}</option>
               {categoriasDisponibles.map((c) => <option key={c} value={c}>{c}</option>)}
             </select>
             {categoriasDisponibles.length === 0 && (
-              <p className="text-[11px] text-card-red-dark mt-1">Este campeonato no tiene tarifas configuradas todavía.</p>
+              <p className="text-[11px] text-card-red-dark mt-1">{t('form.sinTarifas')}</p>
             )}
             {form.categoria && tieneTarifaAsistente(form.categoria) && (
               <p className="text-[11px] text-pitch-green-dark mt-1">
-                ✓ Esta categoría admite Asistentes (podrás añadirlos al designar).
+                {t('form.admiteAsistentes')}
               </p>
             )}
           </div>
@@ -336,7 +336,7 @@ export default function Encuentros() {
           {form.categoria && (
           <>
           <div>
-            <label className="block text-xs text-gray-600 mb-1">Intensidad</label>
+            <label className="block text-xs text-gray-600 mb-1">{t('form.intensidad')}</label>
             <select
               value={form.intensidad}
               onChange={(e) => setForm({ ...form, intensidad: e.target.value })}
@@ -349,7 +349,7 @@ export default function Encuentros() {
           {/* Fecha y hora juntos en una sola línea */}
           <div className="grid grid-cols-2 gap-2">
             <div>
-              <label className="block text-xs text-gray-600 mb-1">Fecha</label>
+              <label className="block text-xs text-gray-600 mb-1">{t('form.fecha')}</label>
               <input
                 type="date" required
                 min={hoyISO()}
@@ -359,7 +359,7 @@ export default function Encuentros() {
               />
             </div>
             <div>
-              <label className="block text-xs text-gray-600 mb-1">Hora</label>
+              <label className="block text-xs text-gray-600 mb-1">{t('form.hora')}</label>
               <input
                 type="time" required
                 value={form.hora}
@@ -373,7 +373,7 @@ export default function Encuentros() {
               elegida ya tiene tarifa de Asistente configurada */}
           <div className="bg-navy-50 border border-navy-100 rounded-md p-3">
             <label className="block text-xs font-bold text-navy-900 mb-2 tracking-wide">
-              Este encuentro es:
+              {t('form.esteEncuentroEs')}
             </label>
             <div className={`grid gap-1.5 ${modosDisponibles.length === 2 ? 'grid-cols-2' : 'grid-cols-3'}`}>
               {modosDisponibles.map((op) => (
@@ -387,7 +387,7 @@ export default function Encuentros() {
                       : 'bg-white text-navy-700 border-navy-200 hover:border-navy-400'
                   }`}
                 >
-                  {op.l}
+                  {t(op.l)}
                 </button>
               ))}
             </div>
@@ -396,10 +396,10 @@ export default function Encuentros() {
           {/* ¿Más de una cancha en este horario? Sí/No */}
           <div className="bg-card-yellow/15 border border-card-yellow-dark/30 rounded-md p-3">
             <label className="block text-xs font-semibold text-card-yellow-dark mb-1.5">
-              ¿Es más de una cancha en este horario?
+              {t('form.masDeUnaCancha')}
             </label>
             <div className="inline-flex rounded-md border border-card-yellow-dark/40 overflow-hidden text-xs">
-              {[{ v: 'no', l: 'No' }, { v: 'si', l: 'Sí' }].map((op) => (
+              {[{ v: 'no', l: t('form.no') }, { v: 'si', l: t('form.si') }].map((op) => (
                 <button
                   key={op.v}
                   type="button"
@@ -416,7 +416,7 @@ export default function Encuentros() {
             {form.mas_de_una_cancha === 'si' && (
               <div className="mt-2 space-y-2">
                 <div>
-                  <label className="block text-xs text-gray-600 mb-1">¿Cuántas canchas?</label>
+                  <label className="block text-xs text-gray-600 mb-1">{t('form.cuantasCanchas')}</label>
                   <input
                     type="number" min="2" max="20" step="1" required
                     value={form.cantidad_canchas}
@@ -425,18 +425,18 @@ export default function Encuentros() {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs text-gray-600 mb-1">Numerar las canchas con...</label>
+                  <label className="block text-xs text-gray-600 mb-1">{t('form.numerarCon')}</label>
                   <select
                     value={form.tipo_numeracion}
                     onChange={(e) => setForm({ ...form, tipo_numeracion: e.target.value })}
                     className="w-full border border-gray-300 rounded px-3 py-1.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-navy-600"
                   >
-                    <option value="numeros">Números (1, 2, 3...)</option>
-                    <option value="letras">Letras (A, B, C...)</option>
+                    <option value="numeros">{t('form.numeros')}</option>
+                    <option value="letras">{t('form.letras')}</option>
                   </select>
                 </div>
                 <p className="text-[11px] text-gray-600">
-                  Se crearán {form.cantidad_canchas} encuentros en el mismo horario, uno por cancha.
+                  {t('form.seCrearan', { cantidad: form.cantidad_canchas })}
                 </p>
               </div>
             )}
@@ -451,13 +451,13 @@ export default function Encuentros() {
                   to={`/designaciones?encuentro=${ultimoEncuentroId}`}
                   className="inline-block bg-navy-900 hover:bg-navy-800 text-white text-xs px-3 py-1.5 rounded font-medium transition"
                 >
-                  + Designar ahora
+                  {t('form.designarAhora')}
                 </Link>
               )}
             </div>
           )}
           <button className="w-full bg-navy-900 hover:bg-navy-800 text-white py-2 rounded text-sm font-medium transition">
-            Ingresar encuentro
+            {t('form.ingresar')}
           </button>
           </>
           )}
@@ -468,10 +468,10 @@ export default function Encuentros() {
       {modalEditar && (
         <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center px-4">
           <div className="bg-white rounded-lg shadow-xl max-w-sm w-full p-5">
-            <h3 className="font-display text-lg font-semibold text-navy-900 mb-4">Editar encuentro</h3>
+            <h3 className="font-display text-lg font-semibold text-navy-900 mb-4">{t('modal.editarTitulo')}</h3>
             <form onSubmit={guardarEdicion} className="space-y-3">
               <div>
-                <label className="block text-xs text-gray-600 mb-1">Categoría</label>
+                <label className="block text-xs text-gray-600 mb-1">{t('form.categoria')}</label>
                 <select
                   required
                   value={modalEditar.categoria}
@@ -482,7 +482,7 @@ export default function Encuentros() {
                 </select>
               </div>
               <div>
-                <label className="block text-xs text-gray-600 mb-1">Intensidad</label>
+                <label className="block text-xs text-gray-600 mb-1">{t('form.intensidad')}</label>
                 <select
                   value={modalEditar.intensidad}
                   onChange={(e) => setModalEditar({ ...modalEditar, intensidad: e.target.value })}
@@ -493,7 +493,7 @@ export default function Encuentros() {
               </div>
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="block text-xs text-gray-600 mb-1">Fecha</label>
+                  <label className="block text-xs text-gray-600 mb-1">{t('form.fecha')}</label>
                   <input
                     type="date" required
                     value={modalEditar.fecha}
@@ -502,7 +502,7 @@ export default function Encuentros() {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs text-gray-600 mb-1">Hora</label>
+                  <label className="block text-xs text-gray-600 mb-1">{t('form.hora')}</label>
                   <input
                     type="time" required
                     value={modalEditar.hora}
@@ -512,7 +512,7 @@ export default function Encuentros() {
                 </div>
               </div>
               <div>
-                <label className="block text-xs text-gray-600 mb-1">Cancha</label>
+                <label className="block text-xs text-gray-600 mb-1">{t('modal.cancha')}</label>
                 <input
                   required
                   value={modalEditar.cancha}
@@ -527,10 +527,10 @@ export default function Encuentros() {
                   onClick={() => setModalEditar(null)}
                   className="px-3 py-1.5 rounded text-sm font-medium border border-gray-300 text-gray-600 hover:bg-gray-50"
                 >
-                  Cancelar
+                  {t('common:acciones.cancelar')}
                 </button>
                 <button className="px-3 py-1.5 rounded text-sm font-medium text-white bg-navy-900 hover:bg-navy-800">
-                  Guardar cambios
+                  {t('common:acciones.guardarCambios')}
                 </button>
               </div>
             </form>
@@ -543,11 +543,11 @@ export default function Encuentros() {
         <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center px-4">
           <div className="bg-white rounded-lg shadow-xl max-w-sm w-full p-5">
             <h3 className="font-display text-lg font-semibold text-navy-900 mb-2">
-              ¿Eliminar este encuentro?
+              {t('eliminar.titulo')}
             </h3>
             <p className="text-sm text-gray-500 mb-1">{confirmarEliminar.etiqueta}</p>
             <p className="text-xs text-gray-500 mb-4">
-              Si ya tiene árbitros designados, primero debes quitarlos desde "Designación general".
+              {t('eliminar.aviso')}
             </p>
             {errorEliminar && <p className="text-xs text-card-red-dark bg-card-red/10 px-2 py-1.5 rounded mb-3">{errorEliminar}</p>}
             <div className="flex justify-end gap-2">
@@ -555,13 +555,13 @@ export default function Encuentros() {
                 onClick={() => setConfirmarEliminar(null)}
                 className="px-3 py-1.5 rounded text-sm font-medium border border-gray-300 text-gray-600 hover:bg-gray-50"
               >
-                Cancelar
+                {t('common:acciones.cancelar')}
               </button>
               <button
                 onClick={confirmarEliminarEncuentro}
                 className="px-3 py-1.5 rounded text-sm font-medium text-white bg-card-red hover:bg-card-red-dark"
               >
-                Eliminar
+                {t('common:acciones.eliminar')}
               </button>
             </div>
           </div>

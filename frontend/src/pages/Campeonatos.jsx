@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { IconEdit, IconTrash } from '@tabler/icons-react';
 import api from '../api/client';
 import { useAuth } from '../context/AuthContext';
@@ -12,10 +13,10 @@ const soloLetras = (v) => v.replace(/[^A-Za-zÁÉÍÓÚáéíóúÑñÜü\s]/g, 
 const hoyISO = () => new Date().toISOString().slice(0, 10);
 
 const CATEGORIAS_TARIFA = [
-  { campo: 'tarifaSenior', label: 'Señor', categoria: 'senior' },
-  { campo: 'tarifaMaster', label: 'Master', categoria: 'master' },
-  { campo: 'tarifaFemenino', label: 'Femenino', categoria: 'femenino' },
-  { campo: 'tarifaNinos', label: 'Niños', categoria: 'ninos' },
+  { campo: 'tarifaSenior', categoriaLabel: 'senior', categoria: 'senior' },
+  { campo: 'tarifaMaster', categoriaLabel: 'master', categoria: 'master' },
+  { campo: 'tarifaFemenino', categoriaLabel: 'femenino', categoria: 'femenino' },
+  { campo: 'tarifaNinos', categoriaLabel: 'ninos', categoria: 'ninos' },
 ];
 
 function estadoFecha(fechaFin) {
@@ -36,6 +37,7 @@ const CLASE_FILA = {
 };
 
 export default function Campeonatos() {
+  const { t } = useTranslation(['campeonatos', 'common']);
   const { usuario } = useAuth();
   const esAdmin = usuario?.rol === 'administrador';
   const [campeonatos, setCampeonatos] = useState([]);
@@ -85,13 +87,13 @@ export default function Campeonatos() {
 
       setMensaje(
         tarifasCreadas > 0
-          ? `Campeonato creado con ${tarifasCreadas} tarifa(s). Puedes ajustar montos en "Tarifas".`
-          : 'Campeonato creado correctamente.'
+          ? t('mensajes.creadoConTarifas', { cantidad: tarifasCreadas })
+          : t('mensajes.creado')
       );
       setForm(FORM_VACIO);
       cargar();
     } catch (err) {
-      setError(err.response?.data?.error || 'Error al crear el campeonato');
+      setError(err.response?.data?.error || t('mensajes.errorCrear'));
     }
   }
 
@@ -118,7 +120,7 @@ export default function Campeonatos() {
       setModalEditar(null);
       cargar();
     } catch (err) {
-      setErrorEditar(err.response?.data?.error || 'Error al actualizar el campeonato');
+      setErrorEditar(err.response?.data?.error || t('mensajes.errorActualizar'));
     }
   }
 
@@ -129,28 +131,28 @@ export default function Campeonatos() {
       setConfirmarEliminar(null);
       cargar();
     } catch (err) {
-      setErrorEliminar(err.response?.data?.error || 'Error al eliminar el campeonato');
+      setErrorEliminar(err.response?.data?.error || t('mensajes.errorEliminar'));
     }
   }
 
   return (
     <div className="grid md:grid-cols-3 gap-6">
       <div className="md:col-span-2">
-        <h1 className="font-display text-2xl font-semibold text-navy-900 mb-2">Campeonatos</h1>
+        <h1 className="font-display text-2xl font-semibold text-navy-900 mb-2">{t('titulo')}</h1>
         <p className="text-xs text-gray-500 mb-4">
           <span className="inline-block w-3 h-3 rounded-sm bg-card-yellow/50 align-middle mr-1" />
-          Por terminar (≤ {DIAS_POR_TERMINAR} días)
+          {t('leyenda.porTerminar', { dias: DIAS_POR_TERMINAR })}
           <span className="inline-block w-3 h-3 rounded-sm bg-card-red/25 align-middle ml-4 mr-1" />
-          Ya terminado
+          {t('leyenda.terminado')}
         </p>
         <div className="bg-white border border-gray-200 rounded-lg overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="bg-navy-50 text-navy-700 text-left">
               <tr>
-                <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide">Nombre</th>
-                <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide">Inicio</th>
-                <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide">Fin</th>
-                {esAdmin && <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide">Acciones</th>}
+                <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide">{t('columnas.nombre')}</th>
+                <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide">{t('columnas.inicio')}</th>
+                <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide">{t('columnas.fin')}</th>
+                {esAdmin && <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide">{t('columnas.acciones')}</th>}
               </tr>
             </thead>
             <tbody>
@@ -164,12 +166,12 @@ export default function Campeonatos() {
                     {esAdmin && (
                       <td className="px-4 py-2.5">
                         <div className="flex gap-3">
-                          <button onClick={() => abrirEditar(c)} title="Editar" className="text-navy-600 hover:text-navy-900">
+                          <button onClick={() => abrirEditar(c)} title={t('common:acciones.editar')} className="text-navy-600 hover:text-navy-900">
                             <IconEdit size={17} />
                           </button>
                           <button
                             onClick={() => { setErrorEliminar(null); setConfirmarEliminar({ id: c.id, nombre: c.nombre }); }}
-                            title="Eliminar"
+                            title={t('common:acciones.eliminar')}
                             className="text-gray-400 hover:text-card-red"
                           >
                             <IconTrash size={17} />
@@ -183,7 +185,7 @@ export default function Campeonatos() {
               {campeonatos.length === 0 && (
                 <tr>
                   <td colSpan={4} className="px-4 py-8 text-center text-gray-400 text-sm">
-                    Aún no hay campeonatos
+                    {t('vacio')}
                   </td>
                 </tr>
               )}
@@ -193,20 +195,20 @@ export default function Campeonatos() {
       </div>
 
       <div>
-        <h2 className="text-sm font-semibold text-navy-900 uppercase tracking-wide mb-3">Nuevo campeonato</h2>
+        <h2 className="text-sm font-semibold text-navy-900 uppercase tracking-wide mb-3">{t('nuevo.titulo')}</h2>
         <form onSubmit={crear} className="bg-white border border-gray-200 rounded-lg p-4 space-y-3">
           <div>
-            <label className="block text-xs text-gray-600 mb-1">Nombre del campeonato o liga</label>
+            <label className="block text-xs text-gray-600 mb-1">{t('campos.nombre')}</label>
             <input
               required
-              placeholder="Solo letras"
+              placeholder={t('campos.soloLetras')}
               value={form.nombre}
               onChange={(e) => setForm({ ...form, nombre: soloLetras(e.target.value) })}
               className="w-full border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-navy-600"
             />
           </div>
           <div>
-            <label className="block text-xs text-gray-600 mb-1">Fecha inicio</label>
+            <label className="block text-xs text-gray-600 mb-1">{t('campos.fechaInicio')}</label>
             <input
               type="date"
               required
@@ -217,7 +219,7 @@ export default function Campeonatos() {
             />
           </div>
           <div>
-            <label className="block text-xs text-gray-600 mb-1">Fecha fin</label>
+            <label className="block text-xs text-gray-600 mb-1">{t('campos.fechaFin')}</label>
             <input
               type="date"
               required
@@ -230,16 +232,15 @@ export default function Campeonatos() {
 
           <div className="pt-2 border-t border-gray-100">
             <p className="text-xs font-semibold text-navy-700 uppercase tracking-wide mb-2">
-              Tarifa base por categoría (opcional)
+              {t('campos.tarifaBaseTitulo')}
             </p>
             <p className="text-[11px] text-gray-500 mb-2">
-              Se crea como rol Central (la intensidad no afecta el pago). Si necesitas tarifa de
-              Asistente u otras, agrégalas después en "Tarifas".
+              {t('campos.tarifaBaseTexto')}
             </p>
             <div className="grid grid-cols-2 gap-2">
-              {CATEGORIAS_TARIFA.map(({ campo, label }) => (
+              {CATEGORIAS_TARIFA.map(({ campo, categoriaLabel }) => (
                 <div key={campo}>
-                  <label className="block text-[11px] text-gray-600 mb-0.5">{label} ($)</label>
+                  <label className="block text-[11px] text-gray-600 mb-0.5">{t(`categorias.${categoriaLabel}`)} ($)</label>
                   <input
                     type="number" step="0.01" min="0.01"
                     value={form[campo]}
@@ -254,7 +255,7 @@ export default function Campeonatos() {
           {error && <p className="text-xs text-card-red-dark bg-card-red/10 px-2 py-1.5 rounded">{error}</p>}
           {mensaje && <p className="text-xs text-pitch-green-dark bg-pitch-green/10 px-2 py-1.5 rounded">{mensaje}</p>}
           <button className="w-full bg-navy-900 hover:bg-navy-800 text-white py-2 rounded text-sm font-medium transition">
-            Crear
+            {t('nuevo.boton')}
           </button>
         </form>
       </div>
@@ -263,10 +264,10 @@ export default function Campeonatos() {
       {modalEditar && (
         <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center px-4">
           <div className="bg-white rounded-lg shadow-xl max-w-sm w-full p-5">
-            <h3 className="font-display text-lg font-semibold text-navy-900 mb-4">Editar campeonato</h3>
+            <h3 className="font-display text-lg font-semibold text-navy-900 mb-4">{t('modal.editar.titulo')}</h3>
             <form onSubmit={guardarEdicion} className="space-y-3">
               <div>
-                <label className="block text-xs text-gray-600 mb-1">Nombre del campeonato o liga</label>
+                <label className="block text-xs text-gray-600 mb-1">{t('campos.nombre')}</label>
                 <input
                   required
                   value={modalEditar.nombre}
@@ -275,7 +276,7 @@ export default function Campeonatos() {
                 />
               </div>
               <div>
-                <label className="block text-xs text-gray-600 mb-1">Fecha inicio</label>
+                <label className="block text-xs text-gray-600 mb-1">{t('campos.fechaInicio')}</label>
                 <input
                   type="date" required
                   value={modalEditar.fecha_inicio}
@@ -284,7 +285,7 @@ export default function Campeonatos() {
                 />
               </div>
               <div>
-                <label className="block text-xs text-gray-600 mb-1">Fecha fin</label>
+                <label className="block text-xs text-gray-600 mb-1">{t('campos.fechaFin')}</label>
                 <input
                   type="date" required
                   value={modalEditar.fecha_fin}
@@ -299,10 +300,10 @@ export default function Campeonatos() {
                   onClick={() => setModalEditar(null)}
                   className="px-3 py-1.5 rounded text-sm font-medium border border-gray-300 text-gray-600 hover:bg-gray-50"
                 >
-                  Cancelar
+                  {t('common:acciones.cancelar')}
                 </button>
                 <button className="px-3 py-1.5 rounded text-sm font-medium text-white bg-navy-900 hover:bg-navy-800">
-                  Guardar cambios
+                  {t('common:acciones.guardarCambios')}
                 </button>
               </div>
             </form>
@@ -315,11 +316,10 @@ export default function Campeonatos() {
         <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center px-4">
           <div className="bg-white rounded-lg shadow-xl max-w-sm w-full p-5">
             <h3 className="font-display text-lg font-semibold text-navy-900 mb-2">
-              ¿Eliminar {confirmarEliminar.nombre}?
+              {t('modal.confirmarEliminar.titulo', { nombre: confirmarEliminar.nombre })}
             </h3>
             <p className="text-sm text-gray-500 mb-4">
-              Esta acción no se puede deshacer. Si ya tiene encuentros registrados, el sistema no
-              permitirá eliminarlo para no perder ese historial.
+              {t('modal.confirmarEliminar.texto')}
             </p>
             {errorEliminar && <p className="text-xs text-card-red-dark bg-card-red/10 px-2 py-1.5 rounded mb-3">{errorEliminar}</p>}
             <div className="flex justify-end gap-2">
@@ -327,13 +327,13 @@ export default function Campeonatos() {
                 onClick={() => setConfirmarEliminar(null)}
                 className="px-3 py-1.5 rounded text-sm font-medium border border-gray-300 text-gray-600 hover:bg-gray-50"
               >
-                Cancelar
+                {t('common:acciones.cancelar')}
               </button>
               <button
                 onClick={confirmarEliminarCampeonato}
                 className="px-3 py-1.5 rounded text-sm font-medium text-white bg-card-red hover:bg-card-red-dark"
               >
-                Eliminar
+                {t('common:acciones.eliminar')}
               </button>
             </div>
           </div>

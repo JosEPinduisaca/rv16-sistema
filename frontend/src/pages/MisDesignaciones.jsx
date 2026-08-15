@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import api from '../api/client';
 import TarjetaEstado from '../components/TarjetaEstado';
 
@@ -19,6 +20,7 @@ function esPasado(fecha, hora) {
 }
 
 export default function MisDesignaciones() {
+  const { t } = useTranslation(['misDesignaciones', 'common']);
   const [designaciones, setDesignaciones] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [modo, setModo] = useState('proximas'); // 'proximas' | 'historial'
@@ -52,12 +54,12 @@ export default function MisDesignaciones() {
   return (
     <div>
       <div className="flex items-end justify-between flex-wrap gap-3 mb-4">
-        <h1 className="font-display text-2xl font-semibold text-navy-900">Mis designaciones</h1>
+        <h1 className="font-display text-2xl font-semibold text-navy-900">{t('titulo')}</h1>
         <div className="flex items-end flex-wrap gap-3">
           <div className="inline-flex rounded-md border border-gray-300 overflow-hidden text-xs">
             {[
-              { value: 'proximas', label: 'Próximas' },
-              { value: 'historial', label: 'Historial' },
+              { value: 'proximas', label: t('filtros.proximas') },
+              { value: 'historial', label: t('filtros.historial') },
             ].map((op) => (
               <button
                 key={op.value}
@@ -72,7 +74,7 @@ export default function MisDesignaciones() {
           </div>
           {modo === 'historial' && (
             <div>
-              <label className="block text-xs text-gray-600 mb-1">Buscar una fecha específica</label>
+              <label className="block text-xs text-gray-600 mb-1">{t('filtros.buscarFecha')}</label>
               <input
                 type="date"
                 value={fechaFiltro}
@@ -99,12 +101,12 @@ export default function MisDesignaciones() {
         <table className="w-full text-sm">
           <thead className="bg-navy-50 text-navy-700 text-left">
             <tr>
-              <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide">Torneo</th>
-              <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide">Fecha</th>
-              <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide">Hora</th>
-              <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide">Cancha</th>
-              <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide">Rol</th>
-              <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide">Estado</th>
+              <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide">{t('columnas.torneo')}</th>
+              <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide">{t('columnas.fecha')}</th>
+              <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide">{t('columnas.hora')}</th>
+              <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide">{t('columnas.cancha')}</th>
+              <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide">{t('columnas.rol')}</th>
+              <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide">{t('columnas.estado')}</th>
             </tr>
           </thead>
           <tbody>

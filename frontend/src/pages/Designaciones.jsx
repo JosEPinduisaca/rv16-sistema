@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { IconStarFilled } from '@tabler/icons-react';
 import api from '../api/client';
 import TarjetaEstado from '../components/TarjetaEstado';
@@ -12,6 +13,7 @@ const COLOR_INTENSIDAD = {
 };
 
 export default function Designaciones() {
+  const { t } = useTranslation(['designaciones', 'common']);
   const [searchParams] = useSearchParams();
   const [encuentrosDisponibles, setEncuentrosDisponibles] = useState([]); // solo los que aún tienen cupo
   const [slotsPorEncuentro, setSlotsPorEncuentro] = useState({}); // { encuentroId: [{rol, etiqueta}] }
@@ -93,24 +95,24 @@ export default function Designaciones() {
       if (en.modo_designacion === 'dos_centrales') {
         // Dos árbitros como central, sin asistentes.
         if (tieneCentral && centralOcupado === 0) {
-          slots.push({ rol: 'central', etiqueta: 'Central 1' });
-          slots.push({ rol: 'central', etiqueta: 'Central 2' });
+          slots.push({ rol: 'central', etiqueta: t('slots.central1') });
+          slots.push({ rol: 'central', etiqueta: t('slots.central2') });
         } else if (tieneCentral && centralOcupado === 1) {
-          slots.push({ rol: 'central', etiqueta: 'Central 2' });
+          slots.push({ rol: 'central', etiqueta: t('slots.central2') });
         }
       } else if (en.modo_designacion === 'con_asistentes') {
-        if (tieneCentral && centralOcupado < 1) slots.push({ rol: 'central', etiqueta: 'Central' });
+        if (tieneCentral && centralOcupado < 1) slots.push({ rol: 'central', etiqueta: t('slots.central') });
         if (tieneAsistente) {
           if (asistentesOcupados === 0) {
-            slots.push({ rol: 'asistente', etiqueta: 'Asistente 1' });
-            slots.push({ rol: 'asistente', etiqueta: 'Asistente 2' });
+            slots.push({ rol: 'asistente', etiqueta: t('slots.asistente1') });
+            slots.push({ rol: 'asistente', etiqueta: t('slots.asistente2') });
           } else if (asistentesOcupados === 1) {
-            slots.push({ rol: 'asistente', etiqueta: 'Asistente 2' });
+            slots.push({ rol: 'asistente', etiqueta: t('slots.asistente2') });
           }
         }
       } else {
         // Normal: solo central, aunque la categoría tenga tarifa de asistente.
-        if (tieneCentral && centralOcupado < 1) slots.push({ rol: 'central', etiqueta: 'Central' });
+        if (tieneCentral && centralOcupado < 1) slots.push({ rol: 'central', etiqueta: t('slots.central') });
       }
 
       if (slots.length === 0) continue; // ya no tiene cupo, se excluye
@@ -155,7 +157,7 @@ export default function Designaciones() {
       .filter((s) => s.arbitro_id);
 
     if (seleccionesHechas.length === 0) {
-      setError('Elige al menos un árbitro para alguno de los cupos');
+      setError(t('mensajes.eligeAlMenosUno'));
       return;
     }
 
@@ -171,7 +173,7 @@ export default function Designaciones() {
         });
         creadas.push({ ...data, etiqueta: s.etiqueta });
       } catch (err) {
-        errores.push(`${s.etiqueta}: ${err.response?.data?.error || 'error desconocido'}`);
+        errores.push(`${s.etiqueta}: ${err.response?.data?.error || t('mensajes.errorDesconocido')}`);
       }
     }
     setDesignando(false);
@@ -188,7 +190,7 @@ export default function Designaciones() {
         creadas: prev.creadas.map((c, i) => (i === idx ? { ...c, designacion: { ...c.designacion, estado: 'publicada' } } : c)),
       }));
     } catch (err) {
-      setError(err.response?.data?.error || 'Error al publicar');
+      setError(err.response?.data?.error || t('mensajes.errorPublicar'));
     }
   }
 
@@ -208,35 +210,33 @@ export default function Designaciones() {
   return (
     <div className="max-w-5xl">
       <div className="flex items-start justify-between gap-3 mb-1 flex-wrap">
-        <h1 className="font-display text-2xl font-semibold text-navy-900">Designar árbitro</h1>
+        <h1 className="font-display text-2xl font-semibold text-navy-900">{t('titulo')}</h1>
         <button
           onClick={abrirBuscador}
           className="text-xs text-navy-600 hover:underline whitespace-nowrap mt-1.5"
         >
-          🔍 Ver designaciones de un árbitro
+          {t('verDesignacionesBoton')}
         </button>
       </div>
       <p className="text-sm text-gray-500 mb-5">
-        Los árbitros marcados con <IconStarFilled size={12} className="inline text-card-yellow-dark" /> son
-        candidatos recomendados según su nivel y disponibilidad. Puedes designar a cualquiera igual.
-        Solo se muestran encuentros que todavía tienen algún cupo libre.
+        {t('intro.antesIcono')} <IconStarFilled size={12} className="inline text-card-yellow-dark" /> {t('intro.despuesIcono')}
       </p>
 
       <div className="grid md:grid-cols-3 gap-6">
       <div className="md:col-span-2">
       {cargando ? (
-        <p className="text-sm text-gray-500">Cargando...</p>
+        <p className="text-sm text-gray-500">{t('common:estado.cargando')}</p>
       ) : (
         <form onSubmit={designar} className="bg-white border border-gray-200 rounded-lg p-4 space-y-4">
           <div>
-            <label className="block text-xs text-gray-600 mb-1">Encuentro</label>
+            <label className="block text-xs text-gray-600 mb-1">{t('campos.encuentro')}</label>
             <select
               required
               value={encuentroId}
               onChange={(e) => { setEncuentroId(e.target.value); cargarCandidatos(e.target.value); }}
               className="w-full border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-navy-600"
             >
-              <option value="">Selecciona...</option>
+              <option value="">{t('campos.selecciona')}</option>
               {encuentrosDisponibles.map((en) => (
                 <option key={en.id} value={en.id}>
                   {en.fecha?.slice(0, 10)} {en.hora?.slice(0, 5)} — {en.cancha} ({en.categoria})
@@ -244,7 +244,7 @@ export default function Designaciones() {
               ))}
             </select>
             {encuentrosDisponibles.length === 0 && (
-              <p className="text-[11px] text-gray-500 mt-1">No hay encuentros con cupos libres por designar.</p>
+              <p className="text-[11px] text-gray-500 mt-1">{t('mensajes.sinCupos')}</p>
             )}
           </div>
 
@@ -252,7 +252,7 @@ export default function Designaciones() {
             <div className="space-y-4">
               {slotsDelEncuentro.length > 1 && (
                 <p className="text-xs text-gray-500 bg-navy-50 rounded px-2 py-1.5">
-                  Este encuentro necesita {slotsDelEncuentro.length} árbitros. Elige uno para cada cupo.
+                  {t('mensajes.necesitaVarios', { cantidad: slotsDelEncuentro.length })}
                 </p>
               )}
               {slotsDelEncuentro.map((slot, i) => (
@@ -281,12 +281,12 @@ export default function Designaciones() {
                         )}
                         <span className="flex-1 min-w-0 truncate text-navy-900">{c.nombres} {c.apellidos}</span>
                         <span className="text-xs text-gray-400 capitalize shrink-0">{c.nivel?.replace('_', ' ')}</span>
-                        {!c.disponible && <TarjetaEstado estado="cancelado">No disp.</TarjetaEstado>}
-                        {c.penalizacion_activa && <TarjetaEstado estado="cancelado">Penal.</TarjetaEstado>}
+                        {!c.disponible && <TarjetaEstado estado="cancelado">{t('badges.noDisponible')}</TarjetaEstado>}
+                        {c.penalizacion_activa && <TarjetaEstado estado="cancelado">{t('badges.penalizacion')}</TarjetaEstado>}
                       </label>
                     ))}
                     {candidatosParaSlot(i).length === 0 && (
-                      <p className="px-3 py-4 text-center text-gray-400 text-xs">No hay árbitros disponibles</p>
+                      <p className="px-3 py-4 text-center text-gray-400 text-xs">{t('mensajes.sinArbitrosDisponibles')}</p>
                     )}
                   </div>
                 </div>
@@ -302,7 +302,7 @@ export default function Designaciones() {
             disabled={designando || Object.keys(seleccionPorSlot).length === 0}
             className="w-full bg-navy-900 hover:bg-navy-800 text-white py-2 rounded text-sm font-medium transition disabled:opacity-50"
           >
-            {designando ? 'Designando...' : 'Designar'}
+            {designando ? t('acciones.designando') : t('acciones.designar')}
           </button>
         </form>
       )}

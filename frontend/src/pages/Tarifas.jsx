@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { IconEdit, IconTrash } from '@tabler/icons-react';
 import api from '../api/client';
 
 const ROLES = ['central', 'asistente'];
 
 export default function Tarifas() {
+  const { t } = useTranslation(['tarifas', 'common']);
   const [campeonatos, setCampeonatos] = useState([]);
   const [campeonatoId, setCampeonatoId] = useState('');
   const [tarifas, setTarifas] = useState([]);
@@ -53,7 +55,7 @@ export default function Tarifas() {
       setModalNueva(null);
       cargarTarifas(campeonatoId);
     } catch (err) {
-      setErrorNueva(err.response?.data?.error || 'Error al crear la categoría');
+      setErrorNueva(err.response?.data?.error || t('mensajes.errorCrearCategoria'));
     }
   }
 
@@ -77,7 +79,7 @@ export default function Tarifas() {
       setModalEditar(null);
       cargarTarifas(campeonatoId);
     } catch (err) {
-      setErrorEditar(err.response?.data?.error || 'Error al actualizar la tarifa');
+      setErrorEditar(err.response?.data?.error || t('mensajes.errorActualizar'));
     }
   }
 
@@ -92,11 +94,11 @@ export default function Tarifas() {
         monto: Number(nuevoRolMonto),
         viatico: 0,
       });
-      setMensajeNuevoRol(`Tarifa de ${rolFaltante === 'central' ? 'Central' : 'Asistente'} agregada`);
+      setMensajeNuevoRol(t('mensajes.rolAgregado', { rol: t(`roles.${rolFaltante}`) }));
       setNuevoRolMonto('');
       cargarTarifas(campeonatoId);
     } catch (err) {
-      setErrorNuevoRol(err.response?.data?.error || 'Error al agregar la tarifa');
+      setErrorNuevoRol(err.response?.data?.error || t('mensajes.errorAgregarRol'));
     }
   }
 
@@ -107,7 +109,7 @@ export default function Tarifas() {
       setConfirmarEliminar(null);
       cargarTarifas(campeonatoId);
     } catch (err) {
-      setErrorEliminar(err.response?.data?.error || 'Error al eliminar la tarifa');
+      setErrorEliminar(err.response?.data?.error || t('mensajes.errorEliminar'));
     }
   }
 
