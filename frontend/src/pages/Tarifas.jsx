@@ -150,19 +150,19 @@ export default function Tarifas() {
             </tr>
           </thead>
           <tbody>
-            {tarifas.map((t) => (
-              <tr key={t.id} className="border-t border-gray-100 hover:bg-navy-50/40">
-                <td className="px-4 py-2.5 capitalize">{t.categoria}</td>
-                <td className="px-4 py-2.5 capitalize">{t.rol_arbitro}</td>
-                <td className="px-4 py-2.5 tabular-nums font-medium text-navy-900">${t.monto}</td>
+            {tarifas.map((tarifa) => (
+              <tr key={tarifa.id} className="border-t border-gray-100 hover:bg-navy-50/40">
+                <td className="px-4 py-2.5 capitalize">{tarifa.categoria}</td>
+                <td className="px-4 py-2.5 capitalize">{t(`roles.${tarifa.rol_arbitro}`)}</td>
+                <td className="px-4 py-2.5 tabular-nums font-medium text-navy-900">${tarifa.monto}</td>
                 <td className="px-4 py-2.5">
                   <div className="flex gap-3">
-                    <button onClick={() => abrirEditar(t)} title="Editar" className="text-navy-600 hover:text-navy-900">
+                    <button onClick={() => abrirEditar(tarifa)} title={t('common:acciones.editar')} className="text-navy-600 hover:text-navy-900">
                       <IconEdit size={16} />
                     </button>
                     <button
-                      onClick={() => { setErrorEliminar(null); setConfirmarEliminar({ id: t.id, etiqueta: `${t.categoria} · ${t.rol_arbitro}` }); }}
-                      title="Eliminar"
+                      onClick={() => { setErrorEliminar(null); setConfirmarEliminar({ id: tarifa.id, etiqueta: `${tarifa.categoria} · ${t(`roles.${tarifa.rol_arbitro}`)}` }); }}
+                      title={t('common:acciones.eliminar')}
                       className="text-gray-400 hover:text-card-red"
                     >
                       <IconTrash size={16} />
@@ -174,7 +174,7 @@ export default function Tarifas() {
             {tarifas.length === 0 && (
               <tr>
                 <td colSpan={4} className="px-4 py-8 text-center text-gray-400 text-sm">
-                  {campeonatoId ? 'Este campeonato no tiene tarifas registradas' : 'Selecciona un campeonato para ver sus tarifas'}
+                  {campeonatoId ? t('vacio.sinTarifas') : t('vacio.sinCampeonato')}
                 </td>
               </tr>
             )}
@@ -186,24 +186,23 @@ export default function Tarifas() {
       {modalNueva && (
         <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center px-4">
           <div className="bg-white rounded-lg shadow-xl max-w-sm w-full p-5">
-            <h3 className="font-display text-lg font-semibold text-navy-900 mb-1">Nueva categoría</h3>
+            <h3 className="font-display text-lg font-semibold text-navy-900 mb-1">{t('modal.nuevaCategoria.titulo')}</h3>
             <p className="text-xs text-gray-500 mb-4">
-              Se crea con la tarifa de <strong>Central</strong>. Luego, si la necesitas, podrás
-              agregar la de Asistente desde "Editar".
+              {t('modal.nuevaCategoria.textoPre')} <strong>{t('roles.central')}</strong>{t('modal.nuevaCategoria.textoPost')}
             </p>
             <form onSubmit={crearCategoria} className="space-y-3">
               <div>
-                <label className="block text-xs text-gray-600 mb-1">Nombre de la categoría</label>
+                <label className="block text-xs text-gray-600 mb-1">{t('modal.nuevaCategoria.nombreCategoria')}</label>
                 <input
                   autoFocus required
-                  placeholder="Ej. Sub 15, Veteranos, Categoría A"
+                  placeholder={t('modal.nuevaCategoria.nombreCategoriaPlaceholder')}
                   value={modalNueva.categoria}
                   onChange={(e) => setModalNueva({ ...modalNueva, categoria: e.target.value })}
                   className="w-full border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-navy-600"
                 />
               </div>
               <div>
-                <label className="block text-xs text-gray-600 mb-1">Monto Central ($)</label>
+                <label className="block text-xs text-gray-600 mb-1">{t('modal.nuevaCategoria.montoCentral')}</label>
                 <input
                   type="number" step="0.01" min="0.01" required
                   value={modalNueva.monto}
@@ -218,10 +217,10 @@ export default function Tarifas() {
                   onClick={() => setModalNueva(null)}
                   className="px-3 py-1.5 rounded text-sm font-medium border border-gray-300 text-gray-600 hover:bg-gray-50"
                 >
-                  Cancelar
+                  {t('common:acciones.cancelar')}
                 </button>
                 <button className="px-3 py-1.5 rounded text-sm font-medium text-white bg-navy-900 hover:bg-navy-800">
-                  Crear categoría
+                  {t('modal.nuevaCategoria.boton')}
                 </button>
               </div>
             </form>

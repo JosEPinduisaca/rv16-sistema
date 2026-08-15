@@ -368,7 +368,7 @@ export default function Designaciones() {
         <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center px-4">
           <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-5 max-h-[80vh] flex flex-col">
             <div className="flex items-center justify-between mb-3">
-              <h3 className="font-display text-lg font-semibold text-navy-900">Buscar árbitro</h3>
+              <h3 className="font-display text-lg font-semibold text-navy-900">{t('modal.titulo')}</h3>
               <button onClick={() => setModalBuscar(false)} className="text-gray-400 hover:text-gray-600 text-sm">
                 ✕
               </button>
@@ -377,7 +377,7 @@ export default function Designaciones() {
             <input
               type="text"
               autoFocus
-              placeholder="Escribe un nombre..."
+              placeholder={t('modal.placeholderNombre')}
               value={textoBusqueda}
               onChange={(e) => { setTextoBusqueda(e.target.value); setArbitroSeleccionado(null); }}
               className="w-full border border-gray-300 rounded px-3 py-1.5 text-sm mb-3 focus:outline-none focus:ring-2 focus:ring-navy-600"
@@ -396,7 +396,7 @@ export default function Designaciones() {
                   </button>
                 ))}
                 {arbitrosFiltrados.length === 0 && (
-                  <p className="px-3 py-4 text-center text-gray-400 text-xs">Sin resultados</p>
+                  <p className="px-3 py-4 text-center text-gray-400 text-xs">{t('mensajes.sinResultados')}</p>
                 )}
               </div>
             ) : (
@@ -405,13 +405,13 @@ export default function Designaciones() {
                   onClick={() => setArbitroSeleccionado(null)}
                   className="text-xs text-navy-600 hover:underline mb-2"
                 >
-                  ← Buscar otro
+                  {t('modal.buscarOtro')}
                 </button>
                 <p className="text-sm font-semibold text-navy-900 mb-2">
                   {arbitroSeleccionado.nombres} {arbitroSeleccionado.apellidos}
                 </p>
                 {cargandoDesignaciones ? (
-                  <p className="text-xs text-gray-500">Cargando...</p>
+                  <p className="text-xs text-gray-500">{t('common:estado.cargando')}</p>
                 ) : (
                   <div className="space-y-2">
                     {designacionesArbitro.map((d) => (
@@ -433,7 +433,7 @@ export default function Designaciones() {
                       </Link>
                     ))}
                     {designacionesArbitro.length === 0 && (
-                      <p className="text-xs text-gray-400 text-center py-4">Sin designaciones registradas</p>
+                      <p className="text-xs text-gray-400 text-center py-4">{t('mensajes.sinDesignaciones')}</p>
                     )}
                   </div>
                 )}

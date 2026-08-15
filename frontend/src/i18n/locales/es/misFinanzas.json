@@ -25,7 +25,6 @@
     "errorSolicitar": "Error al solicitar el adelanto"
   },
   "botones": {
-    "solicitar": "Solicitar",
-    "ver": "Ver"
+    "solicitar": "Solicitar"
   }
 }

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { IconX, IconChevronDown, IconChevronRight } from '@tabler/icons-react';
 import api from '../api/client';
 import { useAuth } from '../context/AuthContext';
@@ -16,6 +17,7 @@ const PALETA = [
 ];
 
 export default function DesignacionGeneral() {
+  const { t } = useTranslation(['designacionGeneral', 'common']);
   const { usuario } = useAuth();
   const puedeGestionar = usuario?.rol === 'administrador' || usuario?.rol === 'directivo';
   const [searchParams] = useSearchParams();
@@ -85,7 +87,7 @@ export default function DesignacionGeneral() {
       setConfirmarQuitar(null);
       cargar(fecha);
     } catch (err) {
-      setError(err.response?.data?.error || 'Error al quitar la designación');
+      setError(err.response?.data?.error || t('mensajes.errorQuitar'));
       setConfirmarQuitar(null);
     }
   }
@@ -95,9 +97,9 @@ export default function DesignacionGeneral() {
     try {
       const { data } = await api.put('/designaciones/publicar-todas', { fecha: fecha || undefined });
       cargar(fecha);
-      if (data.actualizadas === 0) setError('No había designaciones pendientes de publicar.');
+      if (data.actualizadas === 0) setError(t('mensajes.sinPendientesPublicar'));
     } catch (err) {
-      setError(err.response?.data?.error || 'Error al publicar');
+      setError(err.response?.data?.error || t('mensajes.errorPublicar'));
     }
   }
 
@@ -106,9 +108,9 @@ export default function DesignacionGeneral() {
     try {
       const { data } = await api.put('/designaciones/despublicar-todas', { fecha: fecha || undefined });
       cargar(fecha);
-      if (data.actualizadas === 0) setError('No había designaciones publicadas para revertir.');
+      if (data.actualizadas === 0) setError(t('mensajes.sinPublicadasDespublicar'));
     } catch (err) {
-      setError(err.response?.data?.error || 'Error al despublicar');
+      setError(err.response?.data?.error || t('mensajes.errorDespublicar'));
     }
   }
 
@@ -140,8 +142,8 @@ export default function DesignacionGeneral() {
             {torneo}
           </span>
           <span className="text-[11px] opacity-90 whitespace-nowrap ml-2">
-            {grupos[torneo].length} partido{grupos[torneo].length === 1 ? '' : 's'}
-            {sinDesignarCount > 0 && ` · ${sinDesignarCount} sin designar`}
+            {t('panel.partidos', { count: grupos[torneo].length })}
+            {sinDesignarCount > 0 && <> · {t('panel.sinDesignarSufijo', { count: sinDesignarCount })}</>}
           </span>
         </button>
 
@@ -164,7 +166,7 @@ export default function DesignacionGeneral() {
                   <span className="text-gray-500 whitespace-nowrap pt-0.5">{p.cancha}</span>
                   <div className="flex-1 min-w-0">
                     {p.designados.length === 0 ? (
-                      <span className="text-gray-300 italic">sin designar</span>
+                      <span className="text-gray-300 italic">{t('panel.sinDesignarLabel')}</span>
                     ) : (
                       <div className="flex flex-col gap-1">
                         {p.designados.map((d, idx) => {
@@ -177,7 +179,7 @@ export default function DesignacionGeneral() {
                               {puedeGestionar && (
                                 <button
                                   onClick={() => setConfirmarQuitar(d.designacion_id)}
-                                  title="Quitar designación"
+                                  title={t('acciones.quitarDesignacionTitulo')}
                                   className="text-gray-300 hover:text-card-red transition"
                                 >
                                   <IconX size={12} />
@@ -195,7 +197,7 @@ export default function DesignacionGeneral() {
                       to={`/designaciones?encuentro=${p.id}`}
                       className="text-navy-600 hover:text-navy-900 hover:underline text-xs font-medium whitespace-nowrap pt-0.5"
                     >
-                      Designar
+                      {t('acciones.designar')}
                     </Link>
                   )}
                 </div>
