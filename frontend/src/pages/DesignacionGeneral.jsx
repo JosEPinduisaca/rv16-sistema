@@ -309,19 +309,19 @@ export default function DesignacionGeneral() {
       {confirmarQuitar && (
         <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center px-4">
           <div className="bg-white rounded-lg shadow-xl max-w-sm w-full p-5">
-            <h3 className="font-display text-lg font-semibold text-navy-900 mb-2">¿Quitar esta designación?</h3>
+            <h3 className="font-display text-lg font-semibold text-navy-900 mb-2">{t('modal.confirmarQuitarTitulo')}</h3>
             <div className="flex justify-end gap-2">
               <button
                 onClick={() => setConfirmarQuitar(null)}
                 className="px-3 py-1.5 rounded text-sm font-medium border border-gray-300 text-gray-600 hover:bg-gray-50"
               >
-                Cancelar
+                {t('common:acciones.cancelar')}
               </button>
               <button
                 onClick={confirmarQuitarDesignacion}
                 className="px-3 py-1.5 rounded text-sm font-medium text-white bg-card-red hover:bg-card-red-dark"
               >
-                Quitar
+                {t('acciones.quitar')}
               </button>
             </div>
           </div>

@@ -316,11 +316,10 @@ export default function Tarifas() {
         <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center px-4">
           <div className="bg-white rounded-lg shadow-xl max-w-sm w-full p-5">
             <h3 className="font-display text-lg font-semibold text-navy-900 mb-2">
-              ¿Eliminar la tarifa de {confirmarEliminar.etiqueta}?
+              {t('modal.confirmarEliminar.titulo', { etiqueta: confirmarEliminar.etiqueta })}
             </h3>
             <p className="text-sm text-gray-500 mb-4">
-              Si intentas designar a alguien con esta combinación después de borrarla, el sistema
-              volverá a pedirte que la configures.
+              {t('modal.confirmarEliminar.texto')}
             </p>
             {errorEliminar && <p className="text-xs text-card-red-dark bg-card-red/10 px-2 py-1.5 rounded mb-3">{errorEliminar}</p>}
             <div className="flex justify-end gap-2">
@@ -328,13 +327,13 @@ export default function Tarifas() {
                 onClick={() => setConfirmarEliminar(null)}
                 className="px-3 py-1.5 rounded text-sm font-medium border border-gray-300 text-gray-600 hover:bg-gray-50"
               >
-                Cancelar
+                {t('common:acciones.cancelar')}
               </button>
               <button
                 onClick={confirmarEliminarTarifa}
                 className="px-3 py-1.5 rounded text-sm font-medium text-white bg-card-red hover:bg-card-red-dark"
               >
-                Eliminar
+                {t('common:acciones.eliminar')}
               </button>
             </div>
           </div>

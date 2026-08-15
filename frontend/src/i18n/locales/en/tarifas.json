@@ -29,7 +29,7 @@
     "nuevaCategoria": {
       "titulo": "New category",
       "textoPre": "Created with the",
-      "textoPost": "rate. Later, if you need it, you can add the Assistant one from \"Edit\".",
+      "textoPost": " rate. Later, if you need it, you can add the Assistant one from \"Edit\".",
       "nombreCategoria": "Category name",
       "nombreCategoriaPlaceholder": "E.g. Under 15, Veterans, Category A",
       "montoCentral": "Central amount ($)",
@@ -41,7 +41,7 @@
       "rol": "Role",
       "monto": "Amount ($)",
       "faltaTarifaPre": "\"{{categoria}}\" is missing the",
-      "faltaTarifaPost": "rate",
+      "faltaTarifaPost": " rate",
       "montoParaPlaceholder": "Amount for {{rol}} ($)",
       "agregar": "+ Add"
     },
