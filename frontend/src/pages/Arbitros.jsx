@@ -13,7 +13,7 @@ import {
 } from '../utils/validaciones';
 
 const NIVELES = ['formacion', 'con_experiencia', 'nuevo'];
-const FORM_VACIO = { cedula: '', nombres: '', apellidos: '', email: '', password: '', telefono: '' };
+const FORM_VACIO = { cedula: '', nombres: '', apellidos: '', email: '', password: '', telefono:'' };
 const soloLetras = (v) => v.replace(/[^A-Za-zÁÉÍÓÚáéíóúÑñÜü\s]/g, '');
 const soloDigitos = (v) => v.replace(/\D/g, '');
 
@@ -246,6 +246,7 @@ export default function Arbitros() {
             <thead className="bg-navy-50 text-navy-700 text-left">
               <tr>
                 <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide">{t('columnas.nombre')}</th>
+                <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide">{t('columnas.cedula')}</th>
                 <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide">{t('columnas.email')}</th>
                 <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide">{t('columnas.nivel')}</th>
                 <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide">{t('columnas.estado')}</th>
@@ -256,6 +257,7 @@ export default function Arbitros() {
               {arbitros.map((a) => (
                 <tr key={a.id} className="border-t border-gray-100 hover:bg-navy-50/40">
                   <td className="px-4 py-2.5 font-medium text-navy-900 whitespace-nowrap">{a.nombres} {a.apellidos}</td>
+                  <td className="px-4 py-2.5 text-gray-500">{a.cedula}</td>
                   <td className="px-4 py-2.5 text-gray-500">{a.email}</td>
                   <td className="px-4 py-2.5">
                     {puedeGestionar ? (
