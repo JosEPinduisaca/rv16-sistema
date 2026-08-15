@@ -1,1 +1,31 @@
-{}
+{
+  "titulo": "Mis finanzas",
+  "misLiquidaciones": "Mis liquidaciones",
+  "columnasLiquidaciones": {
+    "periodo": "Período",
+    "neto": "Neto",
+    "estado": "Estado"
+  },
+  "misAdelantos": "Mis adelantos",
+  "columnasAdelantos": {
+    "fecha": "Fecha",
+    "monto": "Monto",
+    "estado": "Estado"
+  },
+  "vacio": {
+    "liquidaciones": "Sin liquidaciones aún",
+    "adelantos": "Sin adelantos aún"
+  },
+  "solicitarAdelanto": "Solicitar adelanto",
+  "campos": {
+    "monto": "Monto ($)"
+  },
+  "mensajes": {
+    "solicitudEnviada": "Solicitud enviada. Queda pendiente de aprobación.",
+    "errorSolicitar": "Error al solicitar el adelanto"
+  },
+  "botones": {
+    "solicitar": "Solicitar",
+    "ver": "Ver"
+  }
+}

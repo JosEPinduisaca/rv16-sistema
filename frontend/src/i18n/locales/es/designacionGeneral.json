@@ -1,1 +1,45 @@
-{}
+{
+  "titulo": "Designación general",
+  "subtitulo": "Cronograma completo del día, todas las canchas",
+  "leyenda": {
+    "sinDesignar": "Sin designar",
+    "yaDesignado": "Ya designado"
+  },
+  "filtros": {
+    "resaltarArbitro": "Resaltar árbitro",
+    "ninguno": "Ninguno",
+    "filtrarPorFecha": "Filtrar por fecha"
+  },
+  "acciones": {
+    "colapsarTodos": "Colapsar todos",
+    "expandirTodos": "Expandir todos",
+    "publicarParaArbitros": "Publicar para los árbitros",
+    "despublicar": "Despublicar",
+    "designar": "Designar",
+    "quitarDesignacionTitulo": "Quitar designación",
+    "quitar": "Quitar"
+  },
+  "titulos": {
+    "publicarConFecha": "Publica todo lo revisado de {{fecha}}",
+    "publicarSinFecha": "Publica todo lo revisado (todas las fechas)",
+    "despublicar": "Permite volver a editar lo ya publicado, sin quitarlo de la vista del árbitro"
+  },
+  "panel": {
+    "partidos_one": "{{count}} partido",
+    "partidos_other": "{{count}} partidos",
+    "sinDesignarSufijo": "{{count}} sin designar",
+    "sinDesignarLabel": "sin designar"
+  },
+  "mensajes": {
+    "vacioConFecha": "No hay encuentros para esa fecha",
+    "vacioSinFecha": "No hay encuentros registrados",
+    "errorQuitar": "Error al quitar la designación",
+    "sinPendientesPublicar": "No había designaciones pendientes de publicar.",
+    "errorPublicar": "Error al publicar",
+    "sinPublicadasDespublicar": "No había designaciones publicadas para revertir.",
+    "errorDespublicar": "Error al despublicar"
+  },
+  "modal": {
+    "confirmarQuitarTitulo": "¿Quitar esta designación?"
+  }
+}

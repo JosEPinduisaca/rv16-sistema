@@ -39,7 +39,7 @@ export default function Arbitros() {
     api
       .get('/arbitros')
       .then((res) => setArbitros(res.data))
-      .catch(() => setError('No se pudo cargar la lista de árbitros'))
+      .catch(() => setError(t('mensajes.errorCargar')))
       .finally(() => setCargando(false));
   }
 
@@ -50,7 +50,7 @@ export default function Arbitros() {
       await api.put(`/arbitros/${id}/estado`, { activo });
       cargar();
     } catch (err) {
-      setError(err.response?.data?.error || 'Error al actualizar el estado');
+      setError(err.response?.data?.error || t('mensajes.errorEstado'));
     }
   }
 
@@ -62,7 +62,7 @@ export default function Arbitros() {
       setNivelesEditados((prev) => { const copia = { ...prev }; delete copia[id]; return copia; });
       cargar();
     } catch (err) {
-      setError(err.response?.data?.error || 'Error al actualizar el nivel');
+      setError(err.response?.data?.error || t('mensajes.errorNivel'));
     }
   }
 
@@ -89,12 +89,12 @@ export default function Arbitros() {
         email: modalEditar.email,
         telefono: modalEditar.telefono,
       });
-      setMensaje('Árbitro actualizado correctamente');
+      setMensaje(t('mensajes.editado'));
       setError(null);
       setModalEditar(null);
       cargar();
     } catch (err) {
-      setErrorEditar(err.response?.data?.error || 'Error al actualizar el árbitro');
+      setErrorEditar(err.response?.data?.error || t('mensajes.errorEditar'));
     }
   }
 
@@ -102,7 +102,7 @@ export default function Arbitros() {
     const { id, nombre } = confirmarEliminar;
     try {
       await api.delete(`/arbitros/${id}`);
-      setMensaje(`${nombre} fue eliminado correctamente`);
+      setMensaje(t('mensajes.eliminado', { nombre }));
       setError(null);
       setConfirmarEliminar(null);
       cargar();
@@ -112,7 +112,7 @@ export default function Arbitros() {
         setConfirmarEliminar(null);
         setPreguntaHistorial({ id, nombre });
       } else {
-        setError(err.response?.data?.error || 'Error al eliminar el árbitro');
+        setError(err.response?.data?.error || t('mensajes.errorEliminar'));
         setConfirmarEliminar(null);
       }
     }
@@ -121,12 +121,12 @@ export default function Arbitros() {
   async function soloDesactivarDesdePregunta() {
     try {
       await api.put(`/arbitros/${preguntaHistorial.id}/estado`, { activo: false });
-      setMensaje(`${preguntaHistorial.nombre} fue desactivado (conserva su historial)`);
+      setMensaje(t('mensajes.desactivado', { nombre: preguntaHistorial.nombre }));
       setError(null);
       setPreguntaHistorial(null);
       cargar();
     } catch (err) {
-      setError(err.response?.data?.error || 'Error al desactivar el árbitro');
+      setError(err.response?.data?.error || t('mensajes.errorDesactivar'));
       setPreguntaHistorial(null);
     }
   }
@@ -134,12 +134,12 @@ export default function Arbitros() {
   async function eliminarConHistorial() {
     try {
       await api.delete(`/arbitros/${preguntaHistorial.id}?forzar=true`);
-      setMensaje(`${preguntaHistorial.nombre} y todo su historial fueron eliminados por completo`);
+      setMensaje(t('mensajes.eliminadoConHistorial', { nombre: preguntaHistorial.nombre }));
       setError(null);
       setPreguntaHistorial(null);
       cargar();
     } catch (err) {
-      setError(err.response?.data?.error || 'Error al eliminar el árbitro');
+      setError(err.response?.data?.error || t('mensajes.errorEliminar'));
       setPreguntaHistorial(null);
     }
   }
@@ -150,29 +150,29 @@ export default function Arbitros() {
     setMensaje(null);
     try {
       await api.post('/auth/registro', { ...form, rol: 'arbitro' });
-      setMensaje(`Árbitro ${form.nombres} ${form.apellidos} registrado correctamente`);
+      setMensaje(t('mensajes.registrado', { nombres: form.nombres, apellidos: form.apellidos }));
       setForm(FORM_VACIO);
       cargar();
     } catch (err) {
-      setError(err.response?.data?.error || 'Error al registrar el árbitro');
+      setError(err.response?.data?.error || t('mensajes.errorRegistrar'));
     }
   }
 
-  if (cargando) return <p className="text-sm text-gray-500">Cargando...</p>;
+  if (cargando) return <p className="text-sm text-gray-500">{t('common:estado.cargando')}</p>;
 
   return (
     <div className="grid md:grid-cols-3 gap-6">
       <div className="md:col-span-2">
-        <h1 className="font-display text-2xl font-semibold text-navy-900 mb-5">Árbitros</h1>
+        <h1 className="font-display text-2xl font-semibold text-navy-900 mb-5">{t('titulo')}</h1>
         <div className="bg-white border border-gray-200 rounded-lg overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="bg-navy-50 text-navy-700 text-left">
               <tr>
-                <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide">Nombre</th>
-                <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide">Email</th>
-                <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide">Nivel</th>
-                <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide">Estado</th>
-                {esAdmin && <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide">Acciones</th>}
+                <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide">{t('columnas.nombre')}</th>
+                <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide">{t('columnas.email')}</th>
+                <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide">{t('columnas.nivel')}</th>
+                <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide">{t('columnas.estado')}</th>
+                {esAdmin && <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide">{t('columnas.acciones')}</th>}
               </tr>
             </thead>
             <tbody>
@@ -195,7 +195,7 @@ export default function Arbitros() {
                         {nivelesEditados[a.id] && nivelesEditados[a.id] !== a.nivel && (
                           <button
                             onClick={() => guardarNivel(a.id)}
-                            title="Guardar nivel"
+                            title={t('acciones.guardarNivel')}
                             className="text-navy-600 hover:text-navy-900"
                           >
                             <IconDeviceFloppy size={16} />
@@ -214,7 +214,7 @@ export default function Arbitros() {
                       <div className="flex gap-3 whitespace-nowrap">
                         <button
                           onClick={() => abrirEditar(a)}
-                          title="Editar"
+                          title={t('common:acciones.editar')}
                           className="text-navy-600 hover:text-navy-900"
                         >
                           <IconEdit size={17} />
@@ -222,7 +222,7 @@ export default function Arbitros() {
                         {a.activo ? (
                           <button
                             onClick={() => cambiarEstado(a.id, false)}
-                            title="Desactivar"
+                            title={t('common:acciones.desactivar')}
                             className="text-card-red hover:text-card-red-dark"
                           >
                             <IconUserOff size={17} />
@@ -230,7 +230,7 @@ export default function Arbitros() {
                         ) : (
                           <button
                             onClick={() => cambiarEstado(a.id, true)}
-                            title="Reactivar"
+                            title={t('common:acciones.reactivar')}
                             className="text-pitch-green hover:text-pitch-green-dark"
                           >
                             <IconUserCheck size={17} />
@@ -238,7 +238,7 @@ export default function Arbitros() {
                         )}
                         <button
                           onClick={() => setConfirmarEliminar({ id: a.id, nombre: `${a.nombres} ${a.apellidos}` })}
-                          title="Eliminar"
+                          title={t('common:acciones.eliminar')}
                           className="text-gray-400 hover:text-card-red"
                         >
                           <IconTrash size={17} />
@@ -251,7 +251,7 @@ export default function Arbitros() {
               {arbitros.length === 0 && (
                 <tr>
                   <td colSpan={5} className="px-4 py-8 text-center text-gray-400 text-sm">
-                    No hay árbitros registrados
+                    {t('vacio')}
                   </td>
                 </tr>
               )}
@@ -262,43 +262,43 @@ export default function Arbitros() {
 
       {esAdmin && (
         <div>
-          <h2 className="text-sm font-semibold text-navy-900 uppercase tracking-wide mb-3">Registrar árbitro</h2>
+          <h2 className="text-sm font-semibold text-navy-900 uppercase tracking-wide mb-3">{t('registrar.titulo')}</h2>
           <form onSubmit={registrar} className="bg-white border border-gray-200 rounded-lg p-4 space-y-3">
             <div>
-              <label className="block text-xs text-gray-600 mb-1">Cédula</label>
+              <label className="block text-xs text-gray-600 mb-1">{t('campos.cedula')}</label>
               <input
                 required
                 inputMode="numeric"
                 pattern="\d{10}"
                 maxLength={10}
-                placeholder="Ingrese los 10 dígitos de la cédula"
+                placeholder={t('campos.cedulaPlaceholder')}
                 value={form.cedula}
                 onChange={(e) => setForm({ ...form, cedula: soloDigitos(e.target.value) })}
                 className="w-full border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-navy-600"
               />
             </div>
             <div>
-              <label className="block text-xs text-gray-600 mb-1">Nombres</label>
+              <label className="block text-xs text-gray-600 mb-1">{t('campos.nombres')}</label>
               <input
                 required
-                placeholder="Solo letras"
+                placeholder={t('campos.soloLetras')}
                 value={form.nombres}
                 onChange={(e) => setForm({ ...form, nombres: soloLetras(e.target.value) })}
                 className="w-full border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-navy-600"
               />
             </div>
             <div>
-              <label className="block text-xs text-gray-600 mb-1">Apellidos</label>
+              <label className="block text-xs text-gray-600 mb-1">{t('campos.apellidos')}</label>
               <input
                 required
-                placeholder="Solo letras"
+                placeholder={t('campos.soloLetras')}
                 value={form.apellidos}
                 onChange={(e) => setForm({ ...form, apellidos: soloLetras(e.target.value) })}
                 className="w-full border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-navy-600"
               />
             </div>
             <div>
-              <label className="block text-xs text-gray-600 mb-1">Email</label>
+              <label className="block text-xs text-gray-600 mb-1">{t('campos.email')}</label>
               <input
                 type="email" required
                 value={form.email}
@@ -307,18 +307,18 @@ export default function Arbitros() {
               />
             </div>
             <div>
-              <label className="block text-xs text-gray-600 mb-1">Teléfono</label>
+              <label className="block text-xs text-gray-600 mb-1">{t('campos.telefono')}</label>
               <input
                 inputMode="numeric"
                 maxLength={10}
-                placeholder="7 a 10 dígitos"
+                placeholder={t('campos.telefonoPlaceholder')}
                 value={form.telefono}
                 onChange={(e) => setForm({ ...form, telefono: soloDigitos(e.target.value) })}
                 className="w-full border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-navy-600"
               />
             </div>
             <div>
-              <label className="block text-xs text-gray-600 mb-1">Contraseña temporal</label>
+              <label className="block text-xs text-gray-600 mb-1">{t('campos.passwordTemporal')}</label>
               <input
                 type="password" required minLength={6}
                 value={form.password}
@@ -329,7 +329,7 @@ export default function Arbitros() {
             {error && <p className="text-xs text-card-red-dark bg-card-red/10 px-2 py-1.5 rounded">{error}</p>}
             {mensaje && <p className="text-xs text-pitch-green-dark bg-pitch-green/10 px-2 py-1.5 rounded">{mensaje}</p>}
             <button className="w-full bg-navy-900 hover:bg-navy-800 text-white py-2 rounded text-sm font-medium transition">
-              Registrar árbitro
+              {t('registrar.boton')}
             </button>
           </form>
         </div>
@@ -339,20 +339,20 @@ export default function Arbitros() {
       {modalEditar && (
         <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center px-4">
           <div className="bg-white rounded-lg shadow-xl max-w-sm w-full p-5">
-            <h3 className="font-display text-lg font-semibold text-navy-900 mb-4">Editar árbitro</h3>
+            <h3 className="font-display text-lg font-semibold text-navy-900 mb-4">{t('modal.editar.titulo')}</h3>
             <form onSubmit={guardarEdicion} className="space-y-3">
               <div>
-                <label className="block text-xs text-gray-600 mb-1">Cédula</label>
+                <label className="block text-xs text-gray-600 mb-1">{t('campos.cedula')}</label>
                 <input
                   required inputMode="numeric" maxLength={10}
-                  placeholder="Ingrese los 10 dígitos de la cédula"
+                  placeholder={t('campos.cedulaPlaceholder')}
                   value={modalEditar.cedula}
                   onChange={(e) => setModalEditar({ ...modalEditar, cedula: soloDigitos(e.target.value) })}
                   className="w-full border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-navy-600"
                 />
               </div>
               <div>
-                <label className="block text-xs text-gray-600 mb-1">Nombres</label>
+                <label className="block text-xs text-gray-600 mb-1">{t('campos.nombres')}</label>
                 <input
                   required
                   value={modalEditar.nombres}
@@ -361,7 +361,7 @@ export default function Arbitros() {
                 />
               </div>
               <div>
-                <label className="block text-xs text-gray-600 mb-1">Apellidos</label>
+                <label className="block text-xs text-gray-600 mb-1">{t('campos.apellidos')}</label>
                 <input
                   required
                   value={modalEditar.apellidos}
@@ -370,7 +370,7 @@ export default function Arbitros() {
                 />
               </div>
               <div>
-                <label className="block text-xs text-gray-600 mb-1">Email</label>
+                <label className="block text-xs text-gray-600 mb-1">{t('campos.email')}</label>
                 <input
                   type="email" required
                   value={modalEditar.email}
@@ -379,7 +379,7 @@ export default function Arbitros() {
                 />
               </div>
               <div>
-                <label className="block text-xs text-gray-600 mb-1">Teléfono</label>
+                <label className="block text-xs text-gray-600 mb-1">{t('campos.telefono')}</label>
                 <input
                   inputMode="numeric" maxLength={10}
                   value={modalEditar.telefono}
@@ -394,10 +394,10 @@ export default function Arbitros() {
                   onClick={() => setModalEditar(null)}
                   className="px-3 py-1.5 rounded text-sm font-medium border border-gray-300 text-gray-600 hover:bg-gray-50"
                 >
-                  Cancelar
+                  {t('common:acciones.cancelar')}
                 </button>
                 <button className="px-3 py-1.5 rounded text-sm font-medium text-white bg-navy-900 hover:bg-navy-800">
-                  Guardar cambios
+                  {t('common:acciones.guardarCambios')}
                 </button>
               </div>
             </form>
@@ -410,24 +410,23 @@ export default function Arbitros() {
         <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center px-4">
           <div className="bg-white rounded-lg shadow-xl max-w-sm w-full p-5">
             <h3 className="font-display text-lg font-semibold text-navy-900 mb-2">
-              ¿Eliminar a {confirmarEliminar.nombre}?
+              {t('modal.confirmarEliminar.titulo', { nombre: confirmarEliminar.nombre })}
             </h3>
             <p className="text-sm text-gray-500 mb-4">
-              Esta acción no se puede deshacer. Si el árbitro ya tiene designaciones, adelantos o
-              liquidaciones registradas, el sistema no permitirá eliminarlo (usa "Desactivar" en ese caso).
+              {t('modal.confirmarEliminar.texto')}
             </p>
             <div className="flex justify-end gap-2">
               <button
                 onClick={() => setConfirmarEliminar(null)}
                 className="px-3 py-1.5 rounded text-sm font-medium border border-gray-300 text-gray-600 hover:bg-gray-50"
               >
-                Cancelar
+                {t('common:acciones.cancelar')}
               </button>
               <button
                 onClick={confirmarEliminarArbitro}
                 className="px-3 py-1.5 rounded text-sm font-medium text-white bg-card-red hover:bg-card-red-dark"
               >
-                Eliminar
+                {t('common:acciones.eliminar')}
               </button>
             </div>
           </div>
@@ -438,28 +437,28 @@ export default function Arbitros() {
         <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center px-4">
           <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-5">
             <h3 className="font-display text-lg font-semibold text-navy-900 mb-2">
-              {preguntaHistorial.nombre} tiene historial en el sistema
+              {t('modal.preguntaHistorial.titulo', { nombre: preguntaHistorial.nombre })}
             </h3>
             <p className="text-sm text-gray-500 mb-5">
-              Tiene designaciones, adelantos, liquidaciones o disponibilidad registrada. ¿Qué quieres hacer?
+              {t('modal.preguntaHistorial.texto')}
             </p>
             <div className="space-y-2">
               <button
                 onClick={soloDesactivarDesdePregunta}
                 className="w-full text-left border border-gray-200 rounded-lg p-3 hover:bg-navy-50 transition"
               >
-                <p className="text-sm font-medium text-navy-900">Solo desactivarlo</p>
+                <p className="text-sm font-medium text-navy-900">{t('modal.preguntaHistorial.opcionDesactivar.titulo')}</p>
                 <p className="text-xs text-gray-500 mt-0.5">
-                  Ya no podrá iniciar sesión ni ser designado, pero su historial se conserva completo.
+                  {t('modal.preguntaHistorial.opcionDesactivar.descripcion')}
                 </p>
               </button>
               <button
                 onClick={eliminarConHistorial}
                 className="w-full text-left border border-card-red/30 rounded-lg p-3 hover:bg-card-red/5 transition"
               >
-                <p className="text-sm font-medium text-card-red-dark">Eliminar del sistema por completo</p>
+                <p className="text-sm font-medium text-card-red-dark">{t('modal.preguntaHistorial.opcionEliminar.titulo')}</p>
                 <p className="text-xs text-gray-500 mt-0.5">
-                  Borra también sus designaciones, adelantos y liquidaciones. No se puede deshacer.
+                  {t('modal.preguntaHistorial.opcionEliminar.descripcion')}
                 </p>
               </button>
             </div>
@@ -467,7 +466,7 @@ export default function Arbitros() {
               onClick={() => setPreguntaHistorial(null)}
               className="w-full mt-3 px-3 py-1.5 rounded text-sm font-medium border border-gray-300 text-gray-600 hover:bg-gray-50"
             >
-              Cancelar
+              {t('common:acciones.cancelar')}
             </button>
           </div>
         </div>

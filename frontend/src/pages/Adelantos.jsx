@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { IconCheck, IconX } from '@tabler/icons-react';
 import api from '../api/client';
 import TarjetaEstado from '../components/TarjetaEstado';
@@ -28,6 +29,7 @@ function colorPorAntiguedad(dias) {
 }
 
 export default function Adelantos() {
+  const { t } = useTranslation(['adelantos', 'common']);
   const [arbitros, setArbitros] = useState([]);
   const [todos, setTodos] = useState([]);
   const [arbitroSeleccionado, setArbitroSeleccionado] = useState('');
@@ -51,7 +53,7 @@ export default function Adelantos() {
       setMonto('');
       cargarTodos();
     } catch (err) {
-      setError(err.response?.data?.error || 'Error al solicitar el adelanto');
+      setError(err.response?.data?.error || t('mensajes.errorSolicitar'));
     }
   }
 
@@ -60,31 +62,30 @@ export default function Adelantos() {
       await api.put(`/adelantos/${id}/estado`, { estado });
       cargarTodos();
     } catch (err) {
-      setError(err.response?.data?.error || 'Error al actualizar el adelanto');
+      setError(err.response?.data?.error || t('mensajes.errorActualizar'));
     }
   }
 
   return (
     <div className="grid md:grid-cols-3 gap-6">
       <div className="md:col-span-2">
-        <h1 className="font-display text-2xl font-semibold text-navy-900 mb-2">Adelantos</h1>
+        <h1 className="font-display text-2xl font-semibold text-navy-900 mb-2">{t('titulo')}</h1>
         <p className="text-xs text-gray-500 mb-4">
-          Ordenados por prioridad: los pendientes más antiguos primero. El color indica cuánto
-          tiempo llevan esperando —
+          {t('leyenda.intro')}
           <span className="inline-block w-3 h-3 rounded-sm align-middle mx-1" style={{ backgroundColor: colorPorAntiguedad(0) }} />
-          recién pedido →
+          {t('leyenda.recienPedido')}
           <span className="inline-block w-3 h-3 rounded-sm align-middle mx-1" style={{ backgroundColor: colorPorAntiguedad(MAX_DIAS_DEGRADADO) }} />
-          {MAX_DIAS_DEGRADADO}+ días esperando.
+          {t('leyenda.diasEsperando', { max: MAX_DIAS_DEGRADADO })}
         </p>
         <div className="bg-white border border-gray-200 rounded-lg overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="bg-navy-50 text-navy-700 text-left">
               <tr>
-                <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide">Árbitro</th>
-                <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide">Fecha pedida</th>
-                <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide">Espera</th>
-                <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide">Monto</th>
-                <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide">Estado</th>
+                <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide">{t('columnas.arbitro')}</th>
+                <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide">{t('columnas.fechaPedida')}</th>
+                <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide">{t('columnas.espera')}</th>
+                <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide">{t('columnas.monto')}</th>
+                <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide">{t('columnas.estado')}</th>
                 <th className="px-4 py-2.5"></th>
               </tr>
             </thead>
@@ -101,7 +102,7 @@ export default function Adelantos() {
                     <td className="px-4 py-2.5 font-medium text-navy-900 whitespace-nowrap">{a.nombres} {a.apellidos}</td>
                     <td className="px-4 py-2.5 whitespace-nowrap">{a.fecha_solicitud?.slice(0, 10)}</td>
                     <td className="px-4 py-2.5 whitespace-nowrap">
-                      {esPendiente ? `${dias} día${dias === 1 ? '' : 's'}` : '—'}
+                      {esPendiente ? t('columnas.esperaDias', { count: dias }) : '—'}
                     </td>
                     <td className="px-4 py-2.5 tabular-nums font-medium text-navy-900">${a.monto}</td>
                     <td className="px-4 py-2.5"><TarjetaEstado estado={a.estado} /></td>
@@ -110,14 +111,14 @@ export default function Adelantos() {
                         <div className="flex gap-3 whitespace-nowrap">
                           <button
                             onClick={() => cambiarEstado(a.id, 'aprobado')}
-                            title="Aprobar"
+                            title={t('common:acciones.aprobar')}
                             className="text-pitch-green hover:text-pitch-green-dark"
                           >
                             <IconCheck size={17} />
                           </button>
                           <button
                             onClick={() => cambiarEstado(a.id, 'rechazado')}
-                            title="Rechazar"
+                            title={t('common:acciones.rechazar')}
                             className="text-card-red hover:text-card-red-dark"
                           >
                             <IconX size={17} />
@@ -131,7 +132,7 @@ export default function Adelantos() {
               {todos.length === 0 && (
                 <tr>
                   <td colSpan={6} className="px-4 py-8 text-center text-gray-400 text-sm">
-                    Aún no hay adelantos registrados
+                    {t('vacio')}
                   </td>
                 </tr>
               )}
@@ -141,24 +142,24 @@ export default function Adelantos() {
       </div>
 
       <div>
-        <h2 className="text-sm font-semibold text-navy-900 uppercase tracking-wide mb-3">Registrar adelanto</h2>
+        <h2 className="text-sm font-semibold text-navy-900 uppercase tracking-wide mb-3">{t('registrarAdelanto')}</h2>
         <form onSubmit={solicitar} className="bg-white border border-gray-200 rounded-lg p-4 space-y-3">
           <div>
-            <label className="block text-xs text-gray-600 mb-1">Árbitro</label>
+            <label className="block text-xs text-gray-600 mb-1">{t('campos.arbitro')}</label>
             <select
               required
               value={arbitroSeleccionado}
               onChange={(e) => setArbitroSeleccionado(e.target.value)}
               className="w-full border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-navy-600"
             >
-              <option value="">Selecciona...</option>
+              <option value="">{t('campos.seleccionar')}</option>
               {arbitros.map((a) => (
                 <option key={a.id} value={a.id}>{a.nombres} {a.apellidos}</option>
               ))}
             </select>
           </div>
           <div>
-            <label className="block text-xs text-gray-600 mb-1">Monto ($)</label>
+            <label className="block text-xs text-gray-600 mb-1">{t('campos.monto')}</label>
             <input
               type="number" step="0.01" min="0.01" required
               value={monto}
@@ -168,7 +169,7 @@ export default function Adelantos() {
           </div>
           {error && <p className="text-xs text-card-red-dark bg-card-red/10 px-2 py-1.5 rounded">{error}</p>}
           <button className="w-full bg-navy-900 hover:bg-navy-800 text-white py-2 rounded text-sm font-medium transition">
-            Registrar
+            {t('common:acciones.registrar')}
           </button>
         </form>
       </div>

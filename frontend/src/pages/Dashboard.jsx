@@ -68,28 +68,28 @@ export default function Dashboard() {
     <div>
       <div className="mb-8">
         <h1 className="font-display text-2xl font-semibold text-navy-900">
-          Hola, {usuario?.nombres}
+          {t('saludo', { nombre: usuario?.nombres })}
         </h1>
         <p className="text-sm text-gray-500 mt-1">
-          Sesión iniciada como <span className="capitalize font-medium text-navy-700">{usuario?.rol}</span>
+          {t('sesionComo')} <span className="capitalize font-medium text-navy-700">{usuario?.rol}</span>
         </p>
       </div>
 
       {usuario?.rol !== 'arbitro' && (
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <TarjetaStat icono={IconUsers} etiqueta="Árbitros registrados" valor={stats.arbitros} to="/arbitros" />
-          <TarjetaStat icono={IconTrophy} etiqueta="Campeonatos activos" valor={stats.campeonatos} to="/campeonatos" />
-          <TarjetaStat icono={IconCalendarEvent} etiqueta="Encuentros totales" valor={stats.encuentros} to="/encuentros" />
-          <TarjetaStat icono={IconClipboardCheck} etiqueta="Sin designar" valor={stats.pendientes} to="/encuentros" />
+          <TarjetaStat icono={IconUsers} etiqueta={t('stats.arbitrosRegistrados')} valor={stats.arbitros} to="/arbitros" />
+          <TarjetaStat icono={IconTrophy} etiqueta={t('stats.campeonatosActivos')} valor={stats.campeonatos} to="/campeonatos" />
+          <TarjetaStat icono={IconCalendarEvent} etiqueta={t('stats.encuentrosTotales')} valor={stats.encuentros} to="/encuentros" />
+          <TarjetaStat icono={IconClipboardCheck} etiqueta={t('stats.sinDesignar')} valor={stats.pendientes} to="/encuentros" />
         </div>
       )}
 
       {usuario?.rol === 'arbitro' && (
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <TarjetaAtajo icono={IconClipboardCheck} etiqueta="Mis designaciones" to="/mis-designaciones" />
-          <TarjetaAtajo icono={IconListDetails} etiqueta="Designación general" to="/designacion-general" />
-          <TarjetaAtajo icono={IconCalendarStats} etiqueta="Mi disponibilidad" to="/mi-disponibilidad" />
-          <TarjetaAtajo icono={IconWallet} etiqueta="Mis finanzas" to="/mis-finanzas" />
+          <TarjetaAtajo icono={IconClipboardCheck} etiqueta={t('common:nav.misDesignaciones')} to="/mis-designaciones" />
+          <TarjetaAtajo icono={IconListDetails} etiqueta={t('common:nav.designacionGeneral')} to="/designacion-general" />
+          <TarjetaAtajo icono={IconCalendarStats} etiqueta={t('common:nav.miDisponibilidad')} to="/mi-disponibilidad" />
+          <TarjetaAtajo icono={IconWallet} etiqueta={t('common:nav.misFinanzas')} to="/mis-finanzas" />
         </div>
       )}
     </div>

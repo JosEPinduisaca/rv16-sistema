@@ -1,1 +1,51 @@
-{}
+{
+  "titulo": "Assign referee",
+  "verDesignacionesBoton": "🔍 View a referee's assignments",
+  "intro": {
+    "antesIcono": "Referees marked with",
+    "despuesIcono": "are recommended candidates based on their level and availability. You can still assign anyone. Only matches that still have an open slot are shown."
+  },
+  "campos": {
+    "encuentro": "Match",
+    "selecciona": "Select..."
+  },
+  "mensajes": {
+    "sinCupos": "There are no matches with open slots to assign.",
+    "necesitaVarios": "This match needs {{cantidad}} referees. Choose one for each slot.",
+    "sinArbitrosDisponibles": "No referees available",
+    "eligeAlMenosUno": "Choose at least one referee for one of the slots",
+    "errorDesconocido": "unknown error",
+    "errorPublicar": "Error publishing",
+    "sinComentario": "No comment",
+    "sinResultados": "No results",
+    "sinDesignaciones": "No assignments registered"
+  },
+  "slots": {
+    "central": "Referee",
+    "central1": "Referee 1",
+    "central2": "Referee 2",
+    "asistente1": "Assistant 1",
+    "asistente2": "Assistant 2"
+  },
+  "badges": {
+    "noDisponible": "Not avail.",
+    "penalizacion": "Penalty"
+  },
+  "acciones": {
+    "designar": "Assign",
+    "designando": "Assigning..."
+  },
+  "resultado": {
+    "etiquetaDesignado": "{{etiqueta}} assigned",
+    "pagoEstimado": "Estimated pay: ${{monto}} + ${{viatico}} allowance =",
+    "publicarDesignacion": "Publish assignment"
+  },
+  "panel": {
+    "noDisponibles": "Not available ({{count}})"
+  },
+  "modal": {
+    "titulo": "Search referee",
+    "placeholderNombre": "Type a name...",
+    "buscarOtro": "← Search another"
+  }
+}

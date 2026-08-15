@@ -1,1 +1,55 @@
-{}
+{
+  "volver": {
+    "liquidaciones": "Back to settlements",
+    "regresar": "Back"
+  },
+  "titulo": {
+    "liquidacionPeriodo": "{{periodo}} settlement"
+  },
+  "stats": {
+    "montoBruto": "Gross amount",
+    "adelantos": "Advances",
+    "netoAPagar": "Net to pay"
+  },
+  "partidosIncluidos": "Matches included",
+  "columnas": {
+    "fecha": "Date",
+    "cancha": "Field",
+    "categoria": "Category",
+    "rol": "Role",
+    "monto": "Amount"
+  },
+  "adelantosDescontados": "Advances deducted",
+  "acciones": {
+    "marcarPagada": "Mark as paid",
+    "esperandoConfirmacion": "The referee must confirm they agree before it can be marked as paid",
+    "confirmarTodoCorrecto": "✓ It's resolved, everything is correct"
+  },
+  "respuesta": {
+    "pendienteAdmin": "Waiting for the referee's response",
+    "pendienteArbitro": "Review this settlement and respond whenever you're ready",
+    "aceptadaAdmin": "The referee confirmed everything is correct",
+    "aceptadaArbitro": "You confirmed everything is correct",
+    "rechazadaAdmin": "The referee flagged a disagreement",
+    "rechazadaArbitro": "I disagree with this settlement"
+  },
+  "conversacion": {
+    "titulo": "Conversation",
+    "vacio": "No messages yet.",
+    "vacioSugerencia": "If something doesn't add up, write here and attach a photo if needed.",
+    "rolAdmin": "Admin",
+    "rolArbitro": "Referee",
+    "placeholderMensaje": "Write a message...",
+    "adjuntarFoto": "📎 Attach photo",
+    "enviando": "Sending...",
+    "enviar": "Send",
+    "vistaPrevia": "Preview",
+    "adjunto": "Attachment"
+  },
+  "mensajes": {
+    "errorPagar": "Error marking it as paid",
+    "errorResponder": "Error sending your response",
+    "errorVacio": "Write a message or attach an image",
+    "errorEnviar": "Error sending the message"
+  }
+}

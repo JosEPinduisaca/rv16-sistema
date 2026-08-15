@@ -1,1 +1,22 @@
-{}
+{
+  "titulo": "Mis designaciones",
+  "filtros": {
+    "proximas": "Próximas",
+    "historial": "Historial",
+    "buscarFecha": "Buscar una fecha específica"
+  },
+  "columnas": {
+    "torneo": "Torneo",
+    "fecha": "Fecha",
+    "hora": "Hora",
+    "cancha": "Cancha",
+    "rol": "Rol",
+    "estado": "Estado"
+  },
+  "cumplido": "Cumplido",
+  "vacio": {
+    "proximas": "No tienes designaciones próximas",
+    "fechaEspecifica": "No hay designaciones en esa fecha",
+    "historial": "Aún no tienes designaciones anteriores"
+  }
+}

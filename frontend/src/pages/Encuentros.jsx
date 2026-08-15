@@ -1,14 +1,15 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { IconEdit, IconTrash } from '@tabler/icons-react';
 import api from '../api/client';
 import TarjetaEstado from '../components/TarjetaEstado';
 
 const INTENSIDADES = ['alta', 'media', 'baja'];
 const MODOS_ENCUENTRO = [
-  { v: 'normal', l: 'Normal' },
-  { v: 'con_asistentes', l: 'Con asistentes' },
-  { v: 'dos_centrales', l: 'Dos centrales' },
+  { v: 'normal', l: 'modos.normal' },
+  { v: 'con_asistentes', l: 'modos.conAsistentes' },
+  { v: 'dos_centrales', l: 'modos.dosCentrales' },
 ];
 const hoyISO = () => new Date().toISOString().slice(0, 10);
 
@@ -18,13 +19,14 @@ const FORM_VACIO = {
   modo_designacion: 'normal',
 };
 const FILTROS_ESTADO = [
-  { value: '', label: 'Todos' },
-  { value: 'programado', label: 'Programar' },
-  { value: 'designado', label: 'Designados' },
-  { value: 'publicado', label: 'Publicados' },
+  { value: '', label: 'filtros.todos' },
+  { value: 'programado', label: 'filtros.programar' },
+  { value: 'designado', label: 'filtros.designados' },
+  { value: 'publicado', label: 'filtros.publicados' },
 ];
 
 export default function Encuentros() {
+  const { t } = useTranslation(['encuentros', 'common']);
   const [encuentros, setEncuentros] = useState([]);
   const [filtroEstado, setFiltroEstado] = useState('');
   const [campeonatos, setCampeonatos] = useState([]);
@@ -92,7 +94,7 @@ export default function Encuentros() {
     setMensaje(null);
 
     if (form.hora === '00:00') {
-      setError('La hora no puede ser 00:00, elige una hora real del partido');
+      setError(t('mensajes.horaInvalida'));
       return;
     }
 
@@ -125,8 +127,8 @@ export default function Encuentros() {
       }
       setMensaje(
         creados === 1
-          ? 'Encuentro ingresado correctamente'
-          : `${creados} encuentros ingresados (uno por cada cancha) en el mismo horario`
+          ? t('mensajes.ingresadoUno')
+          : t('mensajes.ingresadosVarios', { creados })
       );
       // Solo tiene sentido ofrecer el atajo de "Añadir asistentes" cuando se
       // creó un único encuentro (con varias canchas no sabríamos a cuál ir)
@@ -141,7 +143,7 @@ export default function Encuentros() {
       setTarifasCampeonato([]);
       cargar();
     } catch (err) {
-      setError(err.response?.data?.error || 'Error al ingresar el encuentro');
+      setError(err.response?.data?.error || t('mensajes.errorIngresar'));
     }
   }
 
@@ -166,7 +168,7 @@ export default function Encuentros() {
     setErrorEditar(null);
 
     if (modalEditar.hora === '00:00') {
-      setErrorEditar('La hora no puede ser 00:00, elige una hora real del partido');
+      setErrorEditar(t('mensajes.horaInvalida'));
       return;
     }
 
@@ -181,7 +183,7 @@ export default function Encuentros() {
       setModalEditar(null);
       cargar();
     } catch (err) {
-      setErrorEditar(err.response?.data?.error || 'Error al actualizar el encuentro');
+      setErrorEditar(err.response?.data?.error || t('mensajes.errorActualizar'));
     }
   }
 
@@ -192,7 +194,7 @@ export default function Encuentros() {
       setConfirmarEliminar(null);
       cargar();
     } catch (err) {
-      setErrorEliminar(err.response?.data?.error || 'Error al eliminar el encuentro');
+      setErrorEliminar(err.response?.data?.error || t('mensajes.errorEliminar'));
     }
   }
 
@@ -216,7 +218,7 @@ export default function Encuentros() {
   return (
     <div className="grid md:grid-cols-3 gap-6">
       <div className="md:col-span-2">
-        <h1 className="font-display text-2xl font-semibold text-navy-900 mb-3">Encuentros</h1>
+        <h1 className="font-display text-2xl font-semibold text-navy-900 mb-3">{t('titulo')}</h1>
         <div className="inline-flex rounded-md border border-gray-300 overflow-hidden text-xs mb-3">
           {FILTROS_ESTADO.map((f) => (
             <button
@@ -226,7 +228,7 @@ export default function Encuentros() {
                 filtroEstado === f.value ? 'bg-navy-900 text-white' : 'bg-white text-gray-600 hover:bg-gray-50'
               }`}
             >
-              {f.label}
+              {t(f.label)}
             </button>
           ))}
         </div>
@@ -234,11 +236,11 @@ export default function Encuentros() {
           <table className="w-full text-sm">
             <thead className="bg-navy-50 text-navy-700 text-left">
               <tr>
-                <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide">Fecha</th>
-                <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide">Hora</th>
-                <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide">Cancha</th>
-                <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide">Categoría</th>
-                <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide">Estado</th>
+                <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide">{t('columnas.fecha')}</th>
+                <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide">{t('columnas.hora')}</th>
+                <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide">{t('columnas.cancha')}</th>
+                <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide">{t('columnas.categoria')}</th>
+                <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide">{t('columnas.estado')}</th>
                 <th className="px-4 py-2.5"></th>
               </tr>
             </thead>
@@ -252,15 +254,15 @@ export default function Encuentros() {
                   <td className="px-4 py-2.5"><TarjetaEstado estado={en.estado} /></td>
                   <td className="px-4 py-2.5">
                     <div className="flex items-center gap-3">
-                      <button onClick={() => abrirEditar(en)} title="Editar" className="text-navy-600 hover:text-navy-900">
+                      <button onClick={() => abrirEditar(en)} title={t('common:acciones.editar')} className="text-navy-600 hover:text-navy-900">
                         <IconEdit size={16} />
                       </button>
                       <Link to={`/designaciones?encuentro=${en.id}`} className="text-navy-600 hover:text-navy-900 hover:underline text-xs font-medium">
-                        Designar
+                        {t('designar')}
                       </Link>
                       <button
                         onClick={() => { setErrorEliminar(null); setConfirmarEliminar({ id: en.id, etiqueta: `${en.cancha} · ${en.fecha?.slice(0, 10)} ${en.hora?.slice(0, 5)}` }); }}
-                        title="Eliminar"
+                        title={t('common:acciones.eliminar')}
                         className="text-gray-400 hover:text-card-red"
                       >
                         <IconTrash size={16} />
@@ -272,7 +274,7 @@ export default function Encuentros() {
               {encuentros.length === 0 && (
                 <tr>
                   <td colSpan={6} className="px-4 py-8 text-center text-gray-400 text-sm">
-                    Aún no hay encuentros registrados
+                    {t('vacio')}
                   </td>
                 </tr>
               )}

@@ -1,1 +1,62 @@
-{}
+{
+  "titulo": "Encuentros",
+  "filtros": {
+    "todos": "Todos",
+    "programar": "Programar",
+    "designados": "Designados",
+    "publicados": "Publicados"
+  },
+  "columnas": {
+    "fecha": "Fecha",
+    "hora": "Hora",
+    "cancha": "Cancha",
+    "categoria": "Categoría",
+    "estado": "Estado"
+  },
+  "designar": "Designar",
+  "vacio": "Aún no hay encuentros registrados",
+  "form": {
+    "titulo": "Ingresar encuentro",
+    "primeroCampeonato": "Primero elige un campeonato",
+    "campeonato": "Campeonato",
+    "selecciona": "Selecciona...",
+    "categoria": "Categoría",
+    "sinTarifas": "Este campeonato no tiene tarifas configuradas todavía.",
+    "admiteAsistentes": "✓ Esta categoría admite Asistentes (podrás añadirlos al designar).",
+    "intensidad": "Intensidad",
+    "fecha": "Fecha",
+    "hora": "Hora",
+    "esteEncuentroEs": "Este encuentro es:",
+    "masDeUnaCancha": "¿Es más de una cancha en este horario?",
+    "no": "No",
+    "si": "Sí",
+    "cuantasCanchas": "¿Cuántas canchas?",
+    "numerarCon": "Numerar las canchas con...",
+    "numeros": "Números (1, 2, 3...)",
+    "letras": "Letras (A, B, C...)",
+    "seCrearan": "Se crearán {{cantidad}} encuentros en el mismo horario, uno por cancha.",
+    "ingresar": "Ingresar encuentro",
+    "designarAhora": "+ Designar ahora"
+  },
+  "modos": {
+    "normal": "Normal",
+    "conAsistentes": "Con asistentes",
+    "dosCentrales": "Dos centrales"
+  },
+  "modal": {
+    "editarTitulo": "Editar encuentro",
+    "cancha": "Cancha"
+  },
+  "eliminar": {
+    "titulo": "¿Eliminar este encuentro?",
+    "aviso": "Si ya tiene árbitros designados, primero debes quitarlos desde \"Designación general\"."
+  },
+  "mensajes": {
+    "ingresadoUno": "Encuentro ingresado correctamente",
+    "ingresadosVarios": "{{creados}} encuentros ingresados (uno por cada cancha) en el mismo horario",
+    "errorIngresar": "Error al ingresar el encuentro",
+    "horaInvalida": "La hora no puede ser 00:00, elige una hora real del partido",
+    "errorActualizar": "Error al actualizar el encuentro",
+    "errorEliminar": "Error al eliminar el encuentro"
+  }
+}

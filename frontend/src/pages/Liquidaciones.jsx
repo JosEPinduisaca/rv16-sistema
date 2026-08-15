@@ -1,15 +1,17 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import api from '../api/client';
 import TarjetaEstado from '../components/TarjetaEstado';
 
 const ETIQUETA_RESPUESTA = {
-  pendiente: { texto: 'Sin responder', clase: 'text-gray-400' },
-  aceptada: { texto: '✓ Aceptada', clase: 'text-pitch-green-dark font-medium' },
-  rechazada: { texto: '✗ Desacuerdo', clase: 'text-card-red-dark font-medium' },
+  pendiente: { clave: 'respuesta.pendiente', clase: 'text-gray-400' },
+  aceptada: { clave: 'respuesta.aceptada', clase: 'text-pitch-green-dark font-medium' },
+  rechazada: { clave: 'respuesta.rechazada', clase: 'text-card-red-dark font-medium' },
 };
 
 export default function Liquidaciones() {
+  const { t } = useTranslation(['liquidaciones', 'common']);
   const [liquidaciones, setLiquidaciones] = useState([]);
   const [busqueda, setBusqueda] = useState('');
   const [filtroPeriodo, setFiltroPeriodo] = useState('');
@@ -30,26 +32,26 @@ export default function Liquidaciones() {
 
   return (
     <div>
-      <h1 className="font-display text-2xl font-semibold text-navy-900 mb-4">Liquidaciones</h1>
+      <h1 className="font-display text-2xl font-semibold text-navy-900 mb-4">{t('titulo')}</h1>
 
       <div className="mb-4 flex flex-wrap items-end gap-3">
         <div className="max-w-xs">
-          <label className="block text-xs text-gray-600 mb-1">Buscar árbitro</label>
+          <label className="block text-xs text-gray-600 mb-1">{t('filtros.buscarArbitro')}</label>
           <input
             type="text"
-            placeholder="Por nombre..."
+            placeholder={t('filtros.buscarPlaceholder')}
             value={busqueda}
             onChange={(e) => setBusqueda(e.target.value)}
             className="w-full border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-navy-600"
           />
         </div>
         <div>
-          <label className="block text-xs text-gray-600 mb-1">Período</label>
+          <label className="block text-xs text-gray-600 mb-1">{t('filtros.periodo')}</label>
           <div className="inline-flex rounded-md border border-gray-300 overflow-hidden text-xs">
             {[
-              { value: '', label: 'Todos' },
-              { value: 'quincenal', label: 'Quincenal' },
-              { value: 'mensual', label: 'Mensual' },
+              { value: '', label: t('filtros.todos') },
+              { value: 'quincenal', label: t('filtros.quincenal') },
+              { value: 'mensual', label: t('filtros.mensual') },
             ].map((op) => (
               <button
                 key={op.value}
@@ -65,7 +67,7 @@ export default function Liquidaciones() {
           </div>
         </div>
         <div>
-          <label className="block text-xs text-gray-600 mb-1">Desde</label>
+          <label className="block text-xs text-gray-600 mb-1">{t('filtros.desde')}</label>
           <input
             type="date"
             value={filtroDesde}
@@ -74,7 +76,7 @@ export default function Liquidaciones() {
           />
         </div>
         <div>
-          <label className="block text-xs text-gray-600 mb-1">Hasta</label>
+          <label className="block text-xs text-gray-600 mb-1">{t('filtros.hasta')}</label>
           <input
             type="date"
             value={filtroHasta}
@@ -88,7 +90,7 @@ export default function Liquidaciones() {
             onClick={() => { setBusqueda(''); setFiltroPeriodo(''); setFiltroDesde(''); setFiltroHasta(''); }}
             className="text-xs text-navy-600 hover:underline mb-1.5"
           >
-            Limpiar filtros
+            {t('filtros.limpiar')}
           </button>
         )}
       </div>
@@ -97,14 +99,14 @@ export default function Liquidaciones() {
         <table className="w-full text-sm">
           <thead className="bg-navy-50 text-navy-700 text-left">
             <tr>
-              <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide">Árbitro</th>
-              <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide">Período</th>
-              <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide">Rango</th>
-              <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide">Bruto</th>
-              <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide">Adelantos</th>
-              <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide">Neto</th>
-              <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide">Estado</th>
-              <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide">Respuesta árbitro</th>
+              <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide">{t('columnas.arbitro')}</th>
+              <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide">{t('columnas.periodo')}</th>
+              <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide">{t('columnas.rango')}</th>
+              <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide">{t('columnas.bruto')}</th>
+              <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide">{t('columnas.adelantos')}</th>
+              <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide">{t('columnas.neto')}</th>
+              <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide">{t('columnas.estado')}</th>
+              <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide">{t('columnas.respuestaArbitro')}</th>
               <th className="px-4 py-2.5"></th>
             </tr>
           </thead>
@@ -122,12 +124,12 @@ export default function Liquidaciones() {
                 <td className="px-4 py-2.5"><TarjetaEstado estado={l.estado} /></td>
                 <td className="px-4 py-2.5 text-xs">
                   <span className={(ETIQUETA_RESPUESTA[l.respuesta_arbitro] || ETIQUETA_RESPUESTA.pendiente).clase}>
-                    {(ETIQUETA_RESPUESTA[l.respuesta_arbitro] || ETIQUETA_RESPUESTA.pendiente).texto}
+                    {t((ETIQUETA_RESPUESTA[l.respuesta_arbitro] || ETIQUETA_RESPUESTA.pendiente).clave)}
                   </span>
                 </td>
                 <td className="px-4 py-2.5">
                   <Link to={`/liquidaciones/${l.id}`} className="text-navy-600 hover:text-navy-900 hover:underline text-xs font-medium whitespace-nowrap">
-                    Ver detalle
+                    {t('common:acciones.verDetalle')}
                   </Link>
                 </td>
               </tr>
@@ -135,7 +137,7 @@ export default function Liquidaciones() {
             {liquidacionesFiltradas.length === 0 && (
               <tr>
                 <td colSpan={9} className="px-4 py-8 text-center text-gray-400 text-sm">
-                  {(busqueda || filtroPeriodo || filtroDesde || filtroHasta) ? 'Ningún resultado coincide con esos filtros' : 'Aún no hay liquidaciones generadas'}
+                  {(busqueda || filtroPeriodo || filtroDesde || filtroHasta) ? t('vacio.conFiltros') : t('vacio.sinFiltros')}
                 </td>
               </tr>
             )}

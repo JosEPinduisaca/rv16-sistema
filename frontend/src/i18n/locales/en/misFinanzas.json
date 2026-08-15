@@ -1,1 +1,31 @@
-{}
+{
+  "titulo": "My finances",
+  "misLiquidaciones": "My settlements",
+  "columnasLiquidaciones": {
+    "periodo": "Period",
+    "neto": "Net",
+    "estado": "Status"
+  },
+  "misAdelantos": "My advances",
+  "columnasAdelantos": {
+    "fecha": "Date",
+    "monto": "Amount",
+    "estado": "Status"
+  },
+  "vacio": {
+    "liquidaciones": "No settlements yet",
+    "adelantos": "No advances yet"
+  },
+  "solicitarAdelanto": "Request advance",
+  "campos": {
+    "monto": "Amount ($)"
+  },
+  "mensajes": {
+    "solicitudEnviada": "Request sent. Pending approval.",
+    "errorSolicitar": "Error requesting the advance"
+  },
+  "botones": {
+    "solicitar": "Request",
+    "ver": "View"
+  }
+}

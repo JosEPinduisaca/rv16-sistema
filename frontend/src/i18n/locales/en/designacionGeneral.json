@@ -1,1 +1,45 @@
-{}
+{
+  "titulo": "General assignments",
+  "subtitulo": "Full schedule for the day, all courts",
+  "leyenda": {
+    "sinDesignar": "Not assigned",
+    "yaDesignado": "Already assigned"
+  },
+  "filtros": {
+    "resaltarArbitro": "Highlight referee",
+    "ninguno": "None",
+    "filtrarPorFecha": "Filter by date"
+  },
+  "acciones": {
+    "colapsarTodos": "Collapse all",
+    "expandirTodos": "Expand all",
+    "publicarParaArbitros": "Publish for referees",
+    "despublicar": "Unpublish",
+    "designar": "Assign",
+    "quitarDesignacionTitulo": "Remove assignment",
+    "quitar": "Remove"
+  },
+  "titulos": {
+    "publicarConFecha": "Publish everything reviewed for {{fecha}}",
+    "publicarSinFecha": "Publish everything reviewed (all dates)",
+    "despublicar": "Lets you edit what's already published again, without removing it from the referee's view"
+  },
+  "panel": {
+    "partidos_one": "{{count}} match",
+    "partidos_other": "{{count}} matches",
+    "sinDesignarSufijo": "{{count}} not assigned",
+    "sinDesignarLabel": "not assigned"
+  },
+  "mensajes": {
+    "vacioConFecha": "No matches for that date",
+    "vacioSinFecha": "No matches registered",
+    "errorQuitar": "Error removing the assignment",
+    "sinPendientesPublicar": "There were no pending assignments to publish.",
+    "errorPublicar": "Error publishing",
+    "sinPublicadasDespublicar": "There were no published assignments to revert.",
+    "errorDespublicar": "Error unpublishing"
+  },
+  "modal": {
+    "confirmarQuitarTitulo": "Remove this assignment?"
+  }
+}

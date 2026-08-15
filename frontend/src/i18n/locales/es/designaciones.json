@@ -1,1 +1,51 @@
-{}
+{
+  "titulo": "Designar árbitro",
+  "verDesignacionesBoton": "🔍 Ver designaciones de un árbitro",
+  "intro": {
+    "antesIcono": "Los árbitros marcados con",
+    "despuesIcono": "son candidatos recomendados según su nivel y disponibilidad. Puedes designar a cualquiera igual. Solo se muestran encuentros que todavía tienen algún cupo libre."
+  },
+  "campos": {
+    "encuentro": "Encuentro",
+    "selecciona": "Selecciona..."
+  },
+  "mensajes": {
+    "sinCupos": "No hay encuentros con cupos libres por designar.",
+    "necesitaVarios": "Este encuentro necesita {{cantidad}} árbitros. Elige uno para cada cupo.",
+    "sinArbitrosDisponibles": "No hay árbitros disponibles",
+    "eligeAlMenosUno": "Elige al menos un árbitro para alguno de los cupos",
+    "errorDesconocido": "error desconocido",
+    "errorPublicar": "Error al publicar",
+    "sinComentario": "Sin comentario",
+    "sinResultados": "Sin resultados",
+    "sinDesignaciones": "Sin designaciones registradas"
+  },
+  "slots": {
+    "central": "Central",
+    "central1": "Central 1",
+    "central2": "Central 2",
+    "asistente1": "Asistente 1",
+    "asistente2": "Asistente 2"
+  },
+  "badges": {
+    "noDisponible": "No disp.",
+    "penalizacion": "Penal."
+  },
+  "acciones": {
+    "designar": "Designar",
+    "designando": "Designando..."
+  },
+  "resultado": {
+    "etiquetaDesignado": "{{etiqueta}} designado",
+    "pagoEstimado": "Pago estimado: ${{monto}} + ${{viatico}} viático =",
+    "publicarDesignacion": "Publicar designación"
+  },
+  "panel": {
+    "noDisponibles": "No disponibles ({{count}})"
+  },
+  "modal": {
+    "titulo": "Buscar árbitro",
+    "placeholderNombre": "Escribe un nombre...",
+    "buscarOtro": "← Buscar otro"
+  }
+}

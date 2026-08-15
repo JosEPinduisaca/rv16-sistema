@@ -1,1 +1,62 @@
-{}
+{
+  "titulo": "Matches",
+  "filtros": {
+    "todos": "All",
+    "programar": "Scheduled",
+    "designados": "Assigned",
+    "publicados": "Published"
+  },
+  "columnas": {
+    "fecha": "Date",
+    "hora": "Time",
+    "cancha": "Court",
+    "categoria": "Category",
+    "estado": "Status"
+  },
+  "designar": "Assign",
+  "vacio": "No matches registered yet",
+  "form": {
+    "titulo": "Add match",
+    "primeroCampeonato": "First choose a championship",
+    "campeonato": "Championship",
+    "selecciona": "Select...",
+    "categoria": "Category",
+    "sinTarifas": "This championship doesn't have any rates configured yet.",
+    "admiteAsistentes": "✓ This category supports Assistants (you'll be able to add them when assigning).",
+    "intensidad": "Intensity",
+    "fecha": "Date",
+    "hora": "Time",
+    "esteEncuentroEs": "This match is:",
+    "masDeUnaCancha": "Is this more than one court at this time?",
+    "no": "No",
+    "si": "Yes",
+    "cuantasCanchas": "How many courts?",
+    "numerarCon": "Number the courts with...",
+    "numeros": "Numbers (1, 2, 3...)",
+    "letras": "Letters (A, B, C...)",
+    "seCrearan": "{{cantidad}} matches will be created at the same time, one per court.",
+    "ingresar": "Add match",
+    "designarAhora": "+ Assign now"
+  },
+  "modos": {
+    "normal": "Normal",
+    "conAsistentes": "With assistants",
+    "dosCentrales": "Two referees"
+  },
+  "modal": {
+    "editarTitulo": "Edit match",
+    "cancha": "Court"
+  },
+  "eliminar": {
+    "titulo": "Delete this match?",
+    "aviso": "If it already has referees assigned, you must first remove them from \"General assignments\"."
+  },
+  "mensajes": {
+    "ingresadoUno": "Match added successfully",
+    "ingresadosVarios": "{{creados}} matches added (one per court) at the same time",
+    "errorIngresar": "Error adding the match",
+    "horaInvalida": "The time can't be 00:00, choose the actual kickoff time",
+    "errorActualizar": "Error updating the match",
+    "errorEliminar": "Error deleting the match"
+  }
+}

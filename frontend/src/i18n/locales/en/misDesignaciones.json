@@ -1,1 +1,22 @@
-{}
+{
+  "titulo": "My assignments",
+  "filtros": {
+    "proximas": "Upcoming",
+    "historial": "History",
+    "buscarFecha": "Search a specific date"
+  },
+  "columnas": {
+    "torneo": "Championship",
+    "fecha": "Date",
+    "hora": "Time",
+    "cancha": "Field",
+    "rol": "Role",
+    "estado": "Status"
+  },
+  "cumplido": "Completed",
+  "vacio": {
+    "proximas": "You have no upcoming assignments",
+    "fechaEspecifica": "There are no assignments on that date",
+    "historial": "You have no past assignments yet"
+  }
+}
