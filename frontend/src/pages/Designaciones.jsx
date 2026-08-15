@@ -3,6 +3,7 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { IconStarFilled } from '@tabler/icons-react';
 import api from '../api/client';
+import useCargaActiva from '../hooks/useCargaActiva';
 import TarjetaEstado from '../components/TarjetaEstado';
 
 // Color más intenso mientras mayor es la intensidad del encuentro.
@@ -32,6 +33,7 @@ export default function Designaciones() {
   const [arbitroSeleccionado, setArbitroSeleccionado] = useState(null);
   const [designacionesArbitro, setDesignacionesArbitro] = useState([]);
   const [cargandoDesignaciones, setCargandoDesignaciones] = useState(false);
+  const cargaActiva = useCargaActiva();
 
   function abrirBuscador() {
     setModalBuscar(true);
@@ -213,7 +215,8 @@ export default function Designaciones() {
         <h1 className="font-display text-2xl font-semibold text-navy-900">{t('titulo')}</h1>
         <button
           onClick={abrirBuscador}
-          className="text-xs text-navy-600 hover:underline whitespace-nowrap mt-1.5"
+          disabled={cargaActiva}
+          className="text-xs text-navy-600 hover:underline whitespace-nowrap mt-1.5 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {t('verDesignacionesBoton')}
         </button>
@@ -299,7 +302,7 @@ export default function Designaciones() {
           )}
 
           <button
-            disabled={designando || Object.keys(seleccionPorSlot).length === 0}
+            disabled={designando || cargaActiva || Object.keys(seleccionPorSlot).length === 0}
             className="w-full bg-navy-900 hover:bg-navy-800 text-white py-2 rounded text-sm font-medium transition disabled:opacity-50"
           >
             {designando ? t('acciones.designando') : t('acciones.designar')}
@@ -322,7 +325,8 @@ export default function Designaciones() {
               {c.designacion.estado !== 'publicada' && (
                 <button
                   onClick={() => publicar(c.designacion.id, idx)}
-                  className="mt-3 bg-pitch-green hover:bg-pitch-green-dark text-white text-xs px-3 py-2 rounded font-medium transition"
+                  disabled={cargaActiva}
+                  className="mt-3 bg-pitch-green hover:bg-pitch-green-dark text-white text-xs px-3 py-2 rounded font-medium transition disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {t('resultado.publicarDesignacion')}
                 </button>
@@ -369,7 +373,11 @@ export default function Designaciones() {
           <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-5 max-h-[80vh] flex flex-col">
             <div className="flex items-center justify-between mb-3">
               <h3 className="font-display text-lg font-semibold text-navy-900">{t('modal.titulo')}</h3>
-              <button onClick={() => setModalBuscar(false)} className="text-gray-400 hover:text-gray-600 text-sm">
+              <button
+                onClick={() => setModalBuscar(false)}
+                disabled={cargaActiva}
+                className="text-gray-400 hover:text-gray-600 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+              >
                 ✕
               </button>
             </div>
@@ -389,7 +397,8 @@ export default function Designaciones() {
                   <button
                     key={a.id}
                     onClick={() => verDesignacionesDe(a)}
-                    className="w-full text-left px-3 py-2 text-sm hover:bg-navy-50 transition flex items-center gap-2 justify-between"
+                    disabled={cargaActiva}
+                    className="w-full text-left px-3 py-2 text-sm hover:bg-navy-50 transition flex items-center gap-2 justify-between disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <span className="text-navy-900 min-w-0 truncate">{a.nombres} {a.apellidos}</span>
                     <span className="text-xs text-gray-400 capitalize shrink-0">{a.nivel?.replace('_', ' ')}</span>

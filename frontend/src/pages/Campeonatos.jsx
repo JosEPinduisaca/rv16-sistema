@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { IconEdit, IconTrash } from '@tabler/icons-react';
 import api from '../api/client';
 import { useAuth } from '../context/AuthContext';
+import useCargaActiva from '../hooks/useCargaActiva';
 
 const FORM_VACIO = {
   nombre: '', fecha_inicio: '', fecha_fin: '',
@@ -49,6 +50,7 @@ export default function Campeonatos() {
   const [errorEditar, setErrorEditar] = useState(null);
   const [confirmarEliminar, setConfirmarEliminar] = useState(null); // { id, nombre }
   const [errorEliminar, setErrorEliminar] = useState(null);
+  const cargaActiva = useCargaActiva();
 
   function cargar() {
     api.get('/campeonatos').then((res) => setCampeonatos(res.data));
@@ -166,13 +168,19 @@ export default function Campeonatos() {
                     {esAdmin && (
                       <td className="px-4 py-2.5">
                         <div className="flex gap-3">
-                          <button onClick={() => abrirEditar(c)} title={t('common:acciones.editar')} className="text-navy-600 hover:text-navy-900">
+                          <button
+                            onClick={() => abrirEditar(c)}
+                            disabled={cargaActiva}
+                            title={t('common:acciones.editar')}
+                            className="text-navy-600 hover:text-navy-900 disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
                             <IconEdit size={17} />
                           </button>
                           <button
                             onClick={() => { setErrorEliminar(null); setConfirmarEliminar({ id: c.id, nombre: c.nombre }); }}
+                            disabled={cargaActiva}
                             title={t('common:acciones.eliminar')}
-                            className="text-gray-400 hover:text-card-red"
+                            className="text-gray-400 hover:text-card-red disabled:opacity-50 disabled:cursor-not-allowed"
                           >
                             <IconTrash size={17} />
                           </button>
@@ -254,7 +262,10 @@ export default function Campeonatos() {
 
           {error && <p className="text-xs text-card-red-dark bg-card-red/10 px-2 py-1.5 rounded">{error}</p>}
           {mensaje && <p className="text-xs text-pitch-green-dark bg-pitch-green/10 px-2 py-1.5 rounded">{mensaje}</p>}
-          <button className="w-full bg-navy-900 hover:bg-navy-800 text-white py-2 rounded text-sm font-medium transition">
+          <button
+            disabled={cargaActiva}
+            className="w-full bg-navy-900 hover:bg-navy-800 text-white py-2 rounded text-sm font-medium transition disabled:opacity-50 disabled:cursor-not-allowed"
+          >
             {t('nuevo.boton')}
           </button>
         </form>
@@ -298,11 +309,15 @@ export default function Campeonatos() {
                 <button
                   type="button"
                   onClick={() => setModalEditar(null)}
-                  className="px-3 py-1.5 rounded text-sm font-medium border border-gray-300 text-gray-600 hover:bg-gray-50"
+                  disabled={cargaActiva}
+                  className="px-3 py-1.5 rounded text-sm font-medium border border-gray-300 text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {t('common:acciones.cancelar')}
                 </button>
-                <button className="px-3 py-1.5 rounded text-sm font-medium text-white bg-navy-900 hover:bg-navy-800">
+                <button
+                  disabled={cargaActiva}
+                  className="px-3 py-1.5 rounded text-sm font-medium text-white bg-navy-900 hover:bg-navy-800 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
                   {t('common:acciones.guardarCambios')}
                 </button>
               </div>
@@ -325,13 +340,15 @@ export default function Campeonatos() {
             <div className="flex justify-end gap-2">
               <button
                 onClick={() => setConfirmarEliminar(null)}
-                className="px-3 py-1.5 rounded text-sm font-medium border border-gray-300 text-gray-600 hover:bg-gray-50"
+                disabled={cargaActiva}
+                className="px-3 py-1.5 rounded text-sm font-medium border border-gray-300 text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {t('common:acciones.cancelar')}
               </button>
               <button
                 onClick={confirmarEliminarCampeonato}
-                className="px-3 py-1.5 rounded text-sm font-medium text-white bg-card-red hover:bg-card-red-dark"
+                disabled={cargaActiva}
+                className="px-3 py-1.5 rounded text-sm font-medium text-white bg-card-red hover:bg-card-red-dark disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {t('common:acciones.eliminar')}
               </button>

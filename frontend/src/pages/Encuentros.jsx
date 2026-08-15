@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { IconEdit, IconTrash } from '@tabler/icons-react';
 import api from '../api/client';
+import useCargaActiva from '../hooks/useCargaActiva';
 import TarjetaEstado from '../components/TarjetaEstado';
 
 const INTENSIDADES = ['alta', 'media', 'baja'];
@@ -41,6 +42,7 @@ export default function Encuentros() {
   const [errorEditar, setErrorEditar] = useState(null);
   const [confirmarEliminar, setConfirmarEliminar] = useState(null); // { id, etiqueta }
   const [errorEliminar, setErrorEliminar] = useState(null);
+  const cargaActiva = useCargaActiva();
 
   function cargar(estado = filtroEstado) {
     const url = estado ? `/encuentros?estado=${estado}` : '/encuentros';
@@ -224,7 +226,8 @@ export default function Encuentros() {
             <button
               key={f.value}
               onClick={() => cambiarFiltro(f.value)}
-              className={`px-3 py-1.5 font-medium transition ${
+              disabled={cargaActiva}
+              className={`px-3 py-1.5 font-medium transition disabled:opacity-50 disabled:cursor-not-allowed ${
                 filtroEstado === f.value ? 'bg-navy-900 text-white' : 'bg-white text-gray-600 hover:bg-gray-50'
               }`}
             >
@@ -254,7 +257,12 @@ export default function Encuentros() {
                   <td className="px-4 py-2.5"><TarjetaEstado estado={en.estado} /></td>
                   <td className="px-4 py-2.5">
                     <div className="flex items-center gap-3">
-                      <button onClick={() => abrirEditar(en)} title={t('common:acciones.editar')} className="text-navy-600 hover:text-navy-900">
+                      <button
+                        onClick={() => abrirEditar(en)}
+                        disabled={cargaActiva}
+                        title={t('common:acciones.editar')}
+                        className="text-navy-600 hover:text-navy-900 disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
                         <IconEdit size={16} />
                       </button>
                       <Link to={`/designaciones?encuentro=${en.id}`} className="text-navy-600 hover:text-navy-900 hover:underline text-xs font-medium">
@@ -262,8 +270,9 @@ export default function Encuentros() {
                       </Link>
                       <button
                         onClick={() => { setErrorEliminar(null); setConfirmarEliminar({ id: en.id, etiqueta: `${en.cancha} · ${en.fecha?.slice(0, 10)} ${en.hora?.slice(0, 5)}` }); }}
+                        disabled={cargaActiva}
                         title={t('common:acciones.eliminar')}
-                        className="text-gray-400 hover:text-card-red"
+                        className="text-gray-400 hover:text-card-red disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         <IconTrash size={16} />
                       </button>
@@ -456,7 +465,10 @@ export default function Encuentros() {
               )}
             </div>
           )}
-          <button className="w-full bg-navy-900 hover:bg-navy-800 text-white py-2 rounded text-sm font-medium transition">
+          <button
+            disabled={cargaActiva}
+            className="w-full bg-navy-900 hover:bg-navy-800 text-white py-2 rounded text-sm font-medium transition disabled:opacity-50 disabled:cursor-not-allowed"
+          >
             {t('form.ingresar')}
           </button>
           </>
@@ -525,11 +537,15 @@ export default function Encuentros() {
                 <button
                   type="button"
                   onClick={() => setModalEditar(null)}
-                  className="px-3 py-1.5 rounded text-sm font-medium border border-gray-300 text-gray-600 hover:bg-gray-50"
+                  disabled={cargaActiva}
+                  className="px-3 py-1.5 rounded text-sm font-medium border border-gray-300 text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {t('common:acciones.cancelar')}
                 </button>
-                <button className="px-3 py-1.5 rounded text-sm font-medium text-white bg-navy-900 hover:bg-navy-800">
+                <button
+                  disabled={cargaActiva}
+                  className="px-3 py-1.5 rounded text-sm font-medium text-white bg-navy-900 hover:bg-navy-800 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
                   {t('common:acciones.guardarCambios')}
                 </button>
               </div>
@@ -553,13 +569,15 @@ export default function Encuentros() {
             <div className="flex justify-end gap-2">
               <button
                 onClick={() => setConfirmarEliminar(null)}
-                className="px-3 py-1.5 rounded text-sm font-medium border border-gray-300 text-gray-600 hover:bg-gray-50"
+                disabled={cargaActiva}
+                className="px-3 py-1.5 rounded text-sm font-medium border border-gray-300 text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {t('common:acciones.cancelar')}
               </button>
               <button
                 onClick={confirmarEliminarEncuentro}
-                className="px-3 py-1.5 rounded text-sm font-medium text-white bg-card-red hover:bg-card-red-dark"
+                disabled={cargaActiva}
+                className="px-3 py-1.5 rounded text-sm font-medium text-white bg-card-red hover:bg-card-red-dark disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {t('common:acciones.eliminar')}
               </button>

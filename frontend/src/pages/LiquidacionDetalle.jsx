@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import api from '../api/client';
 import { useAuth } from '../context/AuthContext';
+import useCargaActiva from '../hooks/useCargaActiva';
 import TarjetaEstado from '../components/TarjetaEstado';
 
 const ETIQUETA_RESPUESTA = {
@@ -46,6 +47,7 @@ export default function LiquidacionDetalle() {
   const [enviando, setEnviando] = useState(false);
   const inputArchivoRef = useRef(null);
   const finConversacionRef = useRef(null);
+  const cargaActiva = useCargaActiva();
 
   function cargar() {
     api.get(`/liquidaciones/${id}`).then((res) => setLiquidacion(res.data));
@@ -225,7 +227,8 @@ export default function LiquidacionDetalle() {
         liquidacion.respuesta_arbitro === 'aceptada' ? (
           <button
             onClick={pagar}
-            className="bg-pitch-green hover:bg-pitch-green-dark text-white text-sm px-4 py-2 rounded font-medium transition mb-6"
+            disabled={cargaActiva}
+            className="bg-pitch-green hover:bg-pitch-green-dark text-white text-sm px-4 py-2 rounded font-medium transition mb-6 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {t('acciones.marcarPagada')}
           </button>
@@ -244,7 +247,8 @@ export default function LiquidacionDetalle() {
             {!esAdmin && liquidacion.respuesta_arbitro !== 'aceptada' && (
               <button
                 onClick={() => responder('aceptada')}
-                className="bg-pitch-green hover:bg-pitch-green-dark text-white text-xs px-3 py-1.5 rounded font-medium transition whitespace-nowrap"
+                disabled={cargaActiva}
+                className="bg-pitch-green hover:bg-pitch-green-dark text-white text-xs px-3 py-1.5 rounded font-medium transition whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {t('acciones.confirmarTodoCorrecto')}
               </button>
@@ -310,7 +314,7 @@ export default function LiquidacionDetalle() {
                 <input ref={inputArchivoRef} type="file" accept="image/*" onChange={elegirImagen} className="hidden" />
               </label>
               <button
-                disabled={enviando}
+                disabled={enviando || cargaActiva}
                 className="bg-navy-900 hover:bg-navy-800 text-white text-xs px-4 py-1.5 rounded font-medium transition disabled:opacity-50"
               >
                 {enviando ? t('conversacion.enviando') : t('conversacion.enviar')}

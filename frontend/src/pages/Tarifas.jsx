@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { IconEdit, IconTrash } from '@tabler/icons-react';
 import api from '../api/client';
+import useCargaActiva from '../hooks/useCargaActiva';
 
 const ROLES = ['central', 'asistente'];
 
@@ -21,6 +22,7 @@ export default function Tarifas() {
   const [errorNuevoRol, setErrorNuevoRol] = useState(null);
   const [confirmarEliminar, setConfirmarEliminar] = useState(null); // { id, etiqueta }
   const [errorEliminar, setErrorEliminar] = useState(null);
+  const cargaActiva = useCargaActiva();
 
   useEffect(() => {
     api.get('/campeonatos').then((res) => setCampeonatos(res.data));
@@ -132,7 +134,7 @@ export default function Tarifas() {
         </div>
         <button
           type="button"
-          disabled={!campeonatoId}
+          disabled={!campeonatoId || cargaActiva}
           onClick={abrirNuevaCategoria}
           className="px-3 py-1.5 rounded text-sm font-medium text-white bg-pitch-green hover:bg-pitch-green-dark disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
         >
@@ -157,13 +159,19 @@ export default function Tarifas() {
                 <td className="px-4 py-2.5 tabular-nums font-medium text-navy-900">${tarifa.monto}</td>
                 <td className="px-4 py-2.5">
                   <div className="flex gap-3">
-                    <button onClick={() => abrirEditar(tarifa)} title={t('common:acciones.editar')} className="text-navy-600 hover:text-navy-900">
+                    <button
+                      onClick={() => abrirEditar(tarifa)}
+                      disabled={cargaActiva}
+                      title={t('common:acciones.editar')}
+                      className="text-navy-600 hover:text-navy-900 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
                       <IconEdit size={16} />
                     </button>
                     <button
                       onClick={() => { setErrorEliminar(null); setConfirmarEliminar({ id: tarifa.id, etiqueta: `${tarifa.categoria} · ${t(`roles.${tarifa.rol_arbitro}`)}` }); }}
+                      disabled={cargaActiva}
                       title={t('common:acciones.eliminar')}
-                      className="text-gray-400 hover:text-card-red"
+                      className="text-gray-400 hover:text-card-red disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       <IconTrash size={16} />
                     </button>
@@ -215,11 +223,15 @@ export default function Tarifas() {
                 <button
                   type="button"
                   onClick={() => setModalNueva(null)}
-                  className="px-3 py-1.5 rounded text-sm font-medium border border-gray-300 text-gray-600 hover:bg-gray-50"
+                  disabled={cargaActiva}
+                  className="px-3 py-1.5 rounded text-sm font-medium border border-gray-300 text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {t('common:acciones.cancelar')}
                 </button>
-                <button className="px-3 py-1.5 rounded text-sm font-medium text-white bg-navy-900 hover:bg-navy-800">
+                <button
+                  disabled={cargaActiva}
+                  className="px-3 py-1.5 rounded text-sm font-medium text-white bg-navy-900 hover:bg-navy-800 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
                   {t('modal.nuevaCategoria.boton')}
                 </button>
               </div>
@@ -264,11 +276,15 @@ export default function Tarifas() {
                 <button
                   type="button"
                   onClick={() => setModalEditar(null)}
-                  className="px-3 py-1.5 rounded text-sm font-medium border border-gray-300 text-gray-600 hover:bg-gray-50"
+                  disabled={cargaActiva}
+                  className="px-3 py-1.5 rounded text-sm font-medium border border-gray-300 text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {t('common:acciones.cancelar')}
                 </button>
-                <button className="px-3 py-1.5 rounded text-sm font-medium text-white bg-navy-900 hover:bg-navy-800">
+                <button
+                  disabled={cargaActiva}
+                  className="px-3 py-1.5 rounded text-sm font-medium text-white bg-navy-900 hover:bg-navy-800 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
                   {t('common:acciones.guardarCambios')}
                 </button>
               </div>
@@ -295,7 +311,7 @@ export default function Tarifas() {
                     />
                     <button
                       type="button"
-                      disabled={!nuevoRolMonto || Number(nuevoRolMonto) <= 0}
+                      disabled={!nuevoRolMonto || Number(nuevoRolMonto) <= 0 || cargaActiva}
                       onClick={() => agregarRolFaltante(rolFaltante)}
                       className="px-3 py-1.5 rounded text-sm font-medium text-white bg-pitch-green hover:bg-pitch-green-dark disabled:opacity-50 whitespace-nowrap"
                     >
@@ -325,13 +341,15 @@ export default function Tarifas() {
             <div className="flex justify-end gap-2">
               <button
                 onClick={() => setConfirmarEliminar(null)}
-                className="px-3 py-1.5 rounded text-sm font-medium border border-gray-300 text-gray-600 hover:bg-gray-50"
+                disabled={cargaActiva}
+                className="px-3 py-1.5 rounded text-sm font-medium border border-gray-300 text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {t('common:acciones.cancelar')}
               </button>
               <button
                 onClick={confirmarEliminarTarifa}
-                className="px-3 py-1.5 rounded text-sm font-medium text-white bg-card-red hover:bg-card-red-dark"
+                disabled={cargaActiva}
+                className="px-3 py-1.5 rounded text-sm font-medium text-white bg-card-red hover:bg-card-red-dark disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {t('common:acciones.eliminar')}
               </button>

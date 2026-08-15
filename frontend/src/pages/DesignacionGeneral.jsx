@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { IconX, IconChevronDown, IconChevronRight } from '@tabler/icons-react';
 import api from '../api/client';
 import { useAuth } from '../context/AuthContext';
+import useCargaActiva from '../hooks/useCargaActiva';
 import TarjetaEstado from '../components/TarjetaEstado';
 
 const PALETA = [
@@ -29,6 +30,7 @@ export default function DesignacionGeneral() {
   const [expandidos, setExpandidos] = useState({}); // { nombreCampeonato: true/false }
   const [confirmarQuitar, setConfirmarQuitar] = useState(null); // designacionId
   const [error, setError] = useState(null);
+  const cargaActiva = useCargaActiva();
 
   function cargar(f) {
     setCargando(true);
@@ -179,8 +181,9 @@ export default function DesignacionGeneral() {
                               {puedeGestionar && (
                                 <button
                                   onClick={() => setConfirmarQuitar(d.designacion_id)}
+                                  disabled={cargaActiva}
                                   title={t('acciones.quitarDesignacionTitulo')}
-                                  className="text-gray-300 hover:text-card-red transition"
+                                  className="text-gray-300 hover:text-card-red transition disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
                                   <IconX size={12} />
                                 </button>
@@ -264,15 +267,17 @@ export default function DesignacionGeneral() {
             <div className="flex flex-wrap gap-2">
               <button
                 onClick={publicarTodas}
+                disabled={cargaActiva}
                 title={fecha ? t('titulos.publicarConFecha', { fecha }) : t('titulos.publicarSinFecha')}
-                className="text-xs bg-pitch-green hover:bg-pitch-green-dark text-white px-3 py-1.5 rounded font-medium transition mb-1.5"
+                className="text-xs bg-pitch-green hover:bg-pitch-green-dark text-white px-3 py-1.5 rounded font-medium transition mb-1.5 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {t('acciones.publicarParaArbitros')}
               </button>
               <button
                 onClick={despublicarTodas}
+                disabled={cargaActiva}
                 title={t('titulos.despublicar')}
-                className="text-xs bg-white border border-card-red-dark/30 text-card-red-dark hover:bg-card-red/5 px-3 py-1.5 rounded font-medium transition mb-1.5"
+                className="text-xs bg-white border border-card-red-dark/30 text-card-red-dark hover:bg-card-red/5 px-3 py-1.5 rounded font-medium transition mb-1.5 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {t('acciones.despublicar')}
               </button>
@@ -313,13 +318,15 @@ export default function DesignacionGeneral() {
             <div className="flex justify-end gap-2">
               <button
                 onClick={() => setConfirmarQuitar(null)}
-                className="px-3 py-1.5 rounded text-sm font-medium border border-gray-300 text-gray-600 hover:bg-gray-50"
+                disabled={cargaActiva}
+                className="px-3 py-1.5 rounded text-sm font-medium border border-gray-300 text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {t('common:acciones.cancelar')}
               </button>
               <button
                 onClick={confirmarQuitarDesignacion}
-                className="px-3 py-1.5 rounded text-sm font-medium text-white bg-card-red hover:bg-card-red-dark"
+                disabled={cargaActiva}
+                className="px-3 py-1.5 rounded text-sm font-medium text-white bg-card-red hover:bg-card-red-dark disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {t('acciones.quitar')}
               </button>

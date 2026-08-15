@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import api from '../api/client';
+import useCargaActiva from '../hooks/useCargaActiva';
 import TarjetaEstado from '../components/TarjetaEstado';
 
 const hoyISO = () => new Date().toISOString().slice(0, 10);
@@ -12,6 +13,7 @@ export default function Disponibilidad() {
   const [form, setForm] = useState({ fecha: '', disponible: true, comentario: '' });
   const [error, setError] = useState(null);
   const [mensaje, setMensaje] = useState(null);
+  const cargaActiva = useCargaActiva();
 
   function cargar(id) {
     api.get(`/arbitros/${id}/disponibilidad`).then((res) => setRegistros(res.data));
@@ -114,7 +116,10 @@ export default function Disponibilidad() {
           )}
           {error && <p className="text-xs text-card-red-dark bg-card-red/10 px-2 py-1.5 rounded">{error}</p>}
           {mensaje && <p className="text-xs text-pitch-green-dark bg-pitch-green/10 px-2 py-1.5 rounded">{mensaje}</p>}
-          <button className="w-full bg-navy-900 hover:bg-navy-800 text-white py-2 rounded text-sm font-medium transition">
+          <button
+            disabled={cargaActiva}
+            className="w-full bg-navy-900 hover:bg-navy-800 text-white py-2 rounded text-sm font-medium transition disabled:opacity-50 disabled:cursor-not-allowed"
+          >
             {t('common:acciones.guardar')}
           </button>
         </form>

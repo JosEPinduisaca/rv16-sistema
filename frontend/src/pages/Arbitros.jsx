@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { IconEdit, IconUserOff, IconUserCheck, IconTrash, IconDeviceFloppy } from '@tabler/icons-react';
 import api from '../api/client';
 import { useAuth } from '../context/AuthContext';
+import useCargaActiva from '../hooks/useCargaActiva';
 import TarjetaEstado from '../components/TarjetaEstado';
 import {
   validarCedulaEcuatoriana,
@@ -34,9 +35,9 @@ export default function Arbitros() {
   const [nivelesEditados, setNivelesEditados] = useState({});
   const [form, setForm] = useState(FORM_VACIO);
   const [erroresRegistro, setErroresRegistro] = useState({});
-  // Se activa mientras cualquier acción de esta pantalla está en curso, para
-  // deshabilitar los botones y evitar doble envío hasta que termine.
-  const [procesando, setProcesando] = useState(false);
+  // true mientras haya una petición en curso; deshabilita los botones de
+  // acción de esta pantalla para evitar doble envío hasta que termine.
+  const cargaActiva = useCargaActiva();
 
   // Editar árbitro
   const [modalEditar, setModalEditar] = useState(null); // { id, cedula, nombres, apellidos, email, telefono }
@@ -58,29 +59,23 @@ export default function Arbitros() {
   useEffect(cargar, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   async function cambiarEstado(id, activo) {
-    setProcesando(true);
     try {
       await api.put(`/arbitros/${id}/estado`, { activo });
       cargar();
     } catch (err) {
       setError(err.response?.data?.error || t('mensajes.errorEstado'));
-    } finally {
-      setProcesando(false);
     }
   }
 
   async function guardarNivel(id) {
     const nuevoNivel = nivelesEditados[id];
     if (!nuevoNivel) return;
-    setProcesando(true);
     try {
       await api.put(`/arbitros/${id}/nivel`, { nivel: nuevoNivel });
       setNivelesEditados((prev) => { const copia = { ...prev }; delete copia[id]; return copia; });
       cargar();
     } catch (err) {
       setError(err.response?.data?.error || t('mensajes.errorNivel'));
-    } finally {
-      setProcesando(false);
     }
   }
 
@@ -110,7 +105,6 @@ export default function Arbitros() {
   async function guardarEdicion(e) {
     e.preventDefault();
     setErrorEditar(null);
-    setProcesando(true);
     try {
       await api.put(`/arbitros/${modalEditar.id}`, {
         cedula: modalEditar.cedula,
@@ -126,14 +120,11 @@ export default function Arbitros() {
       cargar();
     } catch (err) {
       setErrorEditar(err.response?.data?.error || t('mensajes.errorEditar'));
-    } finally {
-      setProcesando(false);
     }
   }
 
   async function confirmarEliminarArbitro() {
     const { id, nombre } = confirmarEliminar;
-    setProcesando(true);
     try {
       await api.delete(`/arbitros/${id}`);
       setMensaje(t('mensajes.eliminado', { nombre }));
@@ -149,13 +140,10 @@ export default function Arbitros() {
         setError(err.response?.data?.error || t('mensajes.errorEliminar'));
         setConfirmarEliminar(null);
       }
-    } finally {
-      setProcesando(false);
     }
   }
 
   async function soloDesactivarDesdePregunta() {
-    setProcesando(true);
     try {
       await api.put(`/arbitros/${preguntaHistorial.id}/estado`, { activo: false });
       setMensaje(t('mensajes.desactivado', { nombre: preguntaHistorial.nombre }));
@@ -165,13 +153,10 @@ export default function Arbitros() {
     } catch (err) {
       setError(err.response?.data?.error || t('mensajes.errorDesactivar'));
       setPreguntaHistorial(null);
-    } finally {
-      setProcesando(false);
     }
   }
 
   async function eliminarConHistorial() {
-    setProcesando(true);
     try {
       await api.delete(`/arbitros/${preguntaHistorial.id}?forzar=true`);
       setMensaje(t('mensajes.eliminadoConHistorial', { nombre: preguntaHistorial.nombre }));
@@ -181,8 +166,6 @@ export default function Arbitros() {
     } catch (err) {
       setError(err.response?.data?.error || t('mensajes.errorEliminar'));
       setPreguntaHistorial(null);
-    } finally {
-      setProcesando(false);
     }
   }
 
@@ -221,7 +204,6 @@ export default function Arbitros() {
     e.preventDefault();
     setError(null);
     setMensaje(null);
-    setProcesando(true);
     try {
       await api.post('/auth/registro', { ...form, rol: 'arbitro' });
       setMensaje(t('mensajes.registrado', { nombres: form.nombres, apellidos: form.apellidos }));
@@ -230,8 +212,6 @@ export default function Arbitros() {
       cargar();
     } catch (err) {
       setError(err.response?.data?.error || t('mensajes.errorRegistrar'));
-    } finally {
-      setProcesando(false);
     }
   }
 
@@ -274,7 +254,7 @@ export default function Arbitros() {
                         {nivelesEditados[a.id] && nivelesEditados[a.id] !== a.nivel && (
                           <button
                             onClick={() => guardarNivel(a.id)}
-                            disabled={procesando}
+                            disabled={cargaActiva}
                             title={t('acciones.guardarNivel')}
                             className="text-navy-600 hover:text-navy-900 disabled:opacity-50 disabled:cursor-not-allowed"
                           >
@@ -294,7 +274,7 @@ export default function Arbitros() {
                       <div className="flex gap-3 whitespace-nowrap">
                         <button
                           onClick={() => abrirEditar(a)}
-                          disabled={procesando}
+                          disabled={cargaActiva}
                           title={t('common:acciones.editar')}
                           className="text-navy-600 hover:text-navy-900 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
@@ -303,7 +283,7 @@ export default function Arbitros() {
                         {a.activo ? (
                           <button
                             onClick={() => cambiarEstado(a.id, false)}
-                            disabled={procesando}
+                            disabled={cargaActiva}
                             title={t('common:acciones.desactivar')}
                             className="text-card-red hover:text-card-red-dark disabled:opacity-50 disabled:cursor-not-allowed"
                           >
@@ -312,7 +292,7 @@ export default function Arbitros() {
                         ) : (
                           <button
                             onClick={() => cambiarEstado(a.id, true)}
-                            disabled={procesando}
+                            disabled={cargaActiva}
                             title={t('common:acciones.reactivar')}
                             className="text-pitch-green hover:text-pitch-green-dark disabled:opacity-50 disabled:cursor-not-allowed"
                           >
@@ -321,7 +301,7 @@ export default function Arbitros() {
                         )}
                         <button
                           onClick={() => setConfirmarEliminar({ id: a.id, nombre: `${a.nombres} ${a.apellidos}` })}
-                          disabled={procesando}
+                          disabled={cargaActiva}
                           title={t('common:acciones.eliminar')}
                           className="text-gray-400 hover:text-card-red disabled:opacity-50 disabled:cursor-not-allowed"
                         >
@@ -425,7 +405,7 @@ export default function Arbitros() {
             {error && <p className="text-xs text-card-red-dark bg-card-red/10 px-2 py-1.5 rounded">{error}</p>}
             {mensaje && <p className="text-xs text-pitch-green-dark bg-pitch-green/10 px-2 py-1.5 rounded">{mensaje}</p>}
             <button
-              disabled={procesando}
+              disabled={cargaActiva}
               className="w-full bg-navy-900 hover:bg-navy-800 text-white py-2 rounded text-sm font-medium transition disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {t('registrar.boton')}
@@ -501,13 +481,13 @@ export default function Arbitros() {
                 <button
                   type="button"
                   onClick={() => setModalEditar(null)}
-                  disabled={procesando}
+                  disabled={cargaActiva}
                   className="px-3 py-1.5 rounded text-sm font-medium border border-gray-300 text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {t('common:acciones.cancelar')}
                 </button>
                 <button
-                  disabled={procesando}
+                  disabled={cargaActiva}
                   className="px-3 py-1.5 rounded text-sm font-medium text-white bg-navy-900 hover:bg-navy-800 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {t('common:acciones.guardarCambios')}
@@ -531,14 +511,14 @@ export default function Arbitros() {
             <div className="flex justify-end gap-2">
               <button
                 onClick={() => setConfirmarEliminar(null)}
-                disabled={procesando}
+                disabled={cargaActiva}
                 className="px-3 py-1.5 rounded text-sm font-medium border border-gray-300 text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {t('common:acciones.cancelar')}
               </button>
               <button
                 onClick={confirmarEliminarArbitro}
-                disabled={procesando}
+                disabled={cargaActiva}
                 className="px-3 py-1.5 rounded text-sm font-medium text-white bg-card-red hover:bg-card-red-dark disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {t('common:acciones.eliminar')}
@@ -560,7 +540,7 @@ export default function Arbitros() {
             <div className="space-y-2">
               <button
                 onClick={soloDesactivarDesdePregunta}
-                disabled={procesando}
+                disabled={cargaActiva}
                 className="w-full text-left border border-gray-200 rounded-lg p-3 hover:bg-navy-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <p className="text-sm font-medium text-navy-900">{t('modal.preguntaHistorial.opcionDesactivar.titulo')}</p>
@@ -570,7 +550,7 @@ export default function Arbitros() {
               </button>
               <button
                 onClick={eliminarConHistorial}
-                disabled={procesando}
+                disabled={cargaActiva}
                 className="w-full text-left border border-card-red/30 rounded-lg p-3 hover:bg-card-red/5 transition disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <p className="text-sm font-medium text-card-red-dark">{t('modal.preguntaHistorial.opcionEliminar.titulo')}</p>
@@ -581,7 +561,7 @@ export default function Arbitros() {
             </div>
             <button
               onClick={() => setPreguntaHistorial(null)}
-              disabled={procesando}
+              disabled={cargaActiva}
               className="w-full mt-3 px-3 py-1.5 rounded text-sm font-medium border border-gray-300 text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {t('common:acciones.cancelar')}

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { IconCheck, IconX } from '@tabler/icons-react';
 import api from '../api/client';
+import useCargaActiva from '../hooks/useCargaActiva';
 import TarjetaEstado from '../components/TarjetaEstado';
 
 const MAX_DIAS_DEGRADADO = 14; // a partir de estos días, el color queda en naranja tope
@@ -35,6 +36,7 @@ export default function Adelantos() {
   const [arbitroSeleccionado, setArbitroSeleccionado] = useState('');
   const [monto, setMonto] = useState('');
   const [error, setError] = useState(null);
+  const cargaActiva = useCargaActiva();
 
   function cargarTodos() {
     api.get('/adelantos').then((res) => setTodos(res.data));
@@ -111,15 +113,17 @@ export default function Adelantos() {
                         <div className="flex gap-3 whitespace-nowrap">
                           <button
                             onClick={() => cambiarEstado(a.id, 'aprobado')}
+                            disabled={cargaActiva}
                             title={t('common:acciones.aprobar')}
-                            className="text-pitch-green hover:text-pitch-green-dark"
+                            className="text-pitch-green hover:text-pitch-green-dark disabled:opacity-50 disabled:cursor-not-allowed"
                           >
                             <IconCheck size={17} />
                           </button>
                           <button
                             onClick={() => cambiarEstado(a.id, 'rechazado')}
+                            disabled={cargaActiva}
                             title={t('common:acciones.rechazar')}
-                            className="text-card-red hover:text-card-red-dark"
+                            className="text-card-red hover:text-card-red-dark disabled:opacity-50 disabled:cursor-not-allowed"
                           >
                             <IconX size={17} />
                           </button>
@@ -168,7 +172,10 @@ export default function Adelantos() {
             />
           </div>
           {error && <p className="text-xs text-card-red-dark bg-card-red/10 px-2 py-1.5 rounded">{error}</p>}
-          <button className="w-full bg-navy-900 hover:bg-navy-800 text-white py-2 rounded text-sm font-medium transition">
+          <button
+            disabled={cargaActiva}
+            className="w-full bg-navy-900 hover:bg-navy-800 text-white py-2 rounded text-sm font-medium transition disabled:opacity-50 disabled:cursor-not-allowed"
+          >
             {t('common:acciones.registrar')}
           </button>
         </form>
