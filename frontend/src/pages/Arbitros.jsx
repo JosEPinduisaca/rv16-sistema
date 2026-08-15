@@ -4,6 +4,13 @@ import { IconEdit, IconUserOff, IconUserCheck, IconTrash, IconDeviceFloppy } fro
 import api from '../api/client';
 import { useAuth } from '../context/AuthContext';
 import TarjetaEstado from '../components/TarjetaEstado';
+import {
+  validarCedulaEcuatoriana,
+  validarEmail,
+  validarTelefono,
+  soloLetras as esNombreValido,
+  textoValido,
+} from '../utils/validaciones';
 
 const NIVELES = ['formacion', 'con_experiencia', 'nuevo'];
 const FORM_VACIO = { cedula: '', nombres: '', apellidos: '', email: '', password: '', telefono: '' };
@@ -26,10 +33,12 @@ export default function Arbitros() {
   const [mensaje, setMensaje] = useState(null);
   const [nivelesEditados, setNivelesEditados] = useState({});
   const [form, setForm] = useState(FORM_VACIO);
+  const [erroresRegistro, setErroresRegistro] = useState({});
 
   // Editar árbitro
   const [modalEditar, setModalEditar] = useState(null); // { id, cedula, nombres, apellidos, email, telefono }
   const [errorEditar, setErrorEditar] = useState(null);
+  const [erroresEditar, setErroresEditar] = useState({});
 
   // Eliminar árbitro
   const [confirmarEliminar, setConfirmarEliminar] = useState(null); // { id, nombre }
@@ -43,7 +52,7 @@ export default function Arbitros() {
       .finally(() => setCargando(false));
   }
 
-  useEffect(cargar, []);
+  useEffect(cargar, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   async function cambiarEstado(id, activo) {
     try {
@@ -68,6 +77,7 @@ export default function Arbitros() {
 
   function abrirEditar(a) {
     setErrorEditar(null);
+    setErroresEditar({});
     setModalEditar({
       id: a.id,
       cedula: a.cedula || '',
@@ -76,6 +86,16 @@ export default function Arbitros() {
       email: a.email,
       telefono: a.telefono || '',
     });
+  }
+
+  function alPerderFocoEditar(campo) {
+    const valor = modalEditar[campo];
+    // El teléfono es opcional: no marcarlo como error mientras esté vacío.
+    if (campo === 'telefono' && !valor) {
+      setErroresEditar((prev) => ({ ...prev, telefono: null }));
+      return;
+    }
+    setErroresEditar((prev) => ({ ...prev, [campo]: validarCampoRegistro(campo, valor) }));
   }
 
   async function guardarEdicion(e) {
@@ -92,6 +112,7 @@ export default function Arbitros() {
       setMensaje(t('mensajes.editado'));
       setError(null);
       setModalEditar(null);
+      setErroresEditar({});
       cargar();
     } catch (err) {
       setErrorEditar(err.response?.data?.error || t('mensajes.errorEditar'));
@@ -144,6 +165,37 @@ export default function Arbitros() {
     }
   }
 
+  // Valida un solo campo del formulario de registro; se llama al perder el
+  // foco (onBlur) para dar feedback inmediato, sin esperar al submit.
+  function validarCampoRegistro(campo, valor) {
+    switch (campo) {
+      case 'cedula':
+        return validarCedulaEcuatoriana(valor) ? null : t('validacion.cedulaInvalida');
+      case 'nombres':
+        return textoValido(valor) && esNombreValido(valor) ? null : t('validacion.nombresInvalidos');
+      case 'apellidos':
+        return textoValido(valor) && esNombreValido(valor) ? null : t('validacion.apellidosInvalidos');
+      case 'email':
+        return validarEmail(valor) ? null : t('validacion.emailInvalido');
+      case 'telefono':
+        return validarTelefono(valor) ? null : t('validacion.telefonoInvalido');
+      case 'password':
+        return valor.length >= 6 ? null : t('validacion.passwordCorta');
+      default:
+        return null;
+    }
+  }
+
+  function alPerderFocoRegistro(campo) {
+    const valor = form[campo];
+    // El teléfono es opcional: no marcarlo como error mientras esté vacío.
+    if (campo === 'telefono' && !valor) {
+      setErroresRegistro((prev) => ({ ...prev, telefono: null }));
+      return;
+    }
+    setErroresRegistro((prev) => ({ ...prev, [campo]: validarCampoRegistro(campo, valor) }));
+  }
+
   async function registrar(e) {
     e.preventDefault();
     setError(null);
@@ -152,6 +204,7 @@ export default function Arbitros() {
       await api.post('/auth/registro', { ...form, rol: 'arbitro' });
       setMensaje(t('mensajes.registrado', { nombres: form.nombres, apellidos: form.apellidos }));
       setForm(FORM_VACIO);
+      setErroresRegistro({});
       cargar();
     } catch (err) {
       setError(err.response?.data?.error || t('mensajes.errorRegistrar'));
@@ -274,8 +327,10 @@ export default function Arbitros() {
                 placeholder={t('campos.cedulaPlaceholder')}
                 value={form.cedula}
                 onChange={(e) => setForm({ ...form, cedula: soloDigitos(e.target.value) })}
-                className="w-full border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-navy-600"
+                onBlur={() => alPerderFocoRegistro('cedula')}
+                className={`w-full border rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-navy-600 ${erroresRegistro.cedula ? 'border-card-red' : 'border-gray-300'}`}
               />
+              {erroresRegistro.cedula && <p className="text-[11px] text-card-red-dark mt-1">{erroresRegistro.cedula}</p>}
             </div>
             <div>
               <label className="block text-xs text-gray-600 mb-1">{t('campos.nombres')}</label>
@@ -284,8 +339,10 @@ export default function Arbitros() {
                 placeholder={t('campos.soloLetras')}
                 value={form.nombres}
                 onChange={(e) => setForm({ ...form, nombres: soloLetras(e.target.value) })}
-                className="w-full border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-navy-600"
+                onBlur={() => alPerderFocoRegistro('nombres')}
+                className={`w-full border rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-navy-600 ${erroresRegistro.nombres ? 'border-card-red' : 'border-gray-300'}`}
               />
+              {erroresRegistro.nombres && <p className="text-[11px] text-card-red-dark mt-1">{erroresRegistro.nombres}</p>}
             </div>
             <div>
               <label className="block text-xs text-gray-600 mb-1">{t('campos.apellidos')}</label>
@@ -294,8 +351,10 @@ export default function Arbitros() {
                 placeholder={t('campos.soloLetras')}
                 value={form.apellidos}
                 onChange={(e) => setForm({ ...form, apellidos: soloLetras(e.target.value) })}
-                className="w-full border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-navy-600"
+                onBlur={() => alPerderFocoRegistro('apellidos')}
+                className={`w-full border rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-navy-600 ${erroresRegistro.apellidos ? 'border-card-red' : 'border-gray-300'}`}
               />
+              {erroresRegistro.apellidos && <p className="text-[11px] text-card-red-dark mt-1">{erroresRegistro.apellidos}</p>}
             </div>
             <div>
               <label className="block text-xs text-gray-600 mb-1">{t('campos.email')}</label>
@@ -303,8 +362,10 @@ export default function Arbitros() {
                 type="email" required
                 value={form.email}
                 onChange={(e) => setForm({ ...form, email: e.target.value })}
-                className="w-full border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-navy-600"
+                onBlur={() => alPerderFocoRegistro('email')}
+                className={`w-full border rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-navy-600 ${erroresRegistro.email ? 'border-card-red' : 'border-gray-300'}`}
               />
+              {erroresRegistro.email && <p className="text-[11px] text-card-red-dark mt-1">{erroresRegistro.email}</p>}
             </div>
             <div>
               <label className="block text-xs text-gray-600 mb-1">{t('campos.telefono')}</label>
@@ -314,8 +375,10 @@ export default function Arbitros() {
                 placeholder={t('campos.telefonoPlaceholder')}
                 value={form.telefono}
                 onChange={(e) => setForm({ ...form, telefono: soloDigitos(e.target.value) })}
-                className="w-full border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-navy-600"
+                onBlur={() => alPerderFocoRegistro('telefono')}
+                className={`w-full border rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-navy-600 ${erroresRegistro.telefono ? 'border-card-red' : 'border-gray-300'}`}
               />
+              {erroresRegistro.telefono && <p className="text-[11px] text-card-red-dark mt-1">{erroresRegistro.telefono}</p>}
             </div>
             <div>
               <label className="block text-xs text-gray-600 mb-1">{t('campos.passwordTemporal')}</label>
@@ -323,8 +386,10 @@ export default function Arbitros() {
                 type="password" required minLength={6}
                 value={form.password}
                 onChange={(e) => setForm({ ...form, password: e.target.value })}
-                className="w-full border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-navy-600"
+                onBlur={() => alPerderFocoRegistro('password')}
+                className={`w-full border rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-navy-600 ${erroresRegistro.password ? 'border-card-red' : 'border-gray-300'}`}
               />
+              {erroresRegistro.password && <p className="text-[11px] text-card-red-dark mt-1">{erroresRegistro.password}</p>}
             </div>
             {error && <p className="text-xs text-card-red-dark bg-card-red/10 px-2 py-1.5 rounded">{error}</p>}
             {mensaje && <p className="text-xs text-pitch-green-dark bg-pitch-green/10 px-2 py-1.5 rounded">{mensaje}</p>}
@@ -348,8 +413,10 @@ export default function Arbitros() {
                   placeholder={t('campos.cedulaPlaceholder')}
                   value={modalEditar.cedula}
                   onChange={(e) => setModalEditar({ ...modalEditar, cedula: soloDigitos(e.target.value) })}
-                  className="w-full border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-navy-600"
+                  onBlur={() => alPerderFocoEditar('cedula')}
+                  className={`w-full border rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-navy-600 ${erroresEditar.cedula ? 'border-card-red' : 'border-gray-300'}`}
                 />
+                {erroresEditar.cedula && <p className="text-[11px] text-card-red-dark mt-1">{erroresEditar.cedula}</p>}
               </div>
               <div>
                 <label className="block text-xs text-gray-600 mb-1">{t('campos.nombres')}</label>
@@ -357,8 +424,10 @@ export default function Arbitros() {
                   required
                   value={modalEditar.nombres}
                   onChange={(e) => setModalEditar({ ...modalEditar, nombres: soloLetras(e.target.value) })}
-                  className="w-full border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-navy-600"
+                  onBlur={() => alPerderFocoEditar('nombres')}
+                  className={`w-full border rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-navy-600 ${erroresEditar.nombres ? 'border-card-red' : 'border-gray-300'}`}
                 />
+                {erroresEditar.nombres && <p className="text-[11px] text-card-red-dark mt-1">{erroresEditar.nombres}</p>}
               </div>
               <div>
                 <label className="block text-xs text-gray-600 mb-1">{t('campos.apellidos')}</label>
@@ -366,8 +435,10 @@ export default function Arbitros() {
                   required
                   value={modalEditar.apellidos}
                   onChange={(e) => setModalEditar({ ...modalEditar, apellidos: soloLetras(e.target.value) })}
-                  className="w-full border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-navy-600"
+                  onBlur={() => alPerderFocoEditar('apellidos')}
+                  className={`w-full border rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-navy-600 ${erroresEditar.apellidos ? 'border-card-red' : 'border-gray-300'}`}
                 />
+                {erroresEditar.apellidos && <p className="text-[11px] text-card-red-dark mt-1">{erroresEditar.apellidos}</p>}
               </div>
               <div>
                 <label className="block text-xs text-gray-600 mb-1">{t('campos.email')}</label>
@@ -375,8 +446,10 @@ export default function Arbitros() {
                   type="email" required
                   value={modalEditar.email}
                   onChange={(e) => setModalEditar({ ...modalEditar, email: e.target.value })}
-                  className="w-full border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-navy-600"
+                  onBlur={() => alPerderFocoEditar('email')}
+                  className={`w-full border rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-navy-600 ${erroresEditar.email ? 'border-card-red' : 'border-gray-300'}`}
                 />
+                {erroresEditar.email && <p className="text-[11px] text-card-red-dark mt-1">{erroresEditar.email}</p>}
               </div>
               <div>
                 <label className="block text-xs text-gray-600 mb-1">{t('campos.telefono')}</label>
@@ -384,8 +457,10 @@ export default function Arbitros() {
                   inputMode="numeric" maxLength={10}
                   value={modalEditar.telefono}
                   onChange={(e) => setModalEditar({ ...modalEditar, telefono: soloDigitos(e.target.value) })}
-                  className="w-full border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-navy-600"
+                  onBlur={() => alPerderFocoEditar('telefono')}
+                  className={`w-full border rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-navy-600 ${erroresEditar.telefono ? 'border-card-red' : 'border-gray-300'}`}
                 />
+                {erroresEditar.telefono && <p className="text-[11px] text-card-red-dark mt-1">{erroresEditar.telefono}</p>}
               </div>
               {errorEditar && <p className="text-xs text-card-red-dark bg-card-red/10 px-2 py-1.5 rounded">{errorEditar}</p>}
               <div className="flex justify-end gap-2 pt-1">

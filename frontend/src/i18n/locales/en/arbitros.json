@@ -31,6 +31,14 @@
     "telefonoPlaceholder": "7 to 10 digits",
     "passwordTemporal": "Temporary password"
   },
+  "validacion": {
+    "cedulaInvalida": "Invalid national ID",
+    "nombresInvalidos": "Enter a valid first name (letters only)",
+    "apellidosInvalidos": "Enter a valid last name (letters only)",
+    "emailInvalido": "Enter a valid email",
+    "telefonoInvalido": "Phone must have between 7 and 10 digits",
+    "passwordCorta": "Password must be at least 6 characters"
+  },
   "mensajes": {
     "errorCargar": "Could not load the list of referees",
     "errorEstado": "Error updating the status",

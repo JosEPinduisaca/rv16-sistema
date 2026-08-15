@@ -58,7 +58,7 @@ export default function LiquidacionDetalle() {
   // conversación continua sin tener que recargar la página.
   useEffect(() => {
     const intervalo = setInterval(() => {
-      api.get(`/liquidaciones/${id}/mensajes`).then((res) => setMensajes(res.data));
+      api.get(`/liquidaciones/${id}/mensajes`, { silencioso: true }).then((res) => setMensajes(res.data));
     }, 5000);
 
     return () => clearInterval(intervalo);

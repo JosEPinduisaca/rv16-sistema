@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import RutaProtegida from './components/RutaProtegida';
 import Layout from './components/Layout';
+import BloqueoPantalla from './components/BloqueoPantalla';
 import Login from './pages/Login';
 import RestablecerPassword from './pages/RestablecerPassword';
 import Dashboard from './pages/Dashboard';
@@ -22,6 +23,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
+        <BloqueoPantalla />
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/restablecer-password" element={<RestablecerPassword />} />

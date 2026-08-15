@@ -31,6 +31,14 @@
     "telefonoPlaceholder": "7 a 10 dígitos",
     "passwordTemporal": "Contraseña temporal"
   },
+  "validacion": {
+    "cedulaInvalida": "Cédula inválida",
+    "nombresInvalidos": "Ingresa un nombre válido (solo letras)",
+    "apellidosInvalidos": "Ingresa un apellido válido (solo letras)",
+    "emailInvalido": "Ingresa un email válido",
+    "telefonoInvalido": "El teléfono debe tener entre 7 y 10 dígitos",
+    "passwordCorta": "La contraseña debe tener al menos 6 caracteres"
+  },
   "mensajes": {
     "errorCargar": "No se pudo cargar la lista de árbitros",
     "errorEstado": "Error al actualizar el estado",
