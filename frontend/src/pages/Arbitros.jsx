@@ -4,7 +4,9 @@ import { IconEdit, IconUserOff, IconUserCheck, IconTrash, IconDeviceFloppy, Icon
 import api from '../api/client';
 import { useAuth } from '../context/AuthContext';
 import useCargaActiva from '../hooks/useCargaActiva';
+import usePaginacion from '../hooks/usePaginacion';
 import TarjetaEstado from '../components/TarjetaEstado';
+import Paginador from '../components/Paginador';
 import {
   validarCedulaEcuatoriana,
   validarEmail,
@@ -48,6 +50,7 @@ export default function Arbitros() {
   // Eliminar árbitro
   const [confirmarEliminar, setConfirmarEliminar] = useState(null); // { id, nombre }
   const [preguntaHistorial, setPreguntaHistorial] = useState(null); // { id, nombre }
+  const { pagina, setPagina, totalPaginas, paginaActual: arbitrosPagina } = usePaginacion(arbitros);
 
   function cargar() {
     api
@@ -259,7 +262,7 @@ export default function Arbitros() {
               </tr>
             </thead>
             <tbody>
-              {arbitros.map((a) => (
+              {arbitrosPagina.map((a) => (
                 <tr key={a.id} className="border-t border-gray-100 hover:bg-navy-50/40">
                   <td className="px-4 py-2.5 font-medium text-navy-900 whitespace-nowrap">{a.nombres} {a.apellidos}</td>
                   <td className="px-4 py-2.5 text-gray-500">{a.cedula}</td>
@@ -347,6 +350,7 @@ export default function Arbitros() {
           </tbody>
         </table>
       </div>
+      <Paginador pagina={pagina} totalPaginas={totalPaginas} onCambiar={setPagina} />
 
       {/* Modal: registrar árbitro */}
       {modalRegistrar && (

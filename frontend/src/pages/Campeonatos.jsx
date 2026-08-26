@@ -4,6 +4,8 @@ import { IconEdit, IconTrash, IconPlus } from '@tabler/icons-react';
 import api from '../api/client';
 import { useAuth } from '../context/AuthContext';
 import useCargaActiva from '../hooks/useCargaActiva';
+import usePaginacion from '../hooks/usePaginacion';
+import Paginador from '../components/Paginador';
 import { textoValido, soloLetras as esNombreValido, esMontoPositivo } from '../utils/validaciones';
 
 const FORM_VACIO = {
@@ -55,6 +57,7 @@ export default function Campeonatos() {
   const [confirmarEliminar, setConfirmarEliminar] = useState(null); // { id, nombre }
   const [errorEliminar, setErrorEliminar] = useState(null);
   const cargaActiva = useCargaActiva();
+  const { pagina, setPagina, totalPaginas, paginaActual: campeonatosPagina } = usePaginacion(campeonatos);
 
   function cargar() {
     api.get('/campeonatos').then((res) => setCampeonatos(res.data));
@@ -216,7 +219,7 @@ export default function Campeonatos() {
               </tr>
             </thead>
             <tbody>
-              {campeonatos.map((c) => {
+              {campeonatosPagina.map((c) => {
                 const estado = estadoFecha(c.fecha_fin);
                 return (
                   <tr key={c.id} className={`border-t border-gray-100 transition ${CLASE_FILA[estado] || 'hover:bg-navy-50/40'}`}>
@@ -258,6 +261,7 @@ export default function Campeonatos() {
             </tbody>
           </table>
       </div>
+      <Paginador pagina={pagina} totalPaginas={totalPaginas} onCambiar={setPagina} />
 
       {/* Modal: nuevo campeonato */}
       {modalCrear && (

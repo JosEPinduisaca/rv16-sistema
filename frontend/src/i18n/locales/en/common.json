@@ -37,6 +37,11 @@
   "estado": {
     "cargando": "Loading..."
   },
+  "paginador": {
+    "anterior": "Previous",
+    "siguiente": "Next",
+    "pagina": "Page {{actual}} of {{total}}"
+  },
   "idioma": {
     "es": "ES",
     "en": "EN",

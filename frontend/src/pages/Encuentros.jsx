@@ -4,8 +4,10 @@ import { useTranslation } from 'react-i18next';
 import { IconEdit, IconTrash, IconPlus } from '@tabler/icons-react';
 import api from '../api/client';
 import useCargaActiva from '../hooks/useCargaActiva';
+import usePaginacion from '../hooks/usePaginacion';
 import { textoValido } from '../utils/validaciones';
 import TarjetaEstado from '../components/TarjetaEstado';
+import Paginador from '../components/Paginador';
 
 const INTENSIDADES = ['alta', 'media', 'baja'];
 const MODOS_ENCUENTRO = [
@@ -47,6 +49,7 @@ export default function Encuentros() {
   const [confirmarEliminar, setConfirmarEliminar] = useState(null); // { id, etiqueta }
   const [errorEliminar, setErrorEliminar] = useState(null);
   const cargaActiva = useCargaActiva();
+  const { pagina, setPagina, totalPaginas, paginaActual: encuentrosPagina } = usePaginacion(encuentros);
 
   function cargar(estado = filtroEstado) {
     const url = estado ? `/encuentros?estado=${estado}` : '/encuentros';
@@ -55,6 +58,7 @@ export default function Encuentros() {
 
   function cambiarFiltro(estado) {
     setFiltroEstado(estado);
+    setPagina(1);
     cargar(estado);
   }
 
@@ -304,7 +308,7 @@ export default function Encuentros() {
               </tr>
             </thead>
             <tbody>
-              {encuentros.map((en) => (
+              {encuentrosPagina.map((en) => (
                 <tr key={en.id} className="border-t border-gray-100 hover:bg-navy-50/40">
                   <td className="px-4 py-2.5">{en.fecha?.slice(0, 10)}</td>
                   <td className="px-4 py-2.5 tabular-nums">{en.hora}</td>
@@ -346,6 +350,7 @@ export default function Encuentros() {
             </tbody>
           </table>
         </div>
+        <Paginador pagina={pagina} totalPaginas={totalPaginas} onCambiar={setPagina} />
       </div>
 
       {/* Modal: ingresar encuentro */}
