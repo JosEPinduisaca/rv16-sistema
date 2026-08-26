@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { IconCheck, IconX } from '@tabler/icons-react';
 import api from '../api/client';
 import useCargaActiva from '../hooks/useCargaActiva';
+import { esMontoPositivo } from '../utils/validaciones';
 import TarjetaEstado from '../components/TarjetaEstado';
 
 const MAX_DIAS_DEGRADADO = 14; // a partir de estos días, el color queda en naranja tope
@@ -36,6 +37,7 @@ export default function Adelantos() {
   const [arbitroSeleccionado, setArbitroSeleccionado] = useState('');
   const [monto, setMonto] = useState('');
   const [error, setError] = useState(null);
+  const [errorMonto, setErrorMonto] = useState(null);
   const cargaActiva = useCargaActiva();
 
   function cargarTodos() {
@@ -47,12 +49,17 @@ export default function Adelantos() {
     cargarTodos();
   }, []);
 
+  function alPerderFocoMonto() {
+    setErrorMonto(esMontoPositivo(monto) ? null : t('validacion.montoInvalido'));
+  }
+
   async function solicitar(e) {
     e.preventDefault();
     setError(null);
     try {
       await api.post('/adelantos', { arbitro_id: arbitroSeleccionado, monto: Number(monto) });
       setMonto('');
+      setErrorMonto(null);
       cargarTodos();
     } catch (err) {
       setError(err.response?.data?.error || t('mensajes.errorSolicitar'));
@@ -168,8 +175,10 @@ export default function Adelantos() {
               type="number" step="0.01" min="0.01" required
               value={monto}
               onChange={(e) => setMonto(e.target.value)}
-              className="w-full border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-navy-600"
+              onBlur={alPerderFocoMonto}
+              className={`w-full border rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-navy-600 ${errorMonto ? 'border-card-red' : 'border-gray-300'}`}
             />
+            {errorMonto && <p className="text-[11px] text-card-red-dark mt-1">{errorMonto}</p>}
           </div>
           {error && <p className="text-xs text-card-red-dark bg-card-red/10 px-2 py-1.5 rounded">{error}</p>}
           <button

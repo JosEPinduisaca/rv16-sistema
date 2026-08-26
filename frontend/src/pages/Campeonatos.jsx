@@ -4,6 +4,7 @@ import { IconEdit, IconTrash } from '@tabler/icons-react';
 import api from '../api/client';
 import { useAuth } from '../context/AuthContext';
 import useCargaActiva from '../hooks/useCargaActiva';
+import { textoValido, soloLetras as esNombreValido, esMontoPositivo } from '../utils/validaciones';
 
 const FORM_VACIO = {
   nombre: '', fecha_inicio: '', fecha_fin: '',
@@ -45,9 +46,11 @@ export default function Campeonatos() {
   const [form, setForm] = useState(FORM_VACIO);
   const [error, setError] = useState(null);
   const [mensaje, setMensaje] = useState(null);
+  const [erroresForm, setErroresForm] = useState({});
 
   const [modalEditar, setModalEditar] = useState(null); // { id, nombre, fecha_inicio, fecha_fin }
   const [errorEditar, setErrorEditar] = useState(null);
+  const [erroresEditar, setErroresEditar] = useState({});
   const [confirmarEliminar, setConfirmarEliminar] = useState(null); // { id, nombre }
   const [errorEliminar, setErrorEliminar] = useState(null);
   const cargaActiva = useCargaActiva();
@@ -57,6 +60,33 @@ export default function Campeonatos() {
   }
 
   useEffect(cargar, []);
+
+  // Valida un campo del formulario (nuevo o edición) al perder el foco.
+  function validarCampo(campo, valores) {
+    switch (campo) {
+      case 'nombre':
+        return textoValido(valores.nombre) && esNombreValido(valores.nombre) ? null : t('validacion.nombreInvalido');
+      case 'fecha_fin':
+        return !valores.fecha_fin || !valores.fecha_inicio || valores.fecha_fin >= valores.fecha_inicio
+          ? null
+          : t('validacion.fechaFinInvalida');
+      case 'tarifaSenior':
+      case 'tarifaMaster':
+      case 'tarifaFemenino':
+      case 'tarifaNinos':
+        return !valores[campo] || esMontoPositivo(valores[campo]) ? null : t('validacion.montoInvalido');
+      default:
+        return null;
+    }
+  }
+
+  function alPerderFoco(campo) {
+    setErroresForm((prev) => ({ ...prev, [campo]: validarCampo(campo, form) }));
+  }
+
+  function alPerderFocoEditar(campo) {
+    setErroresEditar((prev) => ({ ...prev, [campo]: validarCampo(campo, modalEditar) }));
+  }
 
   async function crear(e) {
     e.preventDefault();
@@ -93,6 +123,7 @@ export default function Campeonatos() {
           : t('mensajes.creado')
       );
       setForm(FORM_VACIO);
+      setErroresForm({});
       cargar();
     } catch (err) {
       setError(err.response?.data?.error || t('mensajes.errorCrear'));
@@ -101,6 +132,7 @@ export default function Campeonatos() {
 
   function abrirEditar(c) {
     setErrorEditar(null);
+    setErroresEditar({});
     setModalEditar({
       id: c.id,
       nombre: c.nombre,
@@ -120,6 +152,7 @@ export default function Campeonatos() {
         fecha_fin: modalEditar.fecha_fin,
       });
       setModalEditar(null);
+      setErroresEditar({});
       cargar();
     } catch (err) {
       setErrorEditar(err.response?.data?.error || t('mensajes.errorActualizar'));
@@ -212,8 +245,10 @@ export default function Campeonatos() {
               placeholder={t('campos.soloLetras')}
               value={form.nombre}
               onChange={(e) => setForm({ ...form, nombre: soloLetras(e.target.value) })}
-              className="w-full border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-navy-600"
+              onBlur={() => alPerderFoco('nombre')}
+              className={`w-full border rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-navy-600 ${erroresForm.nombre ? 'border-card-red' : 'border-gray-300'}`}
             />
+            {erroresForm.nombre && <p className="text-[11px] text-card-red-dark mt-1">{erroresForm.nombre}</p>}
           </div>
           <div>
             <label className="block text-xs text-gray-600 mb-1">{t('campos.fechaInicio')}</label>
@@ -234,8 +269,10 @@ export default function Campeonatos() {
               min={form.fecha_inicio || hoyISO()}
               value={form.fecha_fin}
               onChange={(e) => setForm({ ...form, fecha_fin: e.target.value })}
-              className="w-full border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-navy-600"
+              onBlur={() => alPerderFoco('fecha_fin')}
+              className={`w-full border rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-navy-600 ${erroresForm.fecha_fin ? 'border-card-red' : 'border-gray-300'}`}
             />
+            {erroresForm.fecha_fin && <p className="text-[11px] text-card-red-dark mt-1">{erroresForm.fecha_fin}</p>}
           </div>
 
           <div className="pt-2 border-t border-gray-100">
@@ -253,8 +290,10 @@ export default function Campeonatos() {
                     type="number" step="0.01" min="0.01"
                     value={form[campo]}
                     onChange={(e) => setForm({ ...form, [campo]: e.target.value })}
-                    className="w-full border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-navy-600"
+                    onBlur={() => alPerderFoco(campo)}
+                    className={`w-full border rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-navy-600 ${erroresForm[campo] ? 'border-card-red' : 'border-gray-300'}`}
                   />
+                  {erroresForm[campo] && <p className="text-[11px] text-card-red-dark mt-1">{erroresForm[campo]}</p>}
                 </div>
               ))}
             </div>
@@ -283,8 +322,10 @@ export default function Campeonatos() {
                   required
                   value={modalEditar.nombre}
                   onChange={(e) => setModalEditar({ ...modalEditar, nombre: soloLetras(e.target.value) })}
-                  className="w-full border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-navy-600"
+                  onBlur={() => alPerderFocoEditar('nombre')}
+                  className={`w-full border rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-navy-600 ${erroresEditar.nombre ? 'border-card-red' : 'border-gray-300'}`}
                 />
+                {erroresEditar.nombre && <p className="text-[11px] text-card-red-dark mt-1">{erroresEditar.nombre}</p>}
               </div>
               <div>
                 <label className="block text-xs text-gray-600 mb-1">{t('campos.fechaInicio')}</label>
@@ -301,8 +342,10 @@ export default function Campeonatos() {
                   type="date" required
                   value={modalEditar.fecha_fin}
                   onChange={(e) => setModalEditar({ ...modalEditar, fecha_fin: e.target.value })}
-                  className="w-full border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-navy-600"
+                  onBlur={() => alPerderFocoEditar('fecha_fin')}
+                  className={`w-full border rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-navy-600 ${erroresEditar.fecha_fin ? 'border-card-red' : 'border-gray-300'}`}
                 />
+                {erroresEditar.fecha_fin && <p className="text-[11px] text-card-red-dark mt-1">{erroresEditar.fecha_fin}</p>}
               </div>
               {errorEditar && <p className="text-xs text-card-red-dark bg-card-red/10 px-2 py-1.5 rounded">{errorEditar}</p>}
               <div className="flex justify-end gap-2 pt-1">

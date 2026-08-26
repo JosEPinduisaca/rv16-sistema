@@ -26,6 +26,9 @@
     "enviando": "Sending...",
     "enviar": "Send recovery link"
   },
+  "validacion": {
+    "emailInvalido": "Enter a valid email"
+  },
   "mensajes": {
     "errorSolicitud": "Error processing the request"
   }

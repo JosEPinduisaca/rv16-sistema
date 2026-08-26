@@ -20,6 +20,9 @@
   "campos": {
     "monto": "Monto ($)"
   },
+  "validacion": {
+    "montoInvalido": "El monto debe ser mayor a 0"
+  },
   "mensajes": {
     "solicitudEnviada": "Solicitud enviada. Queda pendiente de aprobación.",
     "errorSolicitar": "Error al solicitar el adelanto"

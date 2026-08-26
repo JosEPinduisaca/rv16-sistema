@@ -3,19 +3,30 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import api from '../api/client';
+import { validarEmail } from '../utils/validaciones';
 
 export default function Login() {
   const { t } = useTranslation(['login', 'common']);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [errorEmail, setErrorEmail] = useState(null);
   const { login, cargando, error } = useAuth();
   const navigate = useNavigate();
 
   const [modalOlvide, setModalOlvide] = useState(false);
   const [emailOlvide, setEmailOlvide] = useState('');
+  const [errorEmailOlvide, setErrorEmailOlvide] = useState(null);
   const [enviandoOlvide, setEnviandoOlvide] = useState(false);
   const [mensajeOlvide, setMensajeOlvide] = useState(null);
   const [errorOlvide, setErrorOlvide] = useState(null);
+
+  function alPerderFocoEmail() {
+    setErrorEmail(validarEmail(email) ? null : t('validacion.emailInvalido'));
+  }
+
+  function alPerderFocoEmailOlvide() {
+    setErrorEmailOlvide(validarEmail(emailOlvide) ? null : t('validacion.emailInvalido'));
+  }
 
   async function manejarEnvio(e) {
     e.preventDefault();
@@ -26,6 +37,7 @@ export default function Login() {
   function abrirOlvide() {
     setModalOlvide(true);
     setEmailOlvide(email); // por si ya lo había escrito arriba
+    setErrorEmailOlvide(null);
     setMensajeOlvide(null);
     setErrorOlvide(null);
   }
@@ -89,10 +101,12 @@ export default function Login() {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                onBlur={alPerderFocoEmail}
                 required
-                className="w-full border border-gray-300 rounded-md px-3 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-navy-600 focus:border-navy-600 transition"
+                className={`w-full border rounded-md px-3 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-navy-600 focus:border-navy-600 transition ${errorEmail ? 'border-card-red' : 'border-gray-300'}`}
                 placeholder={t('campos.emailPlaceholder')}
               />
+              {errorEmail && <p className="text-[11px] text-card-red-dark mt-1">{errorEmail}</p>}
             </div>
             <div>
               <label className="block text-xs font-medium text-navy-700 uppercase tracking-wide mb-1.5">
@@ -162,9 +176,11 @@ export default function Login() {
                   autoFocus
                   value={emailOlvide}
                   onChange={(e) => setEmailOlvide(e.target.value)}
+                  onBlur={alPerderFocoEmailOlvide}
                   placeholder={t('campos.emailPlaceholder')}
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-navy-600"
+                  className={`w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-navy-600 ${errorEmailOlvide ? 'border-card-red' : 'border-gray-300'}`}
                 />
+                {errorEmailOlvide && <p className="text-[11px] text-card-red-dark -mt-1.5">{errorEmailOlvide}</p>}
                 {errorOlvide && (
                   <div className="bg-card-red/10 border border-card-red/30 text-card-red-dark text-sm px-3 py-2 rounded-md">
                     {errorOlvide}

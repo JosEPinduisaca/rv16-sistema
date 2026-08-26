@@ -47,6 +47,9 @@
     "editarTitulo": "Editar encuentro",
     "cancha": "Cancha"
   },
+  "validacion": {
+    "canchaInvalida": "Ingresa un nombre de cancha válido"
+  },
   "eliminar": {
     "titulo": "¿Eliminar este encuentro?",
     "aviso": "Si ya tiene árbitros designados, primero debes quitarlos desde \"Designación general\"."

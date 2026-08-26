@@ -47,6 +47,9 @@
     "editarTitulo": "Edit match",
     "cancha": "Court"
   },
+  "validacion": {
+    "canchaInvalida": "Enter a valid court name"
+  },
   "eliminar": {
     "titulo": "Delete this match?",
     "aviso": "If it already has referees assigned, you must first remove them from \"General assignments\"."

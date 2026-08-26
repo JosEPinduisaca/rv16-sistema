@@ -10,9 +10,14 @@ export default function RestablecerPassword() {
 
   const [password, setPassword] = useState('');
   const [confirmar, setConfirmar] = useState('');
+  const [errorConfirmar, setErrorConfirmar] = useState(null);
   const [enviando, setEnviando] = useState(false);
   const [mensaje, setMensaje] = useState(null);
   const [error, setError] = useState(null);
+
+  function alPerderFocoConfirmar() {
+    setErrorConfirmar(!confirmar || confirmar === password ? null : t('mensajes.contrasenasNoCoinciden'));
+  }
 
   async function manejarEnvio(e) {
     e.preventDefault();
@@ -89,9 +94,11 @@ export default function RestablecerPassword() {
                   minLength={6}
                   value={confirmar}
                   onChange={(e) => setConfirmar(e.target.value)}
+                  onBlur={alPerderFocoConfirmar}
                   placeholder={t('campos.contrasenaPlaceholder')}
-                  className="w-full border border-gray-300 rounded-md px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-navy-600"
+                  className={`w-full border rounded-md px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-navy-600 ${errorConfirmar ? 'border-card-red' : 'border-gray-300'}`}
                 />
+                {errorConfirmar && <p className="text-[11px] text-card-red-dark mt-1">{errorConfirmar}</p>}
               </div>
               {error && (
                 <div className="bg-card-red/10 border border-card-red/30 text-card-red-dark text-sm px-3 py-2 rounded-md">

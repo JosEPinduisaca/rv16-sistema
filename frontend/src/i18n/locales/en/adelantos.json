@@ -21,6 +21,9 @@
     "seleccionar": "Select...",
     "monto": "Amount ($)"
   },
+  "validacion": {
+    "montoInvalido": "The amount must be greater than 0"
+  },
   "mensajes": {
     "errorSolicitar": "Error requesting the advance",
     "errorActualizar": "Error updating the advance"

@@ -29,6 +29,11 @@
     "tarifaBaseTitulo": "Base rate by category (optional)",
     "tarifaBaseTexto": "Created with the Central role (intensity doesn't affect pay). If you need an Assistant rate or others, add them later in \"Rates\"."
   },
+  "validacion": {
+    "nombreInvalido": "Enter a valid name (at least 2 letters)",
+    "fechaFinInvalida": "The end date must be on or after the start date",
+    "montoInvalido": "The amount must be greater than 0"
+  },
   "mensajes": {
     "creadoConTarifas": "Championship created with {{cantidad}} rate(s). You can adjust amounts in \"Rates\".",
     "creado": "Championship created successfully.",

@@ -18,6 +18,10 @@
     "sinCampeonato": "Select a championship to see its rates",
     "sinTarifas": "This championship has no rates registered"
   },
+  "validacion": {
+    "categoriaInvalida": "Enter a valid category name (2 to 40 characters)",
+    "montoInvalido": "The amount must be greater than 0"
+  },
   "mensajes": {
     "errorCrearCategoria": "Error creating the category",
     "errorActualizar": "Error updating the rate",

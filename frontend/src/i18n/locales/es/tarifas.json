@@ -18,6 +18,10 @@
     "sinCampeonato": "Selecciona un campeonato para ver sus tarifas",
     "sinTarifas": "Este campeonato no tiene tarifas registradas"
   },
+  "validacion": {
+    "categoriaInvalida": "Ingresa un nombre de categoría válido (2 a 40 caracteres)",
+    "montoInvalido": "El monto debe ser mayor a 0"
+  },
   "mensajes": {
     "errorCrearCategoria": "Error al crear la categoría",
     "errorActualizar": "Error al actualizar la tarifa",

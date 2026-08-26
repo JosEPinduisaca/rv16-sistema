@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { IconEdit, IconTrash } from '@tabler/icons-react';
 import api from '../api/client';
 import useCargaActiva from '../hooks/useCargaActiva';
+import { categoriaValida, esMontoPositivo } from '../utils/validaciones';
 
 const ROLES = ['central', 'asistente'];
 
@@ -14,9 +15,11 @@ export default function Tarifas() {
 
   const [modalNueva, setModalNueva] = useState(null); // { categoria, monto }
   const [errorNueva, setErrorNueva] = useState(null);
+  const [erroresNueva, setErroresNueva] = useState({});
 
   const [modalEditar, setModalEditar] = useState(null); // { id, categoria, rol_arbitro, monto }
   const [errorEditar, setErrorEditar] = useState(null);
+  const [erroresEditar, setErroresEditar] = useState({});
   const [nuevoRolMonto, setNuevoRolMonto] = useState('');
   const [mensajeNuevoRol, setMensajeNuevoRol] = useState(null);
   const [errorNuevoRol, setErrorNuevoRol] = useState(null);
@@ -40,7 +43,18 @@ export default function Tarifas() {
   // --- Crear categoría nueva (siempre arranca con la tarifa "central") ---
   function abrirNuevaCategoria() {
     setErrorNueva(null);
+    setErroresNueva({});
     setModalNueva({ categoria: '', monto: '' });
+  }
+
+  function alPerderFocoNueva(campo) {
+    const valor = modalNueva[campo];
+    const invalido = campo === 'categoria' ? !categoriaValida(valor) : !esMontoPositivo(valor);
+    setErroresNueva((prev) => ({ ...prev, [campo]: invalido ? t(`validacion.${campo === 'categoria' ? 'categoriaInvalida' : 'montoInvalido'}`) : null }));
+  }
+
+  function alPerderFocoEditar(campo) {
+    setErroresEditar((prev) => ({ ...prev, [campo]: esMontoPositivo(modalEditar[campo]) ? null : t('validacion.montoInvalido') }));
   }
 
   async function crearCategoria(e) {
@@ -55,6 +69,7 @@ export default function Tarifas() {
         viatico: 0,
       });
       setModalNueva(null);
+      setErroresNueva({});
       cargarTarifas(campeonatoId);
     } catch (err) {
       setErrorNueva(err.response?.data?.error || t('mensajes.errorCrearCategoria'));
@@ -64,6 +79,7 @@ export default function Tarifas() {
   // --- Editar (solo el monto; categoría y rol quedan fijos) ---
   function abrirEditar(t) {
     setErrorEditar(null);
+    setErroresEditar({});
     setMensajeNuevoRol(null);
     setErrorNuevoRol(null);
     setNuevoRolMonto('');
@@ -79,6 +95,7 @@ export default function Tarifas() {
         viatico: 0,
       });
       setModalEditar(null);
+      setErroresEditar({});
       cargarTarifas(campeonatoId);
     } catch (err) {
       setErrorEditar(err.response?.data?.error || t('mensajes.errorActualizar'));
@@ -206,8 +223,10 @@ export default function Tarifas() {
                   placeholder={t('modal.nuevaCategoria.nombreCategoriaPlaceholder')}
                   value={modalNueva.categoria}
                   onChange={(e) => setModalNueva({ ...modalNueva, categoria: e.target.value })}
-                  className="w-full border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-navy-600"
+                  onBlur={() => alPerderFocoNueva('categoria')}
+                  className={`w-full border rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-navy-600 ${erroresNueva.categoria ? 'border-card-red' : 'border-gray-300'}`}
                 />
+                {erroresNueva.categoria && <p className="text-[11px] text-card-red-dark mt-1">{erroresNueva.categoria}</p>}
               </div>
               <div>
                 <label className="block text-xs text-gray-600 mb-1">{t('modal.nuevaCategoria.montoCentral')}</label>
@@ -215,8 +234,10 @@ export default function Tarifas() {
                   type="number" step="0.01" min="0.01" required
                   value={modalNueva.monto}
                   onChange={(e) => setModalNueva({ ...modalNueva, monto: e.target.value })}
-                  className="w-full border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-navy-600"
+                  onBlur={() => alPerderFocoNueva('monto')}
+                  className={`w-full border rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-navy-600 ${erroresNueva.monto ? 'border-card-red' : 'border-gray-300'}`}
                 />
+                {erroresNueva.monto && <p className="text-[11px] text-card-red-dark mt-1">{erroresNueva.monto}</p>}
               </div>
               {errorNueva && <p className="text-xs text-card-red-dark bg-card-red/10 px-2 py-1.5 rounded">{errorNueva}</p>}
               <div className="flex justify-end gap-2 pt-1">
@@ -268,8 +289,10 @@ export default function Tarifas() {
                   type="number" step="0.01" min="0.01" required
                   value={modalEditar.monto}
                   onChange={(e) => setModalEditar({ ...modalEditar, monto: e.target.value })}
-                  className="w-full border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-navy-600"
+                  onBlur={() => alPerderFocoEditar('monto')}
+                  className={`w-full border rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-navy-600 ${erroresEditar.monto ? 'border-card-red' : 'border-gray-300'}`}
                 />
+                {erroresEditar.monto && <p className="text-[11px] text-card-red-dark mt-1">{erroresEditar.monto}</p>}
               </div>
               {errorEditar && <p className="text-xs text-card-red-dark bg-card-red/10 px-2 py-1.5 rounded">{errorEditar}</p>}
               <div className="flex justify-end gap-2 pt-1">

@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { IconEdit, IconTrash } from '@tabler/icons-react';
 import api from '../api/client';
 import useCargaActiva from '../hooks/useCargaActiva';
+import { textoValido } from '../utils/validaciones';
 import TarjetaEstado from '../components/TarjetaEstado';
 
 const INTENSIDADES = ['alta', 'media', 'baja'];
@@ -37,9 +38,11 @@ export default function Encuentros() {
   const [form, setForm] = useState(FORM_VACIO);
   const [error, setError] = useState(null);
   const [mensaje, setMensaje] = useState(null);
+  const [erroresForm, setErroresForm] = useState({});
 
   const [modalEditar, setModalEditar] = useState(null);
   const [errorEditar, setErrorEditar] = useState(null);
+  const [erroresEditar, setErroresEditar] = useState({});
   const [confirmarEliminar, setConfirmarEliminar] = useState(null); // { id, etiqueta }
   const [errorEliminar, setErrorEliminar] = useState(null);
   const cargaActiva = useCargaActiva();
@@ -88,6 +91,18 @@ export default function Encuentros() {
 
   function nombreCampeonato(id) {
     return campeonatos.find((c) => String(c.id) === String(id))?.nombre || '';
+  }
+
+  function alPerderFocoHora() {
+    setErroresForm((prev) => ({ ...prev, hora: form.hora === '00:00' ? t('mensajes.horaInvalida') : null }));
+  }
+
+  function alPerderFocoEditar(campo) {
+    if (campo === 'hora') {
+      setErroresEditar((prev) => ({ ...prev, hora: modalEditar.hora === '00:00' ? t('mensajes.horaInvalida') : null }));
+    } else if (campo === 'cancha') {
+      setErroresEditar((prev) => ({ ...prev, cancha: textoValido(modalEditar.cancha) ? null : t('validacion.canchaInvalida') }));
+    }
   }
 
   async function ingresar(e) {
@@ -141,6 +156,7 @@ export default function Encuentros() {
           : null
       );
       setForm(FORM_VACIO);
+      setErroresForm({});
       setCategoriasDisponibles([]);
       setTarifasCampeonato([]);
       cargar();
@@ -151,6 +167,7 @@ export default function Encuentros() {
 
   async function abrirEditar(en) {
     setErrorEditar(null);
+    setErroresEditar({});
     setModalEditar({
       id: en.id,
       campeonato_id: en.campeonato_id,
@@ -183,6 +200,7 @@ export default function Encuentros() {
         cancha: modalEditar.cancha,
       });
       setModalEditar(null);
+      setErroresEditar({});
       cargar();
     } catch (err) {
       setErrorEditar(err.response?.data?.error || t('mensajes.errorActualizar'));
@@ -373,8 +391,10 @@ export default function Encuentros() {
                 type="time" required
                 value={form.hora}
                 onChange={(e) => setForm({ ...form, hora: e.target.value })}
-                className="w-full border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-navy-600"
+                onBlur={alPerderFocoHora}
+                className={`w-full border rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-navy-600 ${erroresForm.hora ? 'border-card-red' : 'border-gray-300'}`}
               />
+              {erroresForm.hora && <p className="text-[11px] text-card-red-dark mt-1">{erroresForm.hora}</p>}
             </div>
           </div>
 
@@ -519,8 +539,10 @@ export default function Encuentros() {
                     type="time" required
                     value={modalEditar.hora}
                     onChange={(e) => setModalEditar({ ...modalEditar, hora: e.target.value })}
-                    className="w-full border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-navy-600"
+                    onBlur={() => alPerderFocoEditar('hora')}
+                    className={`w-full border rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-navy-600 ${erroresEditar.hora ? 'border-card-red' : 'border-gray-300'}`}
                   />
+                  {erroresEditar.hora && <p className="text-[11px] text-card-red-dark mt-1">{erroresEditar.hora}</p>}
                 </div>
               </div>
               <div>
@@ -529,8 +551,10 @@ export default function Encuentros() {
                   required
                   value={modalEditar.cancha}
                   onChange={(e) => setModalEditar({ ...modalEditar, cancha: e.target.value })}
-                  className="w-full border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-navy-600"
+                  onBlur={() => alPerderFocoEditar('cancha')}
+                  className={`w-full border rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-navy-600 ${erroresEditar.cancha ? 'border-card-red' : 'border-gray-300'}`}
                 />
+                {erroresEditar.cancha && <p className="text-[11px] text-card-red-dark mt-1">{erroresEditar.cancha}</p>}
               </div>
               {errorEditar && <p className="text-xs text-card-red-dark bg-card-red/10 px-2 py-1.5 rounded">{errorEditar}</p>}
               <div className="flex justify-end gap-2 pt-1">

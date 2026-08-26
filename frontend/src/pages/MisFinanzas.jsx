@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import api from '../api/client';
 import useCargaActiva from '../hooks/useCargaActiva';
+import { esMontoPositivo } from '../utils/validaciones';
 import TarjetaEstado from '../components/TarjetaEstado';
 
 export default function MisFinanzas() {
@@ -12,6 +13,7 @@ export default function MisFinanzas() {
   const [liquidaciones, setLiquidaciones] = useState([]);
   const [monto, setMonto] = useState('');
   const [error, setError] = useState(null);
+  const [errorMonto, setErrorMonto] = useState(null);
   const [mensaje, setMensaje] = useState(null);
   const cargaActiva = useCargaActiva();
 
@@ -27,6 +29,10 @@ export default function MisFinanzas() {
     });
   }, []);
 
+  function alPerderFocoMonto() {
+    setErrorMonto(esMontoPositivo(monto) ? null : t('validacion.montoInvalido'));
+  }
+
   async function solicitar(e) {
     e.preventDefault();
     setError(null);
@@ -35,6 +41,7 @@ export default function MisFinanzas() {
       await api.post('/adelantos', { arbitro_id: arbitroId, monto: Number(monto) });
       setMensaje(t('mensajes.solicitudEnviada'));
       setMonto('');
+      setErrorMonto(null);
       cargarTodo(arbitroId);
     } catch (err) {
       setError(err.response?.data?.error || t('mensajes.errorSolicitar'));
@@ -124,8 +131,10 @@ export default function MisFinanzas() {
               type="number" step="0.01" min="0.01" required
               value={monto}
               onChange={(e) => setMonto(e.target.value)}
-              className="w-full border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-navy-600"
+              onBlur={alPerderFocoMonto}
+              className={`w-full border rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-navy-600 ${errorMonto ? 'border-card-red' : 'border-gray-300'}`}
             />
+            {errorMonto && <p className="text-[11px] text-card-red-dark mt-1">{errorMonto}</p>}
           </div>
           {error && <p className="text-xs text-card-red-dark bg-card-red/10 px-2 py-1.5 rounded">{error}</p>}
           {mensaje && <p className="text-xs text-pitch-green-dark bg-pitch-green/10 px-2 py-1.5 rounded">{mensaje}</p>}

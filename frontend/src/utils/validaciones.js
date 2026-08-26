@@ -45,3 +45,17 @@ export function soloLetras(texto) {
 export function textoValido(valor, minLength = 2) {
   return typeof valor === 'string' && valor.trim().length >= minLength;
 }
+
+export function categoriaValida(texto) {
+  return typeof texto === 'string' && /^[A-Za-zÁÉÍÓÚáéíóúÑñÜü0-9\s]{2,40}$/.test(texto.trim());
+}
+
+export function esMontoPositivo(valor) {
+  const n = Number(valor);
+  return !Number.isNaN(n) && n > 0;
+}
+
+export function esMontoNoNegativo(valor) {
+  const n = Number(valor);
+  return !Number.isNaN(n) && n >= 0;
+}
