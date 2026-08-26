@@ -61,12 +61,6 @@ function esMontoPositivo(valor) {
   return !Number.isNaN(n) && n > 0;
 }
 
-// Un monto monetario no negativo (cero permitido, ej. viáticos opcionales).
-function esMontoNoNegativo(valor) {
-  const n = Number(valor);
-  return !Number.isNaN(n) && n >= 0;
-}
-
 module.exports = {
   validarCedulaEcuatoriana,
   validarEmail,
@@ -75,5 +69,4 @@ module.exports = {
   textoValido,
   categoriaValida,
   esMontoPositivo,
-  esMontoNoNegativo,
 };

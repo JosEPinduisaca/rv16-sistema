@@ -19,7 +19,7 @@ async function buscarDesignacionesPendientes(db, arbitroId, fechaInicio, fechaFi
 
 async function buscarTarifaVigente(db, campeonatoId, categoria, rolArbitro) {
   const resultado = await db.query(`
-    SELECT monto, viatico FROM tarifas
+    SELECT monto FROM tarifas
     WHERE campeonato_id = $1 AND categoria = $2 AND rol_arbitro = $3 AND vigente = TRUE
   `, [campeonatoId, categoria, rolArbitro]);
   return resultado.rows[0] || null;

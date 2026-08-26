@@ -88,11 +88,7 @@ async function crearDesignacion({
 
   return {
     designacion: nuevaDesignacion,
-    pago_estimado: {
-      monto: tarifa.monto,
-      viatico: tarifa.viatico,
-      total: Number(tarifa.monto) + Number(tarifa.viatico),
-    },
+    pago_estimado: { monto: tarifa.monto },
   };
 }
 

@@ -66,7 +66,6 @@ export default function Tarifas() {
         categoria: modalNueva.categoria,
         rol_arbitro: 'central',
         monto: Number(modalNueva.monto),
-        viatico: 0,
       });
       setModalNueva(null);
       setErroresNueva({});
@@ -92,7 +91,6 @@ export default function Tarifas() {
     try {
       await api.put(`/tarifas/${modalEditar.id}`, {
         monto: Number(modalEditar.monto),
-        viatico: 0,
       });
       setModalEditar(null);
       setErroresEditar({});
@@ -111,7 +109,6 @@ export default function Tarifas() {
         categoria: modalEditar.categoria,
         rol_arbitro: rolFaltante,
         monto: Number(nuevoRolMonto),
-        viatico: 0,
       });
       setMensajeNuevoRol(t('mensajes.rolAgregado', { rol: t(`roles.${rolFaltante}`) }));
       setNuevoRolMonto('');

@@ -1,6 +1,7 @@
 {
   "titulo": "Referees",
   "columnas": {
+    "numero": "#",
     "nombre": "Name",
     "cedula": "National ID",
     "email": "Email",
@@ -9,6 +10,11 @@
     "acciones": "Actions"
   },
   "vacio": "No referees registered",
+  "ordenar": {
+    "etiqueta": "Sort by",
+    "nombre": "Name",
+    "nivel": "Level"
+  },
   "niveles": {
     "formacion": "In training",
     "con_experiencia": "Experienced",

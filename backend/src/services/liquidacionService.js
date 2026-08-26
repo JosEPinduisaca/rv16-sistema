@@ -46,7 +46,7 @@ async function generarParaUnArbitro(arbitroId, periodo, fechaInicio, fechaFin) {
         };
       }
 
-      const total = Number(tarifa.monto) + Number(tarifa.viatico);
+      const total = Number(tarifa.monto);
       montoBruto += total;
       detalles.push({ designacionId: d.designacion_id, monto: total });
     }

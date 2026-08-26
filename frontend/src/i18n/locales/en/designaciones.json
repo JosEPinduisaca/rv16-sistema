@@ -36,8 +36,8 @@
     "designando": "Assigning..."
   },
   "resultado": {
-    "etiquetaDesignado": "{{etiqueta}} assigned",
-    "pagoEstimado": "Estimated pay: ${{monto}} + ${{viatico}} allowance =",
+    "etiquetaDesignado": "{{nombre}} {{etiqueta}} Assigned",
+    "pagoEstimado": "Estimated pay:",
     "publicarDesignacion": "Publish assignment"
   },
   "panel": {

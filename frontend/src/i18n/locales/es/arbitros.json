@@ -1,13 +1,20 @@
 {
   "titulo": "Árbitros",
   "columnas": {
+    "numero": "#",
     "nombre": "Nombre",
+    "cedula": "Cédula",
     "email": "Email",
     "nivel": "Nivel",
     "estado": "Estado",
     "acciones": "Acciones"
   },
   "vacio": "No hay árbitros registrados",
+  "ordenar": {
+    "etiqueta": "Ordenar por",
+    "nombre": "Nombre",
+    "nivel": "Nivel"
+  },
   "niveles": {
     "formacion": "En formación",
     "con_experiencia": "Con experiencia",

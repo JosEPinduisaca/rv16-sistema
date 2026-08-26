@@ -156,7 +156,11 @@ export default function Designaciones() {
     const slots = slotsPorEncuentro[encuentroId] || [];
     const seleccionesHechas = slots
       .map((slot, i) => ({ ...slot, arbitro_id: seleccionPorSlot[i] }))
-      .filter((s) => s.arbitro_id);
+      .filter((s) => s.arbitro_id)
+      .map((s) => {
+        const candidato = candidatos.find((c) => String(c.id) === s.arbitro_id);
+        return { ...s, nombreArbitro: candidato ? `${candidato.nombres} ${candidato.apellidos}` : '' };
+      });
 
     if (seleccionesHechas.length === 0) {
       setError(t('mensajes.eligeAlMenosUno'));
@@ -173,7 +177,7 @@ export default function Designaciones() {
           arbitro_id: s.arbitro_id,
           rol_designacion: s.rol,
         });
-        creadas.push({ ...data, etiqueta: s.etiqueta });
+        creadas.push({ ...data, etiqueta: s.etiqueta, nombreArbitro: s.nombreArbitro });
       } catch (err) {
         errores.push(`${s.etiqueta}: ${err.response?.data?.error || t('mensajes.errorDesconocido')}`);
       }
@@ -315,12 +319,12 @@ export default function Designaciones() {
           {resultado.creadas.map((c, idx) => (
             <div key={c.designacion.id} className="bg-white border border-pitch-green/30 rounded-lg p-4">
               <div className="flex items-center justify-between mb-2">
-                <p className="text-sm text-navy-900 font-semibold">{t('resultado.etiquetaDesignado', { etiqueta: c.etiqueta })}</p>
+                <p className="text-sm text-navy-900 font-semibold">{t('resultado.etiquetaDesignado', { nombre: c.nombreArbitro, etiqueta: c.etiqueta })}</p>
                 <TarjetaEstado estado={c.designacion.estado} />
               </div>
               <p className="text-sm text-gray-600">
-                {t('resultado.pagoEstimado', { monto: c.pago_estimado.monto, viatico: c.pago_estimado.viatico })}{' '}
-                <strong className="text-navy-900 tabular-nums">${c.pago_estimado.total}</strong>
+                {t('resultado.pagoEstimado')}{' '}
+                <strong className="text-navy-900 tabular-nums">${c.pago_estimado.monto}</strong>
               </p>
               {c.designacion.estado !== 'publicada' && (
                 <button

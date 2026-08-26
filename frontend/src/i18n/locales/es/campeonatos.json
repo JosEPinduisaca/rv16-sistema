@@ -5,12 +5,22 @@
     "terminado": "Ya terminado"
   },
   "columnas": {
+    "numero": "#",
     "nombre": "Nombre",
     "inicio": "Inicio",
     "fin": "Fin",
     "acciones": "Acciones"
   },
   "vacio": "Aún no hay campeonatos",
+  "vacioBusqueda": "No se encontraron campeonatos con ese nombre",
+  "buscar": {
+    "placeholder": "Buscar por nombre..."
+  },
+  "ordenar": {
+    "etiqueta": "Ordenar por",
+    "nombre": "Nombre",
+    "fecha": "Fecha"
+  },
   "categorias": {
     "senior": "Señor",
     "master": "Master",

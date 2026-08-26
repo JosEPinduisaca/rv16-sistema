@@ -5,12 +5,22 @@
     "terminado": "Already ended"
   },
   "columnas": {
+    "numero": "#",
     "nombre": "Name",
     "inicio": "Start",
     "fin": "End",
     "acciones": "Actions"
   },
   "vacio": "No championships yet",
+  "vacioBusqueda": "No championships found with that name",
+  "buscar": {
+    "placeholder": "Search by name..."
+  },
+  "ordenar": {
+    "etiqueta": "Sort by",
+    "nombre": "Name",
+    "fecha": "Date"
+  },
   "categorias": {
     "senior": "Senior",
     "master": "Master",

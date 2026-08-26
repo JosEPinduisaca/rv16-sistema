@@ -20,8 +20,8 @@ INSERT INTO campeonatos (nombre, liga, fecha_inicio, fecha_fin) VALUES
 -- ---------------------------------------------------------------------
 -- 2. TARIFA BÁSICA PARA CADA TORNEO (necesaria para poder designar)
 -- ---------------------------------------------------------------------
-INSERT INTO tarifas (campeonato_id, categoria, intensidad, rol_arbitro, monto, viatico)
-SELECT c.id, 'senior', 'media', r.rol, 20.00, 3.00
+INSERT INTO tarifas (campeonato_id, categoria, intensidad, rol_arbitro, monto)
+SELECT c.id, 'senior', 'media', r.rol, 20.00
 FROM campeonatos c
 CROSS JOIN (VALUES ('central'::rol_designacion), ('linea'::rol_designacion)) AS r(rol)
 WHERE c.nombre IN ('Corazón de Jesús','Pintag','Santa Isabel 1','Santa Isabel 2','Uyumbicho','Yanahuaico','Torneo Bravo');

@@ -36,8 +36,8 @@
     "designando": "Designando..."
   },
   "resultado": {
-    "etiquetaDesignado": "{{etiqueta}} designado",
-    "pagoEstimado": "Pago estimado: ${{monto}} + ${{viatico}} viático =",
+    "etiquetaDesignado": "{{nombre}} {{etiqueta}} Asignado",
+    "pagoEstimado": "Pago estimado:",
     "publicarDesignacion": "Publicar designación"
   },
   "panel": {

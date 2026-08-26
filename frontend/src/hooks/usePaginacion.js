@@ -16,5 +16,5 @@ export default function usePaginacion(lista, porPagina = POR_PAGINA_DEFECTO) {
   const inicio = (pagina - 1) * porPagina;
   const paginaActual = lista.slice(inicio, inicio + porPagina);
 
-  return { pagina, setPagina, totalPaginas, paginaActual };
+  return { pagina, setPagina, totalPaginas, paginaActual, porPagina };
 }

@@ -58,7 +58,7 @@ async function contarOcupadosRol(encuentroId, rolDesignacion) {
 
 async function buscarTarifaVigente(campeonatoId, categoria, rolArbitro) {
   const resultado = await pool.query(
-    `SELECT monto, viatico FROM tarifas
+    `SELECT monto FROM tarifas
      WHERE campeonato_id = $1 AND categoria = $2 AND rol_arbitro = $3 AND vigente = TRUE`,
     [campeonatoId, categoria, rolArbitro]
   );

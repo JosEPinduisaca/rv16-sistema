@@ -1,6 +1,6 @@
 const repo = require('../repositories/tarifaRepository');
 const AppError = require('../utils/AppError');
-const { esMontoPositivo, esMontoNoNegativo, categoriaValida } = require('../utils/validaciones');
+const { esMontoPositivo, categoriaValida } = require('../utils/validaciones');
 
 // La tarifa depende solo de campeonato + categoría + rol (central o asistente).
 // La intensidad del partido NO afecta el pago, solo se usa para recomendar
@@ -12,7 +12,7 @@ const { esMontoPositivo, esMontoNoNegativo, categoriaValida } = require('../util
 //   existe la tarifa "central" de esa misma categoría.
 // - El nombre de categoría se compara sin distinguir mayúsculas/espacios
 //   para evitar duplicados accidentales ("Senior" vs "senior").
-async function crearTarifa({ campeonato_id: campeonatoId, categoria: categoriaRaw, rol_arbitro: rolArbitro, monto, viatico }) {
+async function crearTarifa({ campeonato_id: campeonatoId, categoria: categoriaRaw, rol_arbitro: rolArbitro, monto }) {
   if (!campeonatoId || !categoriaRaw || !rolArbitro || monto === undefined) {
     throw new AppError(400, 'Faltan campos obligatorios');
   }
@@ -24,9 +24,6 @@ async function crearTarifa({ campeonato_id: campeonatoId, categoria: categoriaRa
   }
   if (!esMontoPositivo(monto)) {
     throw new AppError(400, 'El monto debe ser un número mayor a cero');
-  }
-  if (viatico !== undefined && !esMontoNoNegativo(viatico)) {
-    throw new AppError(400, 'El viático no puede ser negativo');
   }
 
   const categoria = categoriaRaw.trim();
@@ -55,28 +52,25 @@ async function crearTarifa({ campeonato_id: campeonatoId, categoria: categoriaRa
 
   const categoriaFinal = categoriaExistente ? categoriaExistente.categoria : categoria;
 
-  return repo.upsert(campeonatoId, categoriaFinal, rolArbitro, monto, viatico || 0);
+  return repo.upsert(campeonatoId, categoriaFinal, rolArbitro, monto);
 }
 
 async function listarTarifas(campeonatoId) {
   return repo.listar(campeonatoId);
 }
 
-// Solo el monto (y el viático) son editables. La categoría y el rol quedan
-// fijos desde que se crea la tarifa: cambiarlos después podría dejar
-// inconsistentes encuentros y designaciones ya hechos con esa combinación.
-async function actualizarTarifa(id, { monto, viatico }) {
+// Solo el monto es editable. La categoría y el rol quedan fijos desde que se
+// crea la tarifa: cambiarlos después podría dejar inconsistentes encuentros y
+// designaciones ya hechos con esa combinación.
+async function actualizarTarifa(id, { monto }) {
   if (monto === undefined) {
     throw new AppError(400, 'Falta el monto');
   }
   if (!esMontoPositivo(monto)) {
     throw new AppError(400, 'El monto debe ser un número mayor a cero');
   }
-  if (viatico !== undefined && !esMontoNoNegativo(viatico)) {
-    throw new AppError(400, 'El viático no puede ser negativo');
-  }
 
-  const actualizada = await repo.actualizar(id, monto, viatico === undefined ? null : viatico);
+  const actualizada = await repo.actualizar(id, monto);
   if (!actualizada) {
     throw new AppError(404, 'Tarifa no encontrada');
   }

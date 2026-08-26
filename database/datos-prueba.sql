@@ -44,18 +44,18 @@ WITH nuevo_campeonato AS (
   RETURNING id
 ),
 nuevas_tarifas AS (
-  INSERT INTO tarifas (campeonato_id, categoria, intensidad, rol_arbitro, monto, viatico)
-  SELECT nc.id, t.categoria, t.intensidad, t.rol_arbitro, t.monto, t.viatico
+  INSERT INTO tarifas (campeonato_id, categoria, intensidad, rol_arbitro, monto)
+  SELECT nc.id, t.categoria, t.intensidad, t.rol_arbitro, t.monto
   FROM nuevo_campeonato nc, (VALUES
-    ('senior'::categoria_partido,   'alta'::intensidad_partido,  'central'::rol_designacion, 30.00, 5.00),
-    ('senior'::categoria_partido,   'alta'::intensidad_partido,  'linea'::rol_designacion,   20.00, 5.00),
-    ('senior'::categoria_partido,   'media'::intensidad_partido, 'central'::rol_designacion, 25.00, 5.00),
-    ('senior'::categoria_partido,   'media'::intensidad_partido, 'linea'::rol_designacion,   15.00, 5.00),
-    ('femenino'::categoria_partido, 'media'::intensidad_partido, 'central'::rol_designacion, 22.00, 5.00),
-    ('femenino'::categoria_partido, 'media'::intensidad_partido, 'linea'::rol_designacion,   14.00, 5.00),
-    ('senior'::categoria_partido,   'baja'::intensidad_partido,  'central'::rol_designacion, 18.00, 3.00),
-    ('senior'::categoria_partido,   'baja'::intensidad_partido,  'linea'::rol_designacion,   12.00, 3.00)
-  ) AS t(categoria, intensidad, rol_arbitro, monto, viatico)
+    ('senior'::categoria_partido,   'alta'::intensidad_partido,  'central'::rol_designacion, 30.00),
+    ('senior'::categoria_partido,   'alta'::intensidad_partido,  'linea'::rol_designacion,   20.00),
+    ('senior'::categoria_partido,   'media'::intensidad_partido, 'central'::rol_designacion, 25.00),
+    ('senior'::categoria_partido,   'media'::intensidad_partido, 'linea'::rol_designacion,   15.00),
+    ('femenino'::categoria_partido, 'media'::intensidad_partido, 'central'::rol_designacion, 22.00),
+    ('femenino'::categoria_partido, 'media'::intensidad_partido, 'linea'::rol_designacion,   14.00),
+    ('senior'::categoria_partido,   'baja'::intensidad_partido,  'central'::rol_designacion, 18.00),
+    ('senior'::categoria_partido,   'baja'::intensidad_partido,  'linea'::rol_designacion,   12.00)
+  ) AS t(categoria, intensidad, rol_arbitro, monto)
   RETURNING id
 ),
 nuevos_encuentros AS (

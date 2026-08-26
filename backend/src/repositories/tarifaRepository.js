@@ -16,14 +16,14 @@ async function buscarCentralVigente(campeonatoId, categoria) {
   return resultado.rows[0] || null;
 }
 
-async function upsert(campeonatoId, categoria, rolArbitro, monto, viatico) {
+async function upsert(campeonatoId, categoria, rolArbitro, monto) {
   const resultado = await pool.query(
-    `INSERT INTO tarifas (campeonato_id, categoria, rol_arbitro, monto, viatico)
-     VALUES ($1, $2, $3, $4, $5)
+    `INSERT INTO tarifas (campeonato_id, categoria, rol_arbitro, monto)
+     VALUES ($1, $2, $3, $4)
      ON CONFLICT (campeonato_id, categoria, rol_arbitro)
-     DO UPDATE SET monto = $4, viatico = $5, vigente = TRUE
+     DO UPDATE SET monto = $4, vigente = TRUE
      RETURNING *`,
-    [campeonatoId, categoria, rolArbitro, monto, viatico]
+    [campeonatoId, categoria, rolArbitro, monto]
   );
   return resultado.rows[0];
 }
@@ -35,12 +35,10 @@ async function listar(campeonatoId) {
   return resultado.rows;
 }
 
-// `viatico` en null significa "no lo mandaron": se conserva el valor
-// existente en vez de resetearlo a 0.
-async function actualizar(id, monto, viatico) {
+async function actualizar(id, monto) {
   const resultado = await pool.query(
-    `UPDATE tarifas SET monto = $1, viatico = COALESCE($2, viatico) WHERE id = $3 RETURNING *`,
-    [monto, viatico, id]
+    `UPDATE tarifas SET monto = $1 WHERE id = $2 RETURNING *`,
+    [monto, id]
   );
   return resultado.rows[0] || null;
 }

@@ -54,8 +54,3 @@ export function esMontoPositivo(valor) {
   const n = Number(valor);
   return !Number.isNaN(n) && n > 0;
 }
-
-export function esMontoNoNegativo(valor) {
-  const n = Number(valor);
-  return !Number.isNaN(n) && n >= 0;
-}

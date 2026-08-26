@@ -50,7 +50,20 @@ export default function Arbitros() {
   // Eliminar árbitro
   const [confirmarEliminar, setConfirmarEliminar] = useState(null); // { id, nombre }
   const [preguntaHistorial, setPreguntaHistorial] = useState(null); // { id, nombre }
-  const { pagina, setPagina, totalPaginas, paginaActual: arbitrosPagina } = usePaginacion(arbitros);
+  const [orden, setOrden] = useState('nombre'); // 'nombre' | 'nivel'
+
+  const arbitrosOrdenados = [...arbitros].sort((a, b) => {
+    if (orden === 'nivel') {
+      return ETIQUETA_NIVEL[a.nivel].localeCompare(ETIQUETA_NIVEL[b.nivel]);
+    }
+    return `${a.nombres} ${a.apellidos}`.localeCompare(`${b.nombres} ${b.apellidos}`);
+  });
+  const { pagina, setPagina, totalPaginas, paginaActual: arbitrosPagina, porPagina } = usePaginacion(arbitrosOrdenados);
+
+  function cambiarOrden(nuevoOrden) {
+    setOrden(nuevoOrden);
+    setPagina(1);
+  }
 
   function cargar() {
     api
@@ -249,10 +262,29 @@ export default function Arbitros() {
       {error && <p className="text-xs text-card-red-dark bg-card-red/10 px-3 py-2 rounded mb-4">{error}</p>}
       {mensaje && <p className="text-xs text-pitch-green-dark bg-pitch-green/10 px-3 py-2 rounded mb-4">{mensaje}</p>}
 
+      <div className="flex items-center gap-2 mb-3">
+        <span className="text-xs text-gray-500">{t('ordenar.etiqueta')}:</span>
+        <div className="inline-flex rounded-md border border-gray-300 overflow-hidden text-xs">
+          {['nombre', 'nivel'].map((op) => (
+            <button
+              key={op}
+              type="button"
+              onClick={() => cambiarOrden(op)}
+              className={`px-3 py-1.5 font-medium transition ${
+                orden === op ? 'bg-navy-900 text-white' : 'bg-white text-gray-600 hover:bg-gray-50'
+              }`}
+            >
+              {t(`ordenar.${op}`)}
+            </button>
+          ))}
+        </div>
+      </div>
+
       <div className="bg-white border border-gray-200 rounded-lg overflow-x-auto">
         <table className="w-full text-sm">
             <thead className="bg-navy-50 text-navy-700 text-left">
               <tr>
+                <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide">{t('columnas.numero')}</th>
                 <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide">{t('columnas.nombre')}</th>
                 <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide">{t('columnas.cedula')}</th>
                 <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide">{t('columnas.email')}</th>
@@ -262,8 +294,9 @@ export default function Arbitros() {
               </tr>
             </thead>
             <tbody>
-              {arbitrosPagina.map((a) => (
+              {arbitrosPagina.map((a, i) => (
                 <tr key={a.id} className="border-t border-gray-100 hover:bg-navy-50/40">
+                  <td className="px-4 py-2.5 text-gray-400 tabular-nums">{(pagina - 1) * porPagina + i + 1}</td>
                   <td className="px-4 py-2.5 font-medium text-navy-900 whitespace-nowrap">{a.nombres} {a.apellidos}</td>
                   <td className="px-4 py-2.5 text-gray-500">{a.cedula}</td>
                   <td className="px-4 py-2.5 text-gray-500">{a.email}</td>
@@ -342,7 +375,7 @@ export default function Arbitros() {
               ))}
               {arbitros.length === 0 && (
                 <tr>
-                  <td colSpan={5} className="px-4 py-8 text-center text-gray-400 text-sm">
+                  <td colSpan={6} className="px-4 py-8 text-center text-gray-400 text-sm">
                     {t('vacio')}
                   </td>
                 </tr>

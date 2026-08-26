@@ -57,7 +57,27 @@ export default function Campeonatos() {
   const [confirmarEliminar, setConfirmarEliminar] = useState(null); // { id, nombre }
   const [errorEliminar, setErrorEliminar] = useState(null);
   const cargaActiva = useCargaActiva();
-  const { pagina, setPagina, totalPaginas, paginaActual: campeonatosPagina } = usePaginacion(campeonatos);
+  const [busqueda, setBusqueda] = useState('');
+  const [orden, setOrden] = useState('nombre'); // 'nombre' | 'fecha'
+
+  const campeonatosFiltrados = campeonatos
+    .filter((c) => c.nombre.toLowerCase().includes(busqueda.toLowerCase()))
+    .sort((a, b) => (
+      orden === 'fecha'
+        ? (a.fecha_inicio || '').localeCompare(b.fecha_inicio || '')
+        : a.nombre.localeCompare(b.nombre)
+    ));
+  const { pagina, setPagina, totalPaginas, paginaActual: campeonatosPagina, porPagina } = usePaginacion(campeonatosFiltrados);
+
+  function cambiarBusqueda(valor) {
+    setBusqueda(valor);
+    setPagina(1);
+  }
+
+  function cambiarOrden(nuevoOrden) {
+    setOrden(nuevoOrden);
+    setPagina(1);
+  }
 
   function cargar() {
     api.get('/campeonatos').then((res) => setCampeonatos(res.data));
@@ -123,7 +143,6 @@ export default function Campeonatos() {
             categoria,
             rol_arbitro: 'central',
             monto: Number(valor),
-            viatico: 0,
           });
           tarifasCreadas++;
         }
@@ -208,10 +227,40 @@ export default function Campeonatos() {
       {error && <p className="text-xs text-card-red-dark bg-card-red/10 px-3 py-2 rounded mb-4">{error}</p>}
       {mensaje && <p className="text-xs text-pitch-green-dark bg-pitch-green/10 px-3 py-2 rounded mb-4">{mensaje}</p>}
 
+      <div className="flex items-end flex-wrap gap-3 mb-3">
+        <div className="max-w-xs">
+          <input
+            type="text"
+            value={busqueda}
+            onChange={(e) => cambiarBusqueda(e.target.value)}
+            placeholder={t('buscar.placeholder')}
+            className="w-full border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-navy-600"
+          />
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="text-xs text-gray-500">{t('ordenar.etiqueta')}:</span>
+          <div className="inline-flex rounded-md border border-gray-300 overflow-hidden text-xs">
+            {['nombre', 'fecha'].map((op) => (
+              <button
+                key={op}
+                type="button"
+                onClick={() => cambiarOrden(op)}
+                className={`px-3 py-1.5 font-medium transition ${
+                  orden === op ? 'bg-navy-900 text-white' : 'bg-white text-gray-600 hover:bg-gray-50'
+                }`}
+              >
+                {t(`ordenar.${op}`)}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
       <div className="bg-white border border-gray-200 rounded-lg overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="bg-navy-50 text-navy-700 text-left">
               <tr>
+                <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide">{t('columnas.numero')}</th>
                 <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide">{t('columnas.nombre')}</th>
                 <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide">{t('columnas.inicio')}</th>
                 <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide">{t('columnas.fin')}</th>
@@ -219,10 +268,11 @@ export default function Campeonatos() {
               </tr>
             </thead>
             <tbody>
-              {campeonatosPagina.map((c) => {
+              {campeonatosPagina.map((c, i) => {
                 const estado = estadoFecha(c.fecha_fin);
                 return (
                   <tr key={c.id} className={`border-t border-gray-100 transition ${CLASE_FILA[estado] || 'hover:bg-navy-50/40'}`}>
+                    <td className="px-4 py-2.5 text-gray-400 tabular-nums">{(pagina - 1) * porPagina + i + 1}</td>
                     <td className="px-4 py-2.5 font-medium text-navy-900">{c.nombre}</td>
                     <td className="px-4 py-2.5 tabular-nums">{c.fecha_inicio?.slice(0, 10)}</td>
                     <td className="px-4 py-2.5 tabular-nums">{c.fecha_fin?.slice(0, 10) || '—'}</td>
@@ -251,10 +301,10 @@ export default function Campeonatos() {
                   </tr>
                 );
               })}
-              {campeonatos.length === 0 && (
+              {campeonatosFiltrados.length === 0 && (
                 <tr>
-                  <td colSpan={4} className="px-4 py-8 text-center text-gray-400 text-sm">
-                    {t('vacio')}
+                  <td colSpan={5} className="px-4 py-8 text-center text-gray-400 text-sm">
+                    {busqueda ? t('vacioBusqueda') : t('vacio')}
                   </td>
                 </tr>
               )}
