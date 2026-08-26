@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { IconEdit, IconTrash } from '@tabler/icons-react';
+import { IconEdit, IconTrash, IconPlus } from '@tabler/icons-react';
 import api from '../api/client';
 import { useAuth } from '../context/AuthContext';
 import useCargaActiva from '../hooks/useCargaActiva';
@@ -43,6 +43,7 @@ export default function Campeonatos() {
   const { usuario } = useAuth();
   const esAdmin = usuario?.rol === 'administrador';
   const [campeonatos, setCampeonatos] = useState([]);
+  const [modalCrear, setModalCrear] = useState(false);
   const [form, setForm] = useState(FORM_VACIO);
   const [error, setError] = useState(null);
   const [mensaje, setMensaje] = useState(null);
@@ -88,6 +89,14 @@ export default function Campeonatos() {
     setErroresEditar((prev) => ({ ...prev, [campo]: validarCampo(campo, modalEditar) }));
   }
 
+  function abrirCrear() {
+    setForm(FORM_VACIO);
+    setErroresForm({});
+    setError(null);
+    setMensaje(null);
+    setModalCrear(true);
+  }
+
   async function crear(e) {
     e.preventDefault();
     setError(null);
@@ -124,6 +133,7 @@ export default function Campeonatos() {
       );
       setForm(FORM_VACIO);
       setErroresForm({});
+      setModalCrear(false);
       cargar();
     } catch (err) {
       setError(err.response?.data?.error || t('mensajes.errorCrear'));
@@ -171,16 +181,31 @@ export default function Campeonatos() {
   }
 
   return (
-    <div className="grid md:grid-cols-3 gap-6">
-      <div className="md:col-span-2">
-        <h1 className="font-display text-2xl font-semibold text-navy-900 mb-2">{t('titulo')}</h1>
-        <p className="text-xs text-gray-500 mb-4">
-          <span className="inline-block w-3 h-3 rounded-sm bg-card-yellow/50 align-middle mr-1" />
-          {t('leyenda.porTerminar', { dias: DIAS_POR_TERMINAR })}
-          <span className="inline-block w-3 h-3 rounded-sm bg-card-red/25 align-middle ml-4 mr-1" />
-          {t('leyenda.terminado')}
-        </p>
-        <div className="bg-white border border-gray-200 rounded-lg overflow-x-auto">
+    <div>
+      <div className="flex items-center justify-between gap-3 mb-2 flex-wrap">
+        <h1 className="font-display text-2xl font-semibold text-navy-900">{t('titulo')}</h1>
+        {esAdmin && (
+          <button
+            onClick={abrirCrear}
+            disabled={cargaActiva}
+            className="inline-flex items-center gap-1.5 bg-navy-900 hover:bg-navy-800 text-white px-3 py-1.5 rounded text-sm font-medium transition disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <IconPlus size={16} />
+            {t('nuevo.titulo')}
+          </button>
+        )}
+      </div>
+      <p className="text-xs text-gray-500 mb-4">
+        <span className="inline-block w-3 h-3 rounded-sm bg-card-yellow/50 align-middle mr-1" />
+        {t('leyenda.porTerminar', { dias: DIAS_POR_TERMINAR })}
+        <span className="inline-block w-3 h-3 rounded-sm bg-card-red/25 align-middle ml-4 mr-1" />
+        {t('leyenda.terminado')}
+      </p>
+
+      {error && <p className="text-xs text-card-red-dark bg-card-red/10 px-3 py-2 rounded mb-4">{error}</p>}
+      {mensaje && <p className="text-xs text-pitch-green-dark bg-pitch-green/10 px-3 py-2 rounded mb-4">{mensaje}</p>}
+
+      <div className="bg-white border border-gray-200 rounded-lg overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="bg-navy-50 text-navy-700 text-left">
               <tr>
@@ -232,12 +257,14 @@ export default function Campeonatos() {
               )}
             </tbody>
           </table>
-        </div>
       </div>
 
-      <div>
-        <h2 className="text-sm font-semibold text-navy-900 uppercase tracking-wide mb-3">{t('nuevo.titulo')}</h2>
-        <form onSubmit={crear} className="bg-white border border-gray-200 rounded-lg p-4 space-y-3">
+      {/* Modal: nuevo campeonato */}
+      {modalCrear && (
+        <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center px-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-sm w-full p-5 max-h-[90vh] overflow-y-auto">
+            <h3 className="font-display text-lg font-semibold text-navy-900 mb-4">{t('nuevo.titulo')}</h3>
+        <form onSubmit={crear} className="space-y-3">
           <div>
             <label className="block text-xs text-gray-600 mb-1">{t('campos.nombre')}</label>
             <input
@@ -301,14 +328,26 @@ export default function Campeonatos() {
 
           {error && <p className="text-xs text-card-red-dark bg-card-red/10 px-2 py-1.5 rounded">{error}</p>}
           {mensaje && <p className="text-xs text-pitch-green-dark bg-pitch-green/10 px-2 py-1.5 rounded">{mensaje}</p>}
-          <button
-            disabled={cargaActiva}
-            className="w-full bg-navy-900 hover:bg-navy-800 text-white py-2 rounded text-sm font-medium transition disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {t('nuevo.boton')}
-          </button>
+          <div className="flex justify-end gap-2 pt-1">
+            <button
+              type="button"
+              onClick={() => setModalCrear(false)}
+              disabled={cargaActiva}
+              className="px-3 py-1.5 rounded text-sm font-medium border border-gray-300 text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {t('common:acciones.cancelar')}
+            </button>
+            <button
+              disabled={cargaActiva}
+              className="px-3 py-1.5 rounded text-sm font-medium text-white bg-navy-900 hover:bg-navy-800 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {t('nuevo.boton')}
+            </button>
+          </div>
         </form>
-      </div>
+          </div>
+        </div>
+      )}
 
       {/* Modal: editar campeonato */}
       {modalEditar && (

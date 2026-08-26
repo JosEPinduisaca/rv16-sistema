@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { IconEdit, IconTrash } from '@tabler/icons-react';
+import { IconEdit, IconTrash, IconPlus } from '@tabler/icons-react';
 import api from '../api/client';
 import useCargaActiva from '../hooks/useCargaActiva';
 import { textoValido } from '../utils/validaciones';
@@ -35,6 +35,7 @@ export default function Encuentros() {
   const [categoriasDisponibles, setCategoriasDisponibles] = useState([]);
   const [tarifasCampeonato, setTarifasCampeonato] = useState([]);
   const [ultimoEncuentroId, setUltimoEncuentroId] = useState(null);
+  const [modalIngresar, setModalIngresar] = useState(false);
   const [form, setForm] = useState(FORM_VACIO);
   const [error, setError] = useState(null);
   const [mensaje, setMensaje] = useState(null);
@@ -91,6 +92,17 @@ export default function Encuentros() {
 
   function nombreCampeonato(id) {
     return campeonatos.find((c) => String(c.id) === String(id))?.nombre || '';
+  }
+
+  function abrirIngresar() {
+    setForm(FORM_VACIO);
+    setErroresForm({});
+    setError(null);
+    setMensaje(null);
+    setUltimoEncuentroId(null);
+    setCategoriasDisponibles([]);
+    setTarifasCampeonato([]);
+    setModalIngresar(true);
   }
 
   function alPerderFocoHora() {
@@ -159,6 +171,7 @@ export default function Encuentros() {
       setErroresForm({});
       setCategoriasDisponibles([]);
       setTarifasCampeonato([]);
+      setModalIngresar(false);
       cargar();
     } catch (err) {
       setError(err.response?.data?.error || t('mensajes.errorIngresar'));
@@ -236,9 +249,34 @@ export default function Encuentros() {
   }
 
   return (
-    <div className="grid md:grid-cols-3 gap-6">
-      <div className="md:col-span-2">
-        <h1 className="font-display text-2xl font-semibold text-navy-900 mb-3">{t('titulo')}</h1>
+    <div>
+      <div className="flex items-center justify-between gap-3 mb-3 flex-wrap">
+        <h1 className="font-display text-2xl font-semibold text-navy-900">{t('titulo')}</h1>
+        <button
+          onClick={abrirIngresar}
+          disabled={cargaActiva}
+          className="inline-flex items-center gap-1.5 bg-navy-900 hover:bg-navy-800 text-white px-3 py-1.5 rounded text-sm font-medium transition disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          <IconPlus size={16} />
+          {t('form.titulo')}
+        </button>
+      </div>
+
+      {mensaje && (
+        <div className="bg-pitch-green/10 rounded px-3 py-2 mb-4 space-y-2">
+          <p className="text-xs text-pitch-green-dark">{mensaje}</p>
+          {ultimoEncuentroId && (
+            <Link
+              to={`/designaciones?encuentro=${ultimoEncuentroId}`}
+              className="inline-block bg-navy-900 hover:bg-navy-800 text-white text-xs px-3 py-1.5 rounded font-medium transition"
+            >
+              {t('form.designarAhora')}
+            </Link>
+          )}
+        </div>
+      )}
+
+      <div>
         <div className="inline-flex rounded-md border border-gray-300 overflow-hidden text-xs mb-3">
           {FILTROS_ESTADO.map((f) => (
             <button
@@ -310,9 +348,12 @@ export default function Encuentros() {
         </div>
       </div>
 
-      <div>
-        <h2 className="text-sm font-semibold text-navy-900 uppercase tracking-wide mb-3">{t('form.titulo')}</h2>
-        <form onSubmit={ingresar} className="bg-white border border-gray-200 rounded-lg p-4 space-y-3">
+      {/* Modal: ingresar encuentro */}
+      {modalIngresar && (
+        <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center px-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-sm w-full p-5 max-h-[90vh] overflow-y-auto">
+            <h3 className="font-display text-lg font-semibold text-navy-900 mb-4">{t('form.titulo')}</h3>
+        <form onSubmit={ingresar} className="space-y-3">
           {!form.campeonato_id && (
             <div className="bg-card-yellow/20 border border-card-yellow-dark/40 text-card-yellow-dark text-sm font-semibold rounded-md px-3 py-2 text-center">
               {t('form.primeroCampeonato')}
@@ -472,29 +513,28 @@ export default function Encuentros() {
           </div>
 
           {error && <p className="text-xs text-card-red-dark bg-card-red/10 px-2 py-1.5 rounded">{error}</p>}
-          {mensaje && (
-            <div className="bg-pitch-green/10 rounded px-2 py-1.5 space-y-2">
-              <p className="text-xs text-pitch-green-dark">{mensaje}</p>
-              {ultimoEncuentroId && (
-                <Link
-                  to={`/designaciones?encuentro=${ultimoEncuentroId}`}
-                  className="inline-block bg-navy-900 hover:bg-navy-800 text-white text-xs px-3 py-1.5 rounded font-medium transition"
-                >
-                  {t('form.designarAhora')}
-                </Link>
-              )}
-            </div>
-          )}
-          <button
-            disabled={cargaActiva}
-            className="w-full bg-navy-900 hover:bg-navy-800 text-white py-2 rounded text-sm font-medium transition disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {t('form.ingresar')}
-          </button>
+          <div className="flex justify-end gap-2 pt-1">
+            <button
+              type="button"
+              onClick={() => setModalIngresar(false)}
+              disabled={cargaActiva}
+              className="px-3 py-1.5 rounded text-sm font-medium border border-gray-300 text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {t('common:acciones.cancelar')}
+            </button>
+            <button
+              disabled={cargaActiva}
+              className="flex-1 bg-navy-900 hover:bg-navy-800 text-white py-1.5 rounded text-sm font-medium transition disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {t('form.ingresar')}
+            </button>
+          </div>
           </>
           )}
         </form>
-      </div>
+          </div>
+        </div>
+      )}
 
       {/* Modal: editar encuentro */}
       {modalEditar && (
