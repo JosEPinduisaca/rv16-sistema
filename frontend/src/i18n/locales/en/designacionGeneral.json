@@ -33,6 +33,7 @@
   "mensajes": {
     "vacioConFecha": "No matches for that date",
     "vacioSinFecha": "No matches registered",
+    "vacioArbitro": "This referee has no assignments for this filter",
     "errorQuitar": "Error removing the assignment",
     "sinPendientesPublicar": "There were no pending assignments to publish.",
     "errorPublicar": "Error publishing",

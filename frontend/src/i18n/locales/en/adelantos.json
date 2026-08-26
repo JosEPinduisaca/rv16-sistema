@@ -8,13 +8,14 @@
   "columnas": {
     "arbitro": "Referee",
     "fechaPedida": "Requested on",
-    "espera": "Waiting",
     "monto": "Amount",
-    "estado": "Status",
-    "esperaDias_one": "{{count}} day",
-    "esperaDias_other": "{{count}} days"
+    "estado": "Status"
   },
   "vacio": "No advances have been registered yet",
+  "vacioBusqueda": "No advances found for that referee",
+  "buscar": {
+    "placeholder": "Search by name..."
+  },
   "registrarAdelanto": "Register advance",
   "campos": {
     "arbitro": "Referee",

@@ -15,12 +15,23 @@
   },
   "designar": "Assign",
   "vacio": "No matches registered yet",
+  "vacioBusqueda": "No matches found for that search",
+  "buscar": {
+    "placeholder": "Search by court or category..."
+  },
+  "ordenar": {
+    "etiqueta": "Sort by",
+    "fecha": "Date",
+    "hora": "Time"
+  },
   "form": {
     "titulo": "Add match",
     "primeroCampeonato": "First choose a championship",
     "campeonato": "Championship",
     "selecciona": "Select...",
     "categoria": "Category",
+    "siguiente": "Next",
+    "atras": "Back",
     "sinTarifas": "This championship doesn't have any rates configured yet.",
     "admiteAsistentes": "✓ This category supports Assistants (you'll be able to add them when assigning).",
     "intensidad": "Intensity",

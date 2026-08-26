@@ -39,7 +39,12 @@ export default function Adelantos() {
   const [modalRegistrar, setModalRegistrar] = useState(false);
   const [error, setError] = useState(null);
   const [errorMonto, setErrorMonto] = useState(null);
+  const [busqueda, setBusqueda] = useState('');
   const cargaActiva = useCargaActiva();
+
+  const todosFiltrados = todos
+    .filter((a) => `${a.nombres} ${a.apellidos}`.toLowerCase().includes(busqueda.toLowerCase()))
+    .sort((a, b) => (a.fecha_solicitud || '').localeCompare(b.fecha_solicitud || ''));
 
   function cargarTodos() {
     api.get('/adelantos').then((res) => setTodos(res.data));
@@ -108,20 +113,29 @@ export default function Adelantos() {
 
       {error && !modalRegistrar && <p className="text-xs text-card-red-dark bg-card-red/10 px-3 py-2 rounded mb-4">{error}</p>}
 
+      <div className="max-w-xs mb-3">
+        <input
+          type="text"
+          value={busqueda}
+          onChange={(e) => setBusqueda(e.target.value)}
+          placeholder={t('buscar.placeholder')}
+          className="w-full border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-navy-600"
+        />
+      </div>
+
       <div className="bg-white border border-gray-200 rounded-lg overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="bg-navy-50 text-navy-700 text-left">
               <tr>
                 <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide">{t('columnas.arbitro')}</th>
                 <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide">{t('columnas.fechaPedida')}</th>
-                <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide">{t('columnas.espera')}</th>
                 <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide">{t('columnas.monto')}</th>
                 <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide">{t('columnas.estado')}</th>
                 <th className="px-4 py-2.5"></th>
               </tr>
             </thead>
             <tbody>
-              {todos.map((a) => {
+              {todosFiltrados.map((a) => {
                 const dias = diasDesde(a.fecha_solicitud);
                 const esPendiente = a.estado === 'pendiente';
                 return (
@@ -132,9 +146,6 @@ export default function Adelantos() {
                   >
                     <td className="px-4 py-2.5 font-medium text-navy-900 whitespace-nowrap">{a.nombres} {a.apellidos}</td>
                     <td className="px-4 py-2.5 whitespace-nowrap">{a.fecha_solicitud?.slice(0, 10)}</td>
-                    <td className="px-4 py-2.5 whitespace-nowrap">
-                      {esPendiente ? t('columnas.esperaDias', { count: dias }) : '—'}
-                    </td>
                     <td className="px-4 py-2.5 tabular-nums font-medium text-navy-900">${a.monto}</td>
                     <td className="px-4 py-2.5"><TarjetaEstado estado={a.estado} /></td>
                     <td className="px-4 py-2.5">
@@ -162,10 +173,10 @@ export default function Adelantos() {
                   </tr>
                 );
               })}
-              {todos.length === 0 && (
+              {todosFiltrados.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="px-4 py-8 text-center text-gray-400 text-sm">
-                    {t('vacio')}
+                  <td colSpan={5} className="px-4 py-8 text-center text-gray-400 text-sm">
+                    {busqueda ? t('vacioBusqueda') : t('vacio')}
                   </td>
                 </tr>
               )}

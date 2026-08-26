@@ -33,6 +33,7 @@
   "mensajes": {
     "vacioConFecha": "No hay encuentros para esa fecha",
     "vacioSinFecha": "No hay encuentros registrados",
+    "vacioArbitro": "Este árbitro no tiene designaciones para este filtro",
     "errorQuitar": "Error al quitar la designación",
     "sinPendientesPublicar": "No había designaciones pendientes de publicar.",
     "errorPublicar": "Error al publicar",

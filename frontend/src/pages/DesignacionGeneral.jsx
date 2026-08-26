@@ -123,7 +123,13 @@ export default function DesignacionGeneral() {
     return acc;
   }, {});
 
-  const nombresGrupos = Object.keys(grupos);
+  // Si hay un árbitro resaltado, solo se muestran los campeonatos donde
+  // tiene alguna designación (además de resaltar su fila dentro de ellos).
+  const nombresGrupos = arbitroResaltado
+    ? Object.keys(grupos).filter((torneo) =>
+        grupos[torneo].some((p) => p.designados.some((d) => String(d.arbitro_id) === String(arbitroResaltado)))
+      )
+    : Object.keys(grupos);
   // Se reparten en 2 columnas: los de índice par van a la izquierda, los impares a la derecha
   const columnaIzquierda = nombresGrupos.filter((_, i) => i % 2 === 0);
   const columnaDerecha = nombresGrupos.filter((_, i) => i % 2 === 1);
@@ -290,7 +296,9 @@ export default function DesignacionGeneral() {
 
       {!cargando && nombresGrupos.length === 0 && (
         <div className="bg-white border border-gray-200 rounded-lg px-4 py-8 text-center text-gray-400 text-sm">
-          {fecha ? t('mensajes.vacioConFecha') : t('mensajes.vacioSinFecha')}
+          {arbitroResaltado
+            ? t('mensajes.vacioArbitro')
+            : fecha ? t('mensajes.vacioConFecha') : t('mensajes.vacioSinFecha')}
         </div>
       )}
 

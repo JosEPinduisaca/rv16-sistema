@@ -8,13 +8,14 @@
   "columnas": {
     "arbitro": "Árbitro",
     "fechaPedida": "Fecha pedida",
-    "espera": "Espera",
     "monto": "Monto",
-    "estado": "Estado",
-    "esperaDias_one": "{{count}} día",
-    "esperaDias_other": "{{count}} días"
+    "estado": "Estado"
   },
   "vacio": "Aún no hay adelantos registrados",
+  "vacioBusqueda": "No se encontraron adelantos de ese árbitro",
+  "buscar": {
+    "placeholder": "Buscar por nombre..."
+  },
   "registrarAdelanto": "Registrar adelanto",
   "campos": {
     "arbitro": "Árbitro",

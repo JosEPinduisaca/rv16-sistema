@@ -38,6 +38,9 @@ export default function Encuentros() {
   const [tarifasCampeonato, setTarifasCampeonato] = useState([]);
   const [ultimoEncuentroId, setUltimoEncuentroId] = useState(null);
   const [modalIngresar, setModalIngresar] = useState(false);
+  const [pasoIngresar, setPasoIngresar] = useState(1);
+  const [busqueda, setBusqueda] = useState('');
+  const [orden, setOrden] = useState('fecha'); // 'fecha' | 'hora'
   const [form, setForm] = useState(FORM_VACIO);
   const [error, setError] = useState(null);
   const [mensaje, setMensaje] = useState(null);
@@ -49,7 +52,18 @@ export default function Encuentros() {
   const [confirmarEliminar, setConfirmarEliminar] = useState(null); // { id, etiqueta }
   const [errorEliminar, setErrorEliminar] = useState(null);
   const cargaActiva = useCargaActiva();
-  const { pagina, setPagina, totalPaginas, paginaActual: encuentrosPagina } = usePaginacion(encuentros);
+
+  const encuentrosFiltrados = encuentros
+    .filter((en) => {
+      const q = busqueda.toLowerCase();
+      return !q || en.cancha?.toLowerCase().includes(q) || en.categoria?.toLowerCase().includes(q);
+    })
+    .sort((a, b) => (
+      orden === 'hora'
+        ? (a.hora || '').localeCompare(b.hora || '')
+        : (a.fecha || '').localeCompare(b.fecha || '')
+    ));
+  const { pagina, setPagina, totalPaginas, paginaActual: encuentrosPagina } = usePaginacion(encuentrosFiltrados);
 
   function cargar(estado = filtroEstado) {
     const url = estado ? `/encuentros?estado=${estado}` : '/encuentros';
@@ -60,6 +74,16 @@ export default function Encuentros() {
     setFiltroEstado(estado);
     setPagina(1);
     cargar(estado);
+  }
+
+  function cambiarBusqueda(valor) {
+    setBusqueda(valor);
+    setPagina(1);
+  }
+
+  function cambiarOrden(nuevoOrden) {
+    setOrden(nuevoOrden);
+    setPagina(1);
   }
 
   useEffect(() => {
@@ -106,6 +130,7 @@ export default function Encuentros() {
     setUltimoEncuentroId(null);
     setCategoriasDisponibles([]);
     setTarifasCampeonato([]);
+    setPasoIngresar(1);
     setModalIngresar(true);
   }
 
@@ -281,19 +306,47 @@ export default function Encuentros() {
       )}
 
       <div>
-        <div className="inline-flex rounded-md border border-gray-300 overflow-hidden text-xs mb-3">
-          {FILTROS_ESTADO.map((f) => (
-            <button
-              key={f.value}
-              onClick={() => cambiarFiltro(f.value)}
-              disabled={cargaActiva}
-              className={`px-3 py-1.5 font-medium transition disabled:opacity-50 disabled:cursor-not-allowed ${
-                filtroEstado === f.value ? 'bg-navy-900 text-white' : 'bg-white text-gray-600 hover:bg-gray-50'
-              }`}
-            >
-              {t(f.label)}
-            </button>
-          ))}
+        <div className="flex items-end flex-wrap gap-3 mb-3">
+          <div className="inline-flex rounded-md border border-gray-300 overflow-hidden text-xs">
+            {FILTROS_ESTADO.map((f) => (
+              <button
+                key={f.value}
+                onClick={() => cambiarFiltro(f.value)}
+                disabled={cargaActiva}
+                className={`px-3 py-1.5 font-medium transition disabled:opacity-50 disabled:cursor-not-allowed ${
+                  filtroEstado === f.value ? 'bg-navy-900 text-white' : 'bg-white text-gray-600 hover:bg-gray-50'
+                }`}
+              >
+                {t(f.label)}
+              </button>
+            ))}
+          </div>
+          <div className="max-w-xs">
+            <input
+              type="text"
+              value={busqueda}
+              onChange={(e) => cambiarBusqueda(e.target.value)}
+              placeholder={t('buscar.placeholder')}
+              className="w-full border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-navy-600"
+            />
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-gray-500">{t('ordenar.etiqueta')}:</span>
+            <div className="inline-flex rounded-md border border-gray-300 overflow-hidden text-xs">
+              {['fecha', 'hora'].map((op) => (
+                <button
+                  key={op}
+                  type="button"
+                  onClick={() => cambiarOrden(op)}
+                  className={`px-3 py-1.5 font-medium transition ${
+                    orden === op ? 'bg-navy-900 text-white' : 'bg-white text-gray-600 hover:bg-gray-50'
+                  }`}
+                >
+                  {t(`ordenar.${op}`)}
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
         <div className="bg-white border border-gray-200 rounded-lg overflow-x-auto">
           <table className="w-full text-sm">
@@ -340,10 +393,10 @@ export default function Encuentros() {
                   </td>
                 </tr>
               ))}
-              {encuentros.length === 0 && (
+              {encuentrosFiltrados.length === 0 && (
                 <tr>
                   <td colSpan={6} className="px-4 py-8 text-center text-gray-400 text-sm">
-                    {t('vacio')}
+                    {busqueda ? t('vacioBusqueda') : t('vacio')}
                   </td>
                 </tr>
               )}
@@ -359,12 +412,14 @@ export default function Encuentros() {
           <div className="bg-white rounded-lg shadow-xl max-w-sm w-full p-5 max-h-[90vh] overflow-y-auto">
             <h3 className="font-display text-lg font-semibold text-navy-900 mb-4">{t('form.titulo')}</h3>
         <form onSubmit={ingresar} className="space-y-3">
+          {/* Paso 1: elegir campeonato y categoría */}
+          {pasoIngresar === 1 && (
+          <>
           {!form.campeonato_id && (
             <div className="bg-card-yellow/20 border border-card-yellow-dark/40 text-card-yellow-dark text-sm font-semibold rounded-md px-3 py-2 text-center">
               {t('form.primeroCampeonato')}
             </div>
           )}
-          {/* 1. Campeonato primero: de él dependen categoría y tarifas */}
           <div>
             <label className="block text-xs text-gray-600 mb-1">{t('form.campeonato')}</label>
             <select
@@ -380,7 +435,7 @@ export default function Encuentros() {
             </select>
           </div>
 
-          {/* 2. Categoría, depende del campeonato elegido: solo aparece
+          {/* Categoría, depende del campeonato elegido: solo aparece
               una vez que se eligió el campeonato */}
           {form.campeonato_id && (
           <div>
@@ -405,8 +460,29 @@ export default function Encuentros() {
           </div>
           )}
 
-          {/* 3. El resto del formulario aparece una vez que se eligió la categoría */}
-          {form.categoria && (
+          <div className="flex justify-end gap-2 pt-1">
+            <button
+              type="button"
+              onClick={() => setModalIngresar(false)}
+              disabled={cargaActiva}
+              className="px-3 py-1.5 rounded text-sm font-medium border border-gray-300 text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {t('common:acciones.cancelar')}
+            </button>
+            <button
+              type="button"
+              onClick={() => setPasoIngresar(2)}
+              disabled={!form.categoria}
+              className="flex-1 bg-navy-900 hover:bg-navy-800 text-white py-1.5 rounded text-sm font-medium transition disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {t('form.siguiente')}
+            </button>
+          </div>
+          </>
+          )}
+
+          {/* Paso 2: el resto del formulario */}
+          {pasoIngresar === 2 && (
           <>
           <div>
             <label className="block text-xs text-gray-600 mb-1">{t('form.intensidad')}</label>
@@ -521,11 +597,11 @@ export default function Encuentros() {
           <div className="flex justify-end gap-2 pt-1">
             <button
               type="button"
-              onClick={() => setModalIngresar(false)}
+              onClick={() => setPasoIngresar(1)}
               disabled={cargaActiva}
               className="px-3 py-1.5 rounded text-sm font-medium border border-gray-300 text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {t('common:acciones.cancelar')}
+              {t('form.atras')}
             </button>
             <button
               disabled={cargaActiva}

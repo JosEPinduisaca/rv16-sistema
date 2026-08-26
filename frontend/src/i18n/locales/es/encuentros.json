@@ -15,12 +15,23 @@
   },
   "designar": "Designar",
   "vacio": "Aún no hay encuentros registrados",
+  "vacioBusqueda": "No se encontraron encuentros con esa búsqueda",
+  "buscar": {
+    "placeholder": "Buscar por cancha o categoría..."
+  },
+  "ordenar": {
+    "etiqueta": "Ordenar por",
+    "fecha": "Fecha",
+    "hora": "Hora"
+  },
   "form": {
     "titulo": "Ingresar encuentro",
     "primeroCampeonato": "Primero elige un campeonato",
     "campeonato": "Campeonato",
     "selecciona": "Selecciona...",
     "categoria": "Categoría",
+    "siguiente": "Siguiente",
+    "atras": "Atrás",
     "sinTarifas": "Este campeonato no tiene tarifas configuradas todavía.",
     "admiteAsistentes": "✓ Esta categoría admite Asistentes (podrás añadirlos al designar).",
     "intensidad": "Intensidad",
