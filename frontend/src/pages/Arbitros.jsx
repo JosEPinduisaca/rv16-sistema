@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { IconEdit, IconUserOff, IconUserCheck, IconTrash, IconDeviceFloppy } from '@tabler/icons-react';
+import { IconEdit, IconUserOff, IconUserCheck, IconTrash, IconDeviceFloppy, IconUserPlus } from '@tabler/icons-react';
 import api from '../api/client';
 import { useAuth } from '../context/AuthContext';
 import useCargaActiva from '../hooks/useCargaActiva';
@@ -33,6 +33,7 @@ export default function Arbitros() {
   const [error, setError] = useState(null);
   const [mensaje, setMensaje] = useState(null);
   const [nivelesEditados, setNivelesEditados] = useState({});
+  const [modalRegistrar, setModalRegistrar] = useState(false);
   const [form, setForm] = useState(FORM_VACIO);
   const [erroresRegistro, setErroresRegistro] = useState({});
   // true mientras haya una petición en curso; deshabilita los botones de
@@ -190,6 +191,14 @@ export default function Arbitros() {
     }
   }
 
+  function abrirRegistrar() {
+    setForm(FORM_VACIO);
+    setErroresRegistro({});
+    setError(null);
+    setMensaje(null);
+    setModalRegistrar(true);
+  }
+
   function alPerderFocoRegistro(campo) {
     const valor = form[campo];
     // El teléfono es opcional: no marcarlo como error mientras esté vacío.
@@ -209,6 +218,7 @@ export default function Arbitros() {
       setMensaje(t('mensajes.registrado', { nombres: form.nombres, apellidos: form.apellidos }));
       setForm(FORM_VACIO);
       setErroresRegistro({});
+      setModalRegistrar(false);
       cargar();
     } catch (err) {
       setError(err.response?.data?.error || t('mensajes.errorRegistrar'));
@@ -218,11 +228,26 @@ export default function Arbitros() {
   if (cargando) return <p className="text-sm text-gray-500">{t('common:estado.cargando')}</p>;
 
   return (
-    <div className="grid md:grid-cols-3 gap-6">
-      <div className="md:col-span-2">
-        <h1 className="font-display text-2xl font-semibold text-navy-900 mb-5">{t('titulo')}</h1>
-        <div className="bg-white border border-gray-200 rounded-lg overflow-x-auto">
-          <table className="w-full text-sm">
+    <div>
+      <div className="flex items-center justify-between gap-3 mb-5 flex-wrap">
+        <h1 className="font-display text-2xl font-semibold text-navy-900">{t('titulo')}</h1>
+        {esAdmin && (
+          <button
+            onClick={abrirRegistrar}
+            disabled={cargaActiva}
+            className="inline-flex items-center gap-1.5 bg-navy-900 hover:bg-navy-800 text-white px-3 py-1.5 rounded text-sm font-medium transition disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <IconUserPlus size={16} />
+            {t('registrar.boton')}
+          </button>
+        )}
+      </div>
+
+      {error && <p className="text-xs text-card-red-dark bg-card-red/10 px-3 py-2 rounded mb-4">{error}</p>}
+      {mensaje && <p className="text-xs text-pitch-green-dark bg-pitch-green/10 px-3 py-2 rounded mb-4">{mensaje}</p>}
+
+      <div className="bg-white border border-gray-200 rounded-lg overflow-x-auto">
+        <table className="w-full text-sm">
             <thead className="bg-navy-50 text-navy-700 text-left">
               <tr>
                 <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide">{t('columnas.nombre')}</th>
@@ -319,15 +344,16 @@ export default function Arbitros() {
                   </td>
                 </tr>
               )}
-            </tbody>
-          </table>
-        </div>
+          </tbody>
+        </table>
       </div>
 
-      {esAdmin && (
-        <div>
-          <h2 className="text-sm font-semibold text-navy-900 uppercase tracking-wide mb-3">{t('registrar.titulo')}</h2>
-          <form onSubmit={registrar} className="bg-white border border-gray-200 rounded-lg p-4 space-y-3">
+      {/* Modal: registrar árbitro */}
+      {modalRegistrar && (
+        <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center px-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-sm w-full p-5 max-h-[90vh] overflow-y-auto">
+            <h3 className="font-display text-lg font-semibold text-navy-900 mb-4">{t('registrar.titulo')}</h3>
+            <form onSubmit={registrar} className="space-y-3">
             <div>
               <label className="block text-xs text-gray-600 mb-1">{t('campos.cedula')}</label>
               <input
@@ -404,13 +430,24 @@ export default function Arbitros() {
             </div>
             {error && <p className="text-xs text-card-red-dark bg-card-red/10 px-2 py-1.5 rounded">{error}</p>}
             {mensaje && <p className="text-xs text-pitch-green-dark bg-pitch-green/10 px-2 py-1.5 rounded">{mensaje}</p>}
-            <button
-              disabled={cargaActiva}
-              className="w-full bg-navy-900 hover:bg-navy-800 text-white py-2 rounded text-sm font-medium transition disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {t('registrar.boton')}
-            </button>
+            <div className="flex justify-end gap-2 pt-1">
+              <button
+                type="button"
+                onClick={() => setModalRegistrar(false)}
+                disabled={cargaActiva}
+                className="px-3 py-1.5 rounded text-sm font-medium border border-gray-300 text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {t('common:acciones.cancelar')}
+              </button>
+              <button
+                disabled={cargaActiva}
+                className="px-3 py-1.5 rounded text-sm font-medium text-white bg-navy-900 hover:bg-navy-800 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {t('registrar.boton')}
+              </button>
+            </div>
           </form>
+          </div>
         </div>
       )}
 
