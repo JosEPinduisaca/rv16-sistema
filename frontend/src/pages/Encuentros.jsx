@@ -379,7 +379,7 @@ export default function Encuentros() {
                   <td className="px-4 py-2.5 capitalize">{en.categoria}</td>
                   <td className="px-4 py-2.5"><TarjetaEstado estado={en.estado} /></td>
                   <td className="px-4 py-2.5">
-                    {filtroEstado !== 'designado' && (
+                    {en.estado !== 'designado' && (
                       <div className="flex items-center gap-3">
                         <button
                           onClick={() => abrirEditar(en)}
@@ -389,7 +389,7 @@ export default function Encuentros() {
                         >
                           <IconEdit size={16} />
                         </button>
-                        {filtroEstado === 'publicado' ? (
+                        {en.estado === 'publicado' ? (
                           <Link to={`/designacion-general?fecha=${en.fecha?.slice(0, 10)}`} className="text-navy-600 hover:text-navy-900 hover:underline text-xs font-medium">
                             {t('verDesignado')}
                           </Link>
@@ -463,21 +463,21 @@ export default function Encuentros() {
             </select>
           </div>
 
-          {/* Categoría, depende del campeonato elegido: solo aparece
-              una vez que se eligió el campeonato */}
-          {form.campeonato_id && (
+          {/* Categoría: se muestra desde el inicio (misma pantalla que
+              Campeonato), pero deshabilitada hasta elegir un campeonato */}
           <div>
             <label className="block text-xs text-gray-600 mb-1">{t('form.categoria')}</label>
             <select
               required
+              disabled={!form.campeonato_id}
               value={form.categoria}
               onChange={(e) => alElegirCategoria(e.target.value)}
-              className="w-full border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-navy-600"
+              className="w-full border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-navy-600 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed"
             >
               <option value="">{t('form.selecciona')}</option>
               {categoriasDisponibles.map((c) => <option key={c} value={c}>{c}</option>)}
             </select>
-            {categoriasDisponibles.length === 0 && (
+            {form.campeonato_id && categoriasDisponibles.length === 0 && (
               <p className="text-[11px] text-card-red-dark mt-1">{t('form.sinTarifas')}</p>
             )}
             {form.categoria && tieneTarifaAsistente(form.categoria) && (
@@ -486,7 +486,6 @@ export default function Encuentros() {
               </p>
             )}
           </div>
-          )}
 
           <div className="flex justify-end gap-2 pt-1">
             <button
