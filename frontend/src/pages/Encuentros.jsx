@@ -56,7 +56,7 @@ export default function Encuentros() {
   const encuentrosFiltrados = encuentros
     .filter((en) => {
       const q = busqueda.toLowerCase();
-      return !q || en.cancha?.toLowerCase().includes(q) || en.categoria?.toLowerCase().includes(q);
+      return !q || nombreCampeonato(en.campeonato_id).toLowerCase().includes(q);
     })
     .sort((a, b) => (
       orden === 'hora'
@@ -134,6 +134,16 @@ export default function Encuentros() {
     setModalIngresar(true);
   }
 
+  function cerrarModalIngresar() {
+    setModalIngresar(false);
+    setPasoIngresar(1);
+    setForm(FORM_VACIO);
+    setErroresForm({});
+    setError(null);
+    setCategoriasDisponibles([]);
+    setTarifasCampeonato([]);
+  }
+
   function alPerderFocoHora() {
     setErroresForm((prev) => ({ ...prev, hora: form.hora === '00:00' ? t('mensajes.horaInvalida') : null }));
   }
@@ -196,11 +206,11 @@ export default function Encuentros() {
           ? idCreado
           : null
       );
-      setForm(FORM_VACIO);
+      // El campeonato queda fijo: se puede seguir ingresando encuentros para
+      // el mismo campeonato sin volver a elegirlo (útil para cargar varios
+      // partidos de una jornada uno detrás de otro).
+      setForm((prev) => ({ ...FORM_VACIO, campeonato_id: prev.campeonato_id }));
       setErroresForm({});
-      setCategoriasDisponibles([]);
-      setTarifasCampeonato([]);
-      setModalIngresar(false);
       cargar();
     } catch (err) {
       setError(err.response?.data?.error || t('mensajes.errorIngresar'));
@@ -354,7 +364,7 @@ export default function Encuentros() {
               <tr>
                 <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide">{t('columnas.fecha')}</th>
                 <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide">{t('columnas.hora')}</th>
-                <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide">{t('columnas.cancha')}</th>
+                <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide">{t('columnas.campeonato')}</th>
                 <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide">{t('columnas.categoria')}</th>
                 <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide">{t('columnas.estado')}</th>
                 <th className="px-4 py-2.5"></th>
@@ -365,31 +375,39 @@ export default function Encuentros() {
                 <tr key={en.id} className="border-t border-gray-100 hover:bg-navy-50/40">
                   <td className="px-4 py-2.5">{en.fecha?.slice(0, 10)}</td>
                   <td className="px-4 py-2.5 tabular-nums">{en.hora}</td>
-                  <td className="px-4 py-2.5">{en.cancha}</td>
+                  <td className="px-4 py-2.5">{nombreCampeonato(en.campeonato_id)}</td>
                   <td className="px-4 py-2.5 capitalize">{en.categoria}</td>
                   <td className="px-4 py-2.5"><TarjetaEstado estado={en.estado} /></td>
                   <td className="px-4 py-2.5">
-                    <div className="flex items-center gap-3">
-                      <button
-                        onClick={() => abrirEditar(en)}
-                        disabled={cargaActiva}
-                        title={t('common:acciones.editar')}
-                        className="text-navy-600 hover:text-navy-900 disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        <IconEdit size={16} />
-                      </button>
-                      <Link to={`/designaciones?encuentro=${en.id}`} className="text-navy-600 hover:text-navy-900 hover:underline text-xs font-medium">
-                        {t('designar')}
-                      </Link>
-                      <button
-                        onClick={() => { setErrorEliminar(null); setConfirmarEliminar({ id: en.id, etiqueta: `${en.cancha} · ${en.fecha?.slice(0, 10)} ${en.hora?.slice(0, 5)}` }); }}
-                        disabled={cargaActiva}
-                        title={t('common:acciones.eliminar')}
-                        className="text-gray-400 hover:text-card-red disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        <IconTrash size={16} />
-                      </button>
-                    </div>
+                    {filtroEstado !== 'designado' && (
+                      <div className="flex items-center gap-3">
+                        <button
+                          onClick={() => abrirEditar(en)}
+                          disabled={cargaActiva}
+                          title={t('common:acciones.editar')}
+                          className="text-navy-600 hover:text-navy-900 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          <IconEdit size={16} />
+                        </button>
+                        {filtroEstado === 'publicado' ? (
+                          <Link to={`/designacion-general?fecha=${en.fecha?.slice(0, 10)}`} className="text-navy-600 hover:text-navy-900 hover:underline text-xs font-medium">
+                            {t('verDesignado')}
+                          </Link>
+                        ) : (
+                          <Link to={`/designaciones?encuentro=${en.id}`} className="text-navy-600 hover:text-navy-900 hover:underline text-xs font-medium">
+                            {t('designar')}
+                          </Link>
+                        )}
+                        <button
+                          onClick={() => { setErrorEliminar(null); setConfirmarEliminar({ id: en.id, etiqueta: `${en.cancha} · ${en.fecha?.slice(0, 10)} ${en.hora?.slice(0, 5)}` }); }}
+                          disabled={cargaActiva}
+                          title={t('common:acciones.eliminar')}
+                          className="text-gray-400 hover:text-card-red disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          <IconTrash size={16} />
+                        </button>
+                      </div>
+                    )}
                   </td>
                 </tr>
               ))}
@@ -410,7 +428,17 @@ export default function Encuentros() {
       {modalIngresar && (
         <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center px-4">
           <div className="bg-white rounded-lg shadow-xl max-w-sm w-full p-5 max-h-[90vh] overflow-y-auto">
-            <h3 className="font-display text-lg font-semibold text-navy-900 mb-4">{t('form.titulo')}</h3>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-display text-lg font-semibold text-navy-900">{t('form.titulo')}</h3>
+              <button
+                type="button"
+                onClick={cerrarModalIngresar}
+                disabled={cargaActiva}
+                className="text-gray-400 hover:text-gray-600 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                ✕
+              </button>
+            </div>
         <form onSubmit={ingresar} className="space-y-3">
           {/* Paso 1: elegir campeonato y categoría */}
           {pasoIngresar === 1 && (
@@ -463,7 +491,7 @@ export default function Encuentros() {
           <div className="flex justify-end gap-2 pt-1">
             <button
               type="button"
-              onClick={() => setModalIngresar(false)}
+              onClick={cerrarModalIngresar}
               disabled={cargaActiva}
               className="px-3 py-1.5 rounded text-sm font-medium border border-gray-300 text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
             >
@@ -481,9 +509,48 @@ export default function Encuentros() {
           </>
           )}
 
-          {/* Paso 2: el resto del formulario */}
+          {/* Paso 2: el campeonato queda fijo (bloqueado); el resto se puede
+              elegir y volver a elegir para cargar varios encuentros seguidos */}
           {pasoIngresar === 2 && (
           <>
+          {mensaje && (
+            <div className="bg-pitch-green/10 rounded px-2 py-1.5 space-y-2">
+              <p className="text-xs text-pitch-green-dark">{mensaje}</p>
+              {ultimoEncuentroId && (
+                <Link
+                  to={`/designaciones?encuentro=${ultimoEncuentroId}`}
+                  className="inline-block bg-navy-900 hover:bg-navy-800 text-white text-xs px-3 py-1.5 rounded font-medium transition"
+                >
+                  {t('form.designarAhora')}
+                </Link>
+              )}
+            </div>
+          )}
+          <div>
+            <label className="block text-xs text-gray-600 mb-1">{t('form.campeonato')}</label>
+            <input
+              disabled
+              value={nombreCampeonato(form.campeonato_id)}
+              className="w-full border border-gray-200 rounded px-3 py-1.5 text-sm bg-gray-100 text-gray-500 cursor-not-allowed"
+            />
+          </div>
+          <div>
+            <label className="block text-xs text-gray-600 mb-1">{t('form.categoria')}</label>
+            <select
+              required
+              value={form.categoria}
+              onChange={(e) => alElegirCategoria(e.target.value)}
+              className="w-full border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-navy-600"
+            >
+              <option value="">{t('form.selecciona')}</option>
+              {categoriasDisponibles.map((c) => <option key={c} value={c}>{c}</option>)}
+            </select>
+            {form.categoria && tieneTarifaAsistente(form.categoria) && (
+              <p className="text-[11px] text-pitch-green-dark mt-1">
+                {t('form.admiteAsistentes')}
+              </p>
+            )}
+          </div>
           <div>
             <label className="block text-xs text-gray-600 mb-1">{t('form.intensidad')}</label>
             <select

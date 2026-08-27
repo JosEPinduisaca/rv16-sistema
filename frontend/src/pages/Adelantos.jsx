@@ -43,6 +43,11 @@ export default function Adelantos() {
   const cargaActiva = useCargaActiva();
 
   const todosFiltrados = todos
+    // Una vez descontado en una liquidación ya generada, no tiene sentido
+    // seguir mostrándolo aquí: el registro se conserva en el backend (el
+    // detalle de esa liquidación lo sigue mostrando), solo desaparece de
+    // esta lista de adelantos pendientes/recientes.
+    .filter((a) => a.estado !== 'descontado')
     .filter((a) => `${a.nombres} ${a.apellidos}`.toLowerCase().includes(busqueda.toLowerCase()))
     .sort((a, b) => (a.fecha_solicitud || '').localeCompare(b.fecha_solicitud || ''));
 

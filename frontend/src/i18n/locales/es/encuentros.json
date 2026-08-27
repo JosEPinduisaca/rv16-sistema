@@ -9,15 +9,16 @@
   "columnas": {
     "fecha": "Fecha",
     "hora": "Hora",
-    "cancha": "Cancha",
+    "campeonato": "Campeonato",
     "categoria": "Categoría",
     "estado": "Estado"
   },
   "designar": "Designar",
+  "verDesignado": "Ver designado",
   "vacio": "Aún no hay encuentros registrados",
-  "vacioBusqueda": "No se encontraron encuentros con esa búsqueda",
+  "vacioBusqueda": "No se encontraron encuentros de ese campeonato",
   "buscar": {
-    "placeholder": "Buscar por cancha o categoría..."
+    "placeholder": "Buscar por campeonato..."
   },
   "ordenar": {
     "etiqueta": "Ordenar por",

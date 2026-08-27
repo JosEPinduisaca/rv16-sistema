@@ -9,15 +9,16 @@
   "columnas": {
     "fecha": "Date",
     "hora": "Time",
-    "cancha": "Court",
+    "campeonato": "Championship",
     "categoria": "Category",
     "estado": "Status"
   },
   "designar": "Assign",
+  "verDesignado": "View assigned",
   "vacio": "No matches registered yet",
-  "vacioBusqueda": "No matches found for that search",
+  "vacioBusqueda": "No matches found for that championship",
   "buscar": {
-    "placeholder": "Search by court or category..."
+    "placeholder": "Search by championship..."
   },
   "ordenar": {
     "etiqueta": "Sort by",
