@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { IconX, IconChevronDown, IconChevronRight, IconPrinter } from '@tabler/icons-react';
+import { IconX, IconChevronDown, IconChevronRight, IconFileDownload } from '@tabler/icons-react';
 import api from '../api/client';
 import { useAuth } from '../context/AuthContext';
 import useCargaActiva from '../hooks/useCargaActiva';
 import { nombreCancha } from '../utils/formato';
+import { exportarDesignacionPdf } from '../utils/exportarDesignacionPdf';
 import TarjetaEstado from '../components/TarjetaEstado';
 
 // Formatea "2026-08-29" como "sábado 29 de agosto" (es) o "Saturday, August
@@ -136,9 +137,9 @@ export default function DesignacionGeneral() {
             (d) => String(d.arbitro_id) === String(arbitroResaltado)
           );
           const sinDesignar = p.designados.length === 0;
-          let claseFila = sinDesignar ? 'bg-card-red/5' : 'bg-pitch-green/5';
+          let claseFila = sinDesignar ? 'bg-card-red/15' : 'bg-pitch-green/15';
           if (tieneResaltado) {
-            claseFila = 'bg-card-yellow/20 ring-1 ring-inset ring-card-yellow-dark/40';
+            claseFila = 'bg-card-yellow/35 ring-1 ring-inset ring-card-yellow-dark/50';
           }
           return (
             <div key={p.id} className={`px-3 py-2.5 text-xs flex items-start gap-3 ${claseFila}`}>
@@ -216,23 +217,23 @@ export default function DesignacionGeneral() {
     );
   }
 
-  // Versión para imprimir/exportar a PDF: mismo contenido, siempre expandido
-  // y sin botones de acción (no tienen sentido en un documento impreso).
-  function PanelCampeonatoImpreso({ torneo, i }) {
-    const colorClase = PALETA[i % PALETA.length];
-    return (
-      <div className="border border-gray-300 rounded-lg overflow-hidden mb-3 break-inside-avoid">
-        <div className={`${colorClase} text-white px-3 py-2`}>
-          <span className="font-display text-sm font-semibold tracking-wide">{torneo}</span>
-        </div>
-        <FilasDelTorneo torneo={torneo} permitirAcciones={false} />
-      </div>
-    );
+  async function exportarPdf() {
+    const tituloDoc = fecha
+      ? t('impresion.tituloConFecha', { fecha: formatearFechaLarga(fecha, i18n.resolvedLanguage) })
+      : t('impresion.tituloSinFecha');
+    await exportarDesignacionPdf({
+      nombresGrupos,
+      grupos,
+      tituloDoc,
+      nombreArchivo: `designacion${fecha ? `-${fecha}` : ''}.pdf`,
+      arbitroResaltado,
+      textoSinDesignar: t('panel.sinDesignarLabel'),
+    });
   }
 
   return (
     <div>
-      <div className="print:hidden flex items-end justify-between mb-5 flex-wrap gap-3">
+      <div className="flex items-end justify-between mb-5 flex-wrap gap-3">
         <div>
           <h1 className="font-display text-2xl font-semibold text-navy-900">{t('titulo')}</h1>
           <p className="text-sm text-gray-500 mt-1">{t('subtitulo')}</p>
@@ -283,27 +284,27 @@ export default function DesignacionGeneral() {
           )}
           {nombresGrupos.length > 0 && (
             <button
-              onClick={() => window.print()}
+              onClick={exportarPdf}
               className="inline-flex items-center gap-1.5 bg-navy-900 hover:bg-navy-800 text-white px-3 py-1.5 rounded text-sm font-medium transition mb-0.5"
             >
-              <IconPrinter size={16} />
+              <IconFileDownload size={16} />
               {t('acciones.exportarPdf')}
             </button>
           )}
         </div>
       </div>
 
-      {cargando && <p className="print:hidden text-sm text-gray-500">{t('common:estado.cargando')}</p>}
+      {cargando && <p className="text-sm text-gray-500">{t('common:estado.cargando')}</p>}
 
       {!cargando && nombresGrupos.length === 0 && (
-        <div className="print:hidden bg-white border border-gray-200 rounded-lg px-4 py-8 text-center text-gray-400 text-sm">
+        <div className="bg-white border border-gray-200 rounded-lg px-4 py-8 text-center text-gray-400 text-sm">
           {arbitroResaltado
             ? t('mensajes.vacioArbitro')
             : fecha ? t('mensajes.vacioConFecha') : t('mensajes.vacioSinFecha')}
         </div>
       )}
 
-      <div className="print:hidden grid gap-0 lg:grid-cols-2 lg:gap-x-5">
+      <div className="grid gap-0 lg:grid-cols-2 lg:gap-x-5">
         <div>
           {columnaIzquierda.map((torneo) => (
             <PanelCampeonato key={torneo} torneo={torneo} i={nombresGrupos.indexOf(torneo)} />
@@ -316,37 +317,12 @@ export default function DesignacionGeneral() {
         </div>
       </div>
 
-      {/* Vista imprimible: título con la fecha y todos los campeonatos
-          siempre expandidos, pensada para exportar a PDF en horizontal
-          desde el diálogo de impresión del navegador. */}
-      {nombresGrupos.length > 0 && (
-        <div className="hidden print:block">
-          <h1 className="font-display text-xl font-semibold text-navy-900 mb-4 text-center">
-            {fecha
-              ? t('impresion.tituloConFecha', { fecha: formatearFechaLarga(fecha, i18n.resolvedLanguage) })
-              : t('impresion.tituloSinFecha')}
-          </h1>
-          <div className="grid grid-cols-2 gap-x-5">
-            <div>
-              {columnaIzquierda.map((torneo) => (
-                <PanelCampeonatoImpreso key={torneo} torneo={torneo} i={nombresGrupos.indexOf(torneo)} />
-              ))}
-            </div>
-            <div>
-              {columnaDerecha.map((torneo) => (
-                <PanelCampeonatoImpreso key={torneo} torneo={torneo} i={nombresGrupos.indexOf(torneo)} />
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
-
       {error && (
-        <p className="print:hidden fixed bottom-4 right-4 bg-card-red text-white text-sm px-4 py-2 rounded shadow-lg">{error}</p>
+        <p className="fixed bottom-4 right-4 bg-card-red text-white text-sm px-4 py-2 rounded shadow-lg">{error}</p>
       )}
 
       {confirmarQuitar && (
-        <div className="print:hidden fixed inset-0 z-50 bg-black/40 flex items-center justify-center px-4">
+        <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center px-4">
           <div className="bg-white rounded-lg shadow-xl max-w-sm w-full p-5">
             <h3 className="font-display text-lg font-semibold text-navy-900 mb-2">{t('modal.confirmarQuitarTitulo')}</h3>
             <div className="flex justify-end gap-2">
