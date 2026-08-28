@@ -1,12 +1,25 @@
 import { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { IconX, IconChevronDown, IconChevronRight } from '@tabler/icons-react';
+import { IconX, IconChevronDown, IconChevronRight, IconPrinter } from '@tabler/icons-react';
 import api from '../api/client';
 import { useAuth } from '../context/AuthContext';
 import useCargaActiva from '../hooks/useCargaActiva';
 import { nombreCancha } from '../utils/formato';
 import TarjetaEstado from '../components/TarjetaEstado';
+
+// Formatea "2026-08-29" como "sábado 29 de agosto" (es) o "Saturday, August
+// 29" (en), sin depender de la puntuación que trae Intl por defecto.
+function formatearFechaLarga(fechaISO, idioma) {
+  const [anio, mes, dia] = fechaISO.split('-').map(Number);
+  const fechaObj = new Date(anio, mes - 1, dia);
+  const locale = idioma === 'en' ? 'en-US' : 'es-ES';
+  const partes = new Intl.DateTimeFormat(locale, { weekday: 'long', day: 'numeric', month: 'long' }).formatToParts(fechaObj);
+  const parte = (tipo) => partes.find((p) => p.type === tipo)?.value || '';
+  return idioma === 'en'
+    ? `${parte('weekday')}, ${parte('month')} ${parte('day')}`
+    : `${parte('weekday')} ${parte('day')} de ${parte('month')}`;
+}
 
 const PALETA = [
   'bg-accent-navy',
@@ -19,7 +32,7 @@ const PALETA = [
 ];
 
 export default function DesignacionGeneral() {
-  const { t } = useTranslation(['designacionGeneral', 'common']);
+  const { t, i18n } = useTranslation(['designacionGeneral', 'common']);
   const { usuario } = useAuth();
   const puedeGestionar = usuario?.rol === 'administrador' || usuario?.rol === 'directivo';
   const [searchParams] = useSearchParams();
@@ -113,6 +126,70 @@ export default function DesignacionGeneral() {
   const columnaIzquierda = nombresGrupos.filter((_, i) => i % 2 === 0);
   const columnaDerecha = nombresGrupos.filter((_, i) => i % 2 === 1);
 
+  // Filas de partidos de un campeonato; se reutiliza tanto en el panel
+  // interactivo (colapsable) como en la vista imprimible (siempre expandida).
+  function FilasDelTorneo({ torneo, permitirAcciones }) {
+    return (
+      <div className="divide-y divide-gray-100">
+        {grupos[torneo].map((p) => {
+          const tieneResaltado = arbitroResaltado && p.designados.some(
+            (d) => String(d.arbitro_id) === String(arbitroResaltado)
+          );
+          const sinDesignar = p.designados.length === 0;
+          let claseFila = sinDesignar ? 'bg-card-red/5' : 'bg-pitch-green/5';
+          if (tieneResaltado) {
+            claseFila = 'bg-card-yellow/20 ring-1 ring-inset ring-card-yellow-dark/40';
+          }
+          return (
+            <div key={p.id} className={`px-3 py-2.5 text-xs flex items-start gap-3 ${claseFila}`}>
+              <span className="tabular-nums font-semibold text-navy-900 whitespace-nowrap pt-0.5">
+                {p.hora?.slice(0, 5)}
+              </span>
+              <span className="text-gray-500 whitespace-nowrap pt-0.5">{nombreCancha(p.cancha)}</span>
+              <div className="flex-1 min-w-0">
+                {p.designados.length === 0 ? (
+                  <span className="text-gray-300 italic">{t('panel.sinDesignarLabel')}</span>
+                ) : (
+                  <div className="flex flex-col gap-1">
+                    {p.designados.map((d, idx) => {
+                      const esResaltado = arbitroResaltado && String(d.arbitro_id) === String(arbitroResaltado);
+                      return (
+                        <div key={idx} className="flex items-center gap-1.5">
+                          <span className={esResaltado ? 'font-semibold text-navy-900' : 'text-navy-800'}>
+                            {d.nombre} <span className="text-gray-400">· {d.rol}</span>
+                          </span>
+                          {permitirAcciones && puedeGestionar && (
+                            <button
+                              onClick={() => setConfirmarQuitar(d.designacion_id)}
+                              disabled={cargaActiva}
+                              title={t('acciones.quitarDesignacionTitulo')}
+                              className="text-gray-300 hover:text-card-red transition disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                              <IconX size={12} />
+                            </button>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+              <TarjetaEstado estado={p.estado} />
+              {permitirAcciones && puedeGestionar && sinDesignar && (
+                <Link
+                  to={`/designaciones?encuentro=${p.id}`}
+                  className="text-navy-600 hover:text-navy-900 hover:underline text-xs font-medium whitespace-nowrap pt-0.5"
+                >
+                  {t('acciones.designar')}
+                </Link>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    );
+  }
+
   function PanelCampeonato({ torneo, i }) {
     const colorClase = PALETA[i % PALETA.length];
     const abierto = !!expandidos[torneo];
@@ -134,72 +211,28 @@ export default function DesignacionGeneral() {
           </span>
         </button>
 
-        {abierto && (
-          <div className="divide-y divide-gray-100">
-            {grupos[torneo].map((p) => {
-              const tieneResaltado = arbitroResaltado && p.designados.some(
-                (d) => String(d.arbitro_id) === String(arbitroResaltado)
-              );
-              const sinDesignar = p.designados.length === 0;
-              let claseFila = sinDesignar ? 'bg-card-red/5' : 'bg-pitch-green/5';
-              if (tieneResaltado) {
-                claseFila = 'bg-card-yellow/20 ring-1 ring-inset ring-card-yellow-dark/40';
-              }
-              return (
-                <div key={p.id} className={`px-3 py-2.5 text-xs flex items-start gap-3 ${claseFila}`}>
-                  <span className="tabular-nums font-semibold text-navy-900 whitespace-nowrap pt-0.5">
-                    {p.hora?.slice(0, 5)}
-                  </span>
-                  <span className="text-gray-500 whitespace-nowrap pt-0.5">{nombreCancha(p.cancha)}</span>
-                  <div className="flex-1 min-w-0">
-                    {p.designados.length === 0 ? (
-                      <span className="text-gray-300 italic">{t('panel.sinDesignarLabel')}</span>
-                    ) : (
-                      <div className="flex flex-col gap-1">
-                        {p.designados.map((d, idx) => {
-                          const esResaltado = arbitroResaltado && String(d.arbitro_id) === String(arbitroResaltado);
-                          return (
-                            <div key={idx} className="flex items-center gap-1.5">
-                              <span className={esResaltado ? 'font-semibold text-navy-900' : 'text-navy-800'}>
-                                {d.nombre} <span className="text-gray-400">· {d.rol}</span>
-                              </span>
-                              {puedeGestionar && (
-                                <button
-                                  onClick={() => setConfirmarQuitar(d.designacion_id)}
-                                  disabled={cargaActiva}
-                                  title={t('acciones.quitarDesignacionTitulo')}
-                                  className="text-gray-300 hover:text-card-red transition disabled:opacity-50 disabled:cursor-not-allowed"
-                                >
-                                  <IconX size={12} />
-                                </button>
-                              )}
-                            </div>
-                          );
-                        })}
-                      </div>
-                    )}
-                  </div>
-                  <TarjetaEstado estado={p.estado} />
-                  {puedeGestionar && sinDesignar && (
-                    <Link
-                      to={`/designaciones?encuentro=${p.id}`}
-                      className="text-navy-600 hover:text-navy-900 hover:underline text-xs font-medium whitespace-nowrap pt-0.5"
-                    >
-                      {t('acciones.designar')}
-                    </Link>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        )}
+        {abierto && <FilasDelTorneo torneo={torneo} permitirAcciones />}
+      </div>
+    );
+  }
+
+  // Versión para imprimir/exportar a PDF: mismo contenido, siempre expandido
+  // y sin botones de acción (no tienen sentido en un documento impreso).
+  function PanelCampeonatoImpreso({ torneo, i }) {
+    const colorClase = PALETA[i % PALETA.length];
+    return (
+      <div className="border border-gray-300 rounded-lg overflow-hidden mb-3 break-inside-avoid">
+        <div className={`${colorClase} text-white px-3 py-2`}>
+          <span className="font-display text-sm font-semibold tracking-wide">{torneo}</span>
+        </div>
+        <FilasDelTorneo torneo={torneo} permitirAcciones={false} />
       </div>
     );
   }
 
   return (
     <div>
-      <div className="flex items-end justify-between mb-5 flex-wrap gap-3">
+      <div className="print:hidden flex items-end justify-between mb-5 flex-wrap gap-3">
         <div>
           <h1 className="font-display text-2xl font-semibold text-navy-900">{t('titulo')}</h1>
           <p className="text-sm text-gray-500 mt-1">{t('subtitulo')}</p>
@@ -248,20 +281,29 @@ export default function DesignacionGeneral() {
               {nombresGrupos.every((tor) => expandidos[tor]) ? t('acciones.colapsarTodos') : t('acciones.expandirTodos')}
             </button>
           )}
+          {nombresGrupos.length > 0 && (
+            <button
+              onClick={() => window.print()}
+              className="inline-flex items-center gap-1.5 bg-navy-900 hover:bg-navy-800 text-white px-3 py-1.5 rounded text-sm font-medium transition mb-0.5"
+            >
+              <IconPrinter size={16} />
+              {t('acciones.exportarPdf')}
+            </button>
+          )}
         </div>
       </div>
 
-      {cargando && <p className="text-sm text-gray-500">{t('common:estado.cargando')}</p>}
+      {cargando && <p className="print:hidden text-sm text-gray-500">{t('common:estado.cargando')}</p>}
 
       {!cargando && nombresGrupos.length === 0 && (
-        <div className="bg-white border border-gray-200 rounded-lg px-4 py-8 text-center text-gray-400 text-sm">
+        <div className="print:hidden bg-white border border-gray-200 rounded-lg px-4 py-8 text-center text-gray-400 text-sm">
           {arbitroResaltado
             ? t('mensajes.vacioArbitro')
             : fecha ? t('mensajes.vacioConFecha') : t('mensajes.vacioSinFecha')}
         </div>
       )}
 
-      <div className="grid gap-0 lg:grid-cols-2 lg:gap-x-5">
+      <div className="print:hidden grid gap-0 lg:grid-cols-2 lg:gap-x-5">
         <div>
           {columnaIzquierda.map((torneo) => (
             <PanelCampeonato key={torneo} torneo={torneo} i={nombresGrupos.indexOf(torneo)} />
@@ -274,12 +316,37 @@ export default function DesignacionGeneral() {
         </div>
       </div>
 
+      {/* Vista imprimible: título con la fecha y todos los campeonatos
+          siempre expandidos, pensada para exportar a PDF en horizontal
+          desde el diálogo de impresión del navegador. */}
+      {nombresGrupos.length > 0 && (
+        <div className="hidden print:block">
+          <h1 className="font-display text-xl font-semibold text-navy-900 mb-4 text-center">
+            {fecha
+              ? t('impresion.tituloConFecha', { fecha: formatearFechaLarga(fecha, i18n.resolvedLanguage) })
+              : t('impresion.tituloSinFecha')}
+          </h1>
+          <div className="grid grid-cols-2 gap-x-5">
+            <div>
+              {columnaIzquierda.map((torneo) => (
+                <PanelCampeonatoImpreso key={torneo} torneo={torneo} i={nombresGrupos.indexOf(torneo)} />
+              ))}
+            </div>
+            <div>
+              {columnaDerecha.map((torneo) => (
+                <PanelCampeonatoImpreso key={torneo} torneo={torneo} i={nombresGrupos.indexOf(torneo)} />
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
       {error && (
-        <p className="fixed bottom-4 right-4 bg-card-red text-white text-sm px-4 py-2 rounded shadow-lg">{error}</p>
+        <p className="print:hidden fixed bottom-4 right-4 bg-card-red text-white text-sm px-4 py-2 rounded shadow-lg">{error}</p>
       )}
 
       {confirmarQuitar && (
-        <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center px-4">
+        <div className="print:hidden fixed inset-0 z-50 bg-black/40 flex items-center justify-center px-4">
           <div className="bg-white rounded-lg shadow-xl max-w-sm w-full p-5">
             <h3 className="font-display text-lg font-semibold text-navy-900 mb-2">{t('modal.confirmarQuitarTitulo')}</h3>
             <div className="flex justify-end gap-2">

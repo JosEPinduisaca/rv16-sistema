@@ -93,7 +93,7 @@ export default function Layout() {
       )}
 
       <aside
-        className={`fixed md:static inset-y-0 left-0 z-40 w-64 md:w-60 bg-navy-900 text-white flex flex-col shrink-0 transform transition-transform duration-200 ease-in-out ${
+        className={`print:hidden fixed md:static inset-y-0 left-0 z-40 w-64 md:w-60 bg-navy-900 text-white flex flex-col shrink-0 transform transition-transform duration-200 ease-in-out ${
           menuAbierto ? 'translate-x-0' : '-translate-x-full'
         } md:translate-x-0`}
       >
@@ -173,7 +173,7 @@ export default function Layout() {
 
       <div className="flex-1 min-w-0">
         {/* Barra superior solo en móvil/tablet, con botón para abrir el menú */}
-        <div className="md:hidden flex items-center gap-3 bg-navy-900 text-white px-4 py-3 sticky top-0 z-20">
+        <div className="print:hidden md:hidden flex items-center gap-3 bg-navy-900 text-white px-4 py-3 sticky top-0 z-20">
           <button
             onClick={() => setMenuAbierto(true)}
             className="text-white shrink-0"
@@ -187,7 +187,7 @@ export default function Layout() {
           </span>
         </div>
 
-        <main className="max-w-6xl mx-auto px-4 sm:px-6 md:px-8 py-6 md:py-8">
+        <main className="max-w-6xl mx-auto px-4 sm:px-6 md:px-8 py-6 md:py-8 print:max-w-none print:p-0">
           <Outlet />
         </main>
       </div>

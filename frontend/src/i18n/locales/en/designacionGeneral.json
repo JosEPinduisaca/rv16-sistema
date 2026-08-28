@@ -13,9 +13,14 @@
   "acciones": {
     "colapsarTodos": "Collapse all",
     "expandirTodos": "Expand all",
+    "exportarPdf": "Export PDF",
     "designar": "Assign",
     "quitarDesignacionTitulo": "Remove assignment",
     "quitar": "Remove"
+  },
+  "impresion": {
+    "tituloConFecha": "Assignments for {{fecha}}",
+    "tituloSinFecha": "General assignments"
   },
   "panel": {
     "partidos_one": "{{count}} match",

@@ -13,9 +13,14 @@
   "acciones": {
     "colapsarTodos": "Colapsar todos",
     "expandirTodos": "Expandir todos",
+    "exportarPdf": "Exportar PDF",
     "designar": "Designar",
     "quitarDesignacionTitulo": "Quitar designación",
     "quitar": "Quitar"
+  },
+  "impresion": {
+    "tituloConFecha": "Designación {{fecha}}",
+    "tituloSinFecha": "Designación general"
   },
   "panel": {
     "partidos_one": "{{count}} partido",
