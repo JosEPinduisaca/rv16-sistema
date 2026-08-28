@@ -5,7 +5,7 @@ import { IconX, IconChevronDown, IconChevronRight, IconFileDownload } from '@tab
 import api from '../api/client';
 import { useAuth } from '../context/AuthContext';
 import useCargaActiva from '../hooks/useCargaActiva';
-import { nombreCancha } from '../utils/formato';
+import { nombreCancha, hoyISO, mananaISO } from '../utils/formato';
 import { exportarDesignacionPdf } from '../utils/exportarDesignacionPdf';
 import TarjetaEstado from '../components/TarjetaEstado';
 
@@ -40,6 +40,7 @@ export default function DesignacionGeneral() {
   const [fecha, setFecha] = useState('');
   const [encuentros, setEncuentros] = useState([]);
   const [arbitros, setArbitros] = useState([]);
+  const [arbitroPropioId, setArbitroPropioId] = useState(null);
   const [arbitroResaltado, setArbitroResaltado] = useState('');
   const [cargando, setCargando] = useState(true);
   const [expandidos, setExpandidos] = useState({}); // { nombreCampeonato: true/false }
@@ -59,8 +60,20 @@ export default function DesignacionGeneral() {
   useEffect(() => {
     if (puedeGestionar) {
       api.get('/arbitros').then((res) => setArbitros(res.data));
+    } else {
+      // Para resaltar automáticamente sus propias designaciones, sin
+      // depender de un "?arbitro=" en la URL (eso solo lo genera admin/directivo).
+      api.get('/arbitros/me').then((res) => setArbitroPropioId(String(res.data.id)));
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Una vez se conoce el propio id de árbitro, se resalta automáticamente
+  // (salvo que ya se haya llegado con un "?arbitro=" explícito en la URL).
+  useEffect(() => {
+    if (!puedeGestionar && arbitroPropioId && !searchParams.get('arbitro')) {
+      setArbitroResaltado(arbitroPropioId);
+    }
+  }, [puedeGestionar, arbitroPropioId, searchParams]);
 
   // Los árbitros no pueden refrescar manualmente ni recibir cambios en vivo
   // de otra forma, así que para ellos se refresca solo (en silencio, sin
@@ -78,7 +91,7 @@ export default function DesignacionGeneral() {
   // en la URL (por ejemplo al llegar desde "Ver designaciones de un árbitro"),
   // incluso si el componente ya estaba montado en esta misma ruta.
   useEffect(() => {
-    const f = searchParams.get('fecha') || '';
+    const f = searchParams.get('fecha') || (puedeGestionar ? '' : hoyISO());
     const a = searchParams.get('arbitro') || '';
     setFecha(f);
     setArbitroResaltado(a);
@@ -254,12 +267,14 @@ export default function DesignacionGeneral() {
         <div>
           <h1 className="font-display text-2xl font-semibold text-navy-900">{t('titulo')}</h1>
           <p className="text-sm text-gray-500 mt-1">{t('subtitulo')}</p>
-          <p className="text-xs text-gray-500 mt-1.5">
-            <span className="inline-block w-3 h-3 rounded-sm bg-card-red/25 align-middle mr-1" />
-            {t('leyenda.sinDesignar')}
-            <span className="inline-block w-3 h-3 rounded-sm bg-pitch-green/25 align-middle ml-4 mr-1" />
-            {t('leyenda.yaDesignado')}
-          </p>
+          {puedeGestionar && (
+            <p className="text-xs text-gray-500 mt-1.5">
+              <span className="inline-block w-3 h-3 rounded-sm bg-card-red/25 align-middle mr-1" />
+              {t('leyenda.sinDesignar')}
+              <span className="inline-block w-3 h-3 rounded-sm bg-pitch-green/25 align-middle ml-4 mr-1" />
+              {t('leyenda.yaDesignado')}
+            </p>
+          )}
         </div>
         <div className="flex gap-3 flex-wrap items-end">
           {puedeGestionar && (
@@ -275,6 +290,31 @@ export default function DesignacionGeneral() {
                   <option key={a.id} value={a.id}>{a.nombres} {a.apellidos}</option>
                 ))}
               </select>
+            </div>
+          )}
+          {!puedeGestionar && (
+            <div>
+              <label className="block text-xs text-gray-600 mb-1">{t('filtros.designacion')}</label>
+              <div className="inline-flex rounded-md border border-gray-300 overflow-hidden text-xs">
+                <button
+                  type="button"
+                  onClick={() => { const f = hoyISO(); setFecha(f); cargar(f); }}
+                  className={`px-3 py-1.5 font-medium transition ${
+                    fecha === hoyISO() ? 'bg-navy-900 text-white' : 'bg-white text-gray-600 hover:bg-gray-50'
+                  }`}
+                >
+                  {t('filtros.hoy')}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { const f = mananaISO(); setFecha(f); cargar(f); }}
+                  className={`px-3 py-1.5 font-medium transition ${
+                    fecha === mananaISO() ? 'bg-navy-900 text-white' : 'bg-white text-gray-600 hover:bg-gray-50'
+                  }`}
+                >
+                  {t('filtros.manana')}
+                </button>
+              </div>
             </div>
           )}
           <div>

@@ -3,7 +3,10 @@
   "filtros": {
     "proximas": "Próximas",
     "historial": "Historial",
-    "buscarFecha": "Buscar una fecha específica"
+    "buscarFecha": "Buscar una fecha específica",
+    "designacion": "Designación",
+    "hoy": "Hoy",
+    "manana": "Mañana"
   },
   "columnas": {
     "torneo": "Torneo",
@@ -16,6 +19,7 @@
   "cumplido": "Cumplido",
   "vacio": {
     "proximas": "No tienes designaciones próximas",
+    "diaEspecifico": "No tienes designaciones para ese día",
     "fechaEspecifica": "No hay designaciones en esa fecha",
     "historial": "Aún no tienes designaciones anteriores"
   }

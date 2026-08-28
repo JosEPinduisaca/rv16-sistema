@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import api from '../api/client';
-import { nombreCancha } from '../utils/formato';
+import { nombreCancha, hoyISO, mananaISO } from '../utils/formato';
 import TarjetaEstado from '../components/TarjetaEstado';
 
 // Misma familia de colores que en Designación General, con un poco más de
@@ -26,6 +26,7 @@ export default function MisDesignaciones() {
   const [cargando, setCargando] = useState(true);
   const [modo, setModo] = useState('proximas'); // 'proximas' | 'historial'
   const [fechaFiltro, setFechaFiltro] = useState('');
+  const [filtroDia, setFiltroDia] = useState(null); // null | 'hoy' | 'manana' (solo aplica en 'proximas')
 
   useEffect(() => {
     api.get('/arbitros/me').then((res) => {
@@ -45,8 +46,12 @@ export default function MisDesignaciones() {
     (a, b) => new Date(`${a.fecha}T${a.hora}`) - new Date(`${b.fecha}T${b.hora}`)
   );
 
+  const fechaFiltroDia = filtroDia === 'hoy' ? hoyISO() : filtroDia === 'manana' ? mananaISO() : null;
+
   const designacionesMostradas = modo === 'proximas'
-    ? designacionesOrdenadas.filter((d) => !esPasado(d.fecha, d.hora))
+    ? designacionesOrdenadas
+        .filter((d) => !esPasado(d.fecha, d.hora))
+        .filter((d) => !fechaFiltroDia || d.fecha?.slice(0, 10) === fechaFiltroDia)
     : designacionesOrdenadas
         .filter((d) => esPasado(d.fecha, d.hora))
         .filter((d) => !fechaFiltro || d.fecha?.slice(0, 10) === fechaFiltro)
@@ -64,7 +69,7 @@ export default function MisDesignaciones() {
             ].map((op) => (
               <button
                 key={op.value}
-                onClick={() => { setModo(op.value); setFechaFiltro(''); }}
+                onClick={() => { setModo(op.value); setFechaFiltro(''); setFiltroDia(null); }}
                 className={`px-3 py-1.5 font-medium transition ${
                   modo === op.value ? 'bg-navy-900 text-white' : 'bg-white text-gray-600 hover:bg-gray-50'
                 }`}
@@ -73,6 +78,25 @@ export default function MisDesignaciones() {
               </button>
             ))}
           </div>
+          {modo === 'proximas' && (
+            <div>
+              <label className="block text-xs text-gray-600 mb-1">{t('filtros.designacion')}</label>
+              <div className="inline-flex rounded-md border border-gray-300 overflow-hidden text-xs">
+                {['hoy', 'manana'].map((valor) => (
+                  <button
+                    key={valor}
+                    type="button"
+                    onClick={() => setFiltroDia((prev) => (prev === valor ? null : valor))}
+                    className={`px-3 py-1.5 font-medium transition ${
+                      filtroDia === valor ? 'bg-navy-900 text-white' : 'bg-white text-gray-600 hover:bg-gray-50'
+                    }`}
+                  >
+                    {t(`filtros.${valor}`)}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
           {modo === 'historial' && (
             <div>
               <label className="block text-xs text-gray-600 mb-1">{t('filtros.buscarFecha')}</label>
@@ -144,7 +168,9 @@ export default function MisDesignaciones() {
               <tr>
                 <td colSpan={6} className="px-4 py-8 text-center text-gray-400 text-sm">
                   {modo === 'proximas'
-                    ? t('vacio.proximas')
+                    ? filtroDia
+                      ? t('vacio.diaEspecifico')
+                      : t('vacio.proximas')
                     : fechaFiltro
                       ? t('vacio.fechaEspecifica')
                       : t('vacio.historial')}

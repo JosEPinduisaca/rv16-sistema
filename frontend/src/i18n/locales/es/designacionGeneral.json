@@ -8,7 +8,10 @@
   "filtros": {
     "resaltarArbitro": "Resaltar árbitro",
     "ninguno": "Ninguno",
-    "filtrarPorFecha": "Filtrar por fecha"
+    "filtrarPorFecha": "Filtrar por fecha",
+    "designacion": "Designación",
+    "hoy": "Hoy",
+    "manana": "Mañana"
   },
   "acciones": {
     "colapsarTodos": "Colapsar todos",

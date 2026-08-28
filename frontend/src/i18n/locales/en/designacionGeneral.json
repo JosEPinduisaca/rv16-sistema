@@ -8,7 +8,10 @@
   "filtros": {
     "resaltarArbitro": "Highlight referee",
     "ninguno": "None",
-    "filtrarPorFecha": "Filter by date"
+    "filtrarPorFecha": "Filter by date",
+    "designacion": "Assignment",
+    "hoy": "Today",
+    "manana": "Tomorrow"
   },
   "acciones": {
     "colapsarTodos": "Collapse all",
