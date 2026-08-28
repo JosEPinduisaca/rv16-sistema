@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import api from '../api/client';
+import { nombreCancha } from '../utils/formato';
 import TarjetaEstado from '../components/TarjetaEstado';
 
 // Misma familia de colores que en Designación General, con un poco más de
@@ -104,7 +105,7 @@ export default function MisDesignaciones() {
               <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide">{t('columnas.torneo')}</th>
               <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide">{t('columnas.fecha')}</th>
               <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide">{t('columnas.hora')}</th>
-              <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide">{t('columnas.cancha')}</th>
+              <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide">{t('columnas.campeonato')}</th>
               <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide">{t('columnas.rol')}</th>
               <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide">{t('columnas.estado')}</th>
             </tr>
@@ -128,7 +129,7 @@ export default function MisDesignaciones() {
                   </td>
                   <td className="px-4 py-2.5">{d.fecha?.slice(0, 10)}</td>
                   <td className="px-4 py-2.5 tabular-nums">{d.hora}</td>
-                  <td className="px-4 py-2.5">{d.cancha}</td>
+                  <td className="px-4 py-2.5">{nombreCancha(d.cancha)}</td>
                   <td className="px-4 py-2.5 capitalize">{d.rol_designacion}</td>
                   <td className="px-4 py-2.5">
                     <div className="flex items-center gap-1.5">

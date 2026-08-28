@@ -42,31 +42,9 @@ async function eliminarDesignacion(req, res) {
   }
 }
 
-// PUT /api/designaciones/publicar-todas
-async function publicarTodas(req, res) {
-  try {
-    const resultado = await designacionService.publicarTodas(req.body.fecha);
-    res.json(resultado);
-  } catch (error) {
-    manejarError(res, error, 'Error al publicar las designaciones');
-  }
-}
-
-// PUT /api/designaciones/despublicar-todas
-async function despublicarTodas(req, res) {
-  try {
-    const resultado = await designacionService.despublicarTodas(req.body.fecha);
-    res.json(resultado);
-  } catch (error) {
-    manejarError(res, error, 'Error al despublicar las designaciones');
-  }
-}
-
 module.exports = {
   crearDesignacion,
   publicarDesignacion,
-  publicarTodas,
-  despublicarTodas,
   listarPorArbitro,
   eliminarDesignacion,
 };

@@ -6,6 +6,7 @@ import api from '../api/client';
 import useCargaActiva from '../hooks/useCargaActiva';
 import usePaginacion from '../hooks/usePaginacion';
 import { textoValido } from '../utils/validaciones';
+import { nombreCancha } from '../utils/formato';
 import TarjetaEstado from '../components/TarjetaEstado';
 import Paginador from '../components/Paginador';
 
@@ -170,9 +171,9 @@ export default function Encuentros() {
     const nombreBase = nombreCampeonato(form.campeonato_id);
 
     function etiquetaCancha(i) {
-      if (cantidad === 1) return `Cancha ${nombreBase}`;
+      if (cantidad === 1) return nombreBase;
       const sufijo = form.tipo_numeracion === 'letras' ? String.fromCharCode(64 + i) : i;
-      return `Cancha ${nombreBase} ${sufijo}`;
+      return `${nombreBase} ${sufijo}`;
     }
 
     try {
@@ -227,11 +228,11 @@ export default function Encuentros() {
       intensidad: en.intensidad,
       fecha: en.fecha?.slice(0, 10),
       hora: en.hora?.slice(0, 5),
-      cancha: en.cancha,
+      cancha: nombreCancha(en.cancha),
     });
     await alSeleccionarCampeonato(en.campeonato_id, 'modal');
     setCategoriasDisponibles((prev) => (prev.includes(en.categoria) ? prev : [...prev, en.categoria]));
-    setModalEditar((prev) => ({ ...prev, categoria: en.categoria, cancha: en.cancha }));
+    setModalEditar((prev) => ({ ...prev, categoria: en.categoria, cancha: nombreCancha(en.cancha) }));
   }
 
   async function guardarEdicion(e) {
@@ -399,7 +400,7 @@ export default function Encuentros() {
                           </Link>
                         )}
                         <button
-                          onClick={() => { setErrorEliminar(null); setConfirmarEliminar({ id: en.id, etiqueta: `${en.cancha} · ${en.fecha?.slice(0, 10)} ${en.hora?.slice(0, 5)}` }); }}
+                          onClick={() => { setErrorEliminar(null); setConfirmarEliminar({ id: en.id, etiqueta: `${nombreCancha(en.cancha)} · ${en.fecha?.slice(0, 10)} ${en.hora?.slice(0, 5)}` }); }}
                           disabled={cargaActiva}
                           title={t('common:acciones.eliminar')}
                           className="text-gray-400 hover:text-card-red disabled:opacity-50 disabled:cursor-not-allowed"

@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import api from '../api/client';
 import { useAuth } from '../context/AuthContext';
 import useCargaActiva from '../hooks/useCargaActiva';
+import { nombreCancha } from '../utils/formato';
 import TarjetaEstado from '../components/TarjetaEstado';
 
 const ETIQUETA_RESPUESTA = {
@@ -183,7 +184,7 @@ export default function LiquidacionDetalle() {
           <thead className="bg-navy-50 text-navy-700 text-left">
             <tr>
               <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide">{t('columnas.fecha')}</th>
-              <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide">{t('columnas.cancha')}</th>
+              <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide">{t('columnas.campeonato')}</th>
               <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide">{t('columnas.categoria')}</th>
               <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide">{t('columnas.rol')}</th>
               <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide">{t('columnas.monto')}</th>
@@ -193,7 +194,7 @@ export default function LiquidacionDetalle() {
             {liquidacion.detalle.map((d, i) => (
               <tr key={i} className="border-t border-gray-100 hover:bg-navy-50/40">
                 <td className="px-4 py-2.5">{d.fecha?.slice(0, 10)} · {d.hora}</td>
-                <td className="px-4 py-2.5">{d.cancha}</td>
+                <td className="px-4 py-2.5">{nombreCancha(d.cancha)}</td>
                 <td className="px-4 py-2.5 capitalize">{d.categoria}</td>
                 <td className="px-4 py-2.5 capitalize">{d.rol_designacion}</td>
                 <td className="px-4 py-2.5 tabular-nums font-medium text-navy-900">${d.monto}</td>

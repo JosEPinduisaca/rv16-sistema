@@ -14,7 +14,7 @@
   "partidosIncluidos": "Matches included",
   "columnas": {
     "fecha": "Date",
-    "cancha": "Field",
+    "campeonato": "Championship",
     "categoria": "Category",
     "rol": "Role",
     "monto": "Amount"

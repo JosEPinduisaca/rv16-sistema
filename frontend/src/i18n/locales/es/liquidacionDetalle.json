@@ -14,7 +14,7 @@
   "partidosIncluidos": "Partidos incluidos",
   "columnas": {
     "fecha": "Fecha",
-    "cancha": "Cancha",
+    "campeonato": "Campeonato",
     "categoria": "Categoría",
     "rol": "Rol",
     "monto": "Monto"

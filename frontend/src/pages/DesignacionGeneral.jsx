@@ -5,6 +5,7 @@ import { IconX, IconChevronDown, IconChevronRight } from '@tabler/icons-react';
 import api from '../api/client';
 import { useAuth } from '../context/AuthContext';
 import useCargaActiva from '../hooks/useCargaActiva';
+import { nombreCancha } from '../utils/formato';
 import TarjetaEstado from '../components/TarjetaEstado';
 
 const PALETA = [
@@ -94,28 +95,6 @@ export default function DesignacionGeneral() {
     }
   }
 
-  async function publicarTodas() {
-    setError(null);
-    try {
-      const { data } = await api.put('/designaciones/publicar-todas', { fecha: fecha || undefined });
-      cargar(fecha);
-      if (data.actualizadas === 0) setError(t('mensajes.sinPendientesPublicar'));
-    } catch (err) {
-      setError(err.response?.data?.error || t('mensajes.errorPublicar'));
-    }
-  }
-
-  async function despublicarTodas() {
-    setError(null);
-    try {
-      const { data } = await api.put('/designaciones/despublicar-todas', { fecha: fecha || undefined });
-      cargar(fecha);
-      if (data.actualizadas === 0) setError(t('mensajes.sinPublicadasDespublicar'));
-    } catch (err) {
-      setError(err.response?.data?.error || t('mensajes.errorDespublicar'));
-    }
-  }
-
   const grupos = encuentros.reduce((acc, e) => {
     const clave = e.campeonato_nombre;
     if (!acc[clave]) acc[clave] = [];
@@ -171,7 +150,7 @@ export default function DesignacionGeneral() {
                   <span className="tabular-nums font-semibold text-navy-900 whitespace-nowrap pt-0.5">
                     {p.hora?.slice(0, 5)}
                   </span>
-                  <span className="text-gray-500 whitespace-nowrap pt-0.5">{p.cancha}</span>
+                  <span className="text-gray-500 whitespace-nowrap pt-0.5">{nombreCancha(p.cancha)}</span>
                   <div className="flex-1 min-w-0">
                     {p.designados.length === 0 ? (
                       <span className="text-gray-300 italic">{t('panel.sinDesignarLabel')}</span>
@@ -268,26 +247,6 @@ export default function DesignacionGeneral() {
             >
               {nombresGrupos.every((tor) => expandidos[tor]) ? t('acciones.colapsarTodos') : t('acciones.expandirTodos')}
             </button>
-          )}
-          {puedeGestionar && (
-            <div className="flex flex-wrap gap-2">
-              <button
-                onClick={publicarTodas}
-                disabled={cargaActiva}
-                title={fecha ? t('titulos.publicarConFecha', { fecha }) : t('titulos.publicarSinFecha')}
-                className="text-xs bg-pitch-green hover:bg-pitch-green-dark text-white px-3 py-1.5 rounded font-medium transition mb-1.5 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {t('acciones.publicarParaArbitros')}
-              </button>
-              <button
-                onClick={despublicarTodas}
-                disabled={cargaActiva}
-                title={t('titulos.despublicar')}
-                className="text-xs bg-white border border-card-red-dark/30 text-card-red-dark hover:bg-card-red/5 px-3 py-1.5 rounded font-medium transition mb-1.5 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {t('acciones.despublicar')}
-              </button>
-            </div>
           )}
         </div>
       </div>

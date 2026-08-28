@@ -13,16 +13,9 @@
   "acciones": {
     "colapsarTodos": "Collapse all",
     "expandirTodos": "Expand all",
-    "publicarParaArbitros": "Publish for referees",
-    "despublicar": "Unpublish",
     "designar": "Assign",
     "quitarDesignacionTitulo": "Remove assignment",
     "quitar": "Remove"
-  },
-  "titulos": {
-    "publicarConFecha": "Publish everything reviewed for {{fecha}}",
-    "publicarSinFecha": "Publish everything reviewed (all dates)",
-    "despublicar": "Lets you edit what's already published again, without removing it from the referee's view"
   },
   "panel": {
     "partidos_one": "{{count}} match",
@@ -34,11 +27,7 @@
     "vacioConFecha": "No matches for that date",
     "vacioSinFecha": "No matches registered",
     "vacioArbitro": "This referee has no assignments for this filter",
-    "errorQuitar": "Error removing the assignment",
-    "sinPendientesPublicar": "There were no pending assignments to publish.",
-    "errorPublicar": "Error publishing",
-    "sinPublicadasDespublicar": "There were no published assignments to revert.",
-    "errorDespublicar": "Error unpublishing"
+    "errorQuitar": "Error removing the assignment"
   },
   "modal": {
     "confirmarQuitarTitulo": "Remove this assignment?"

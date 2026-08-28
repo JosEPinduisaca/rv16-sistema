@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { IconStarFilled } from '@tabler/icons-react';
 import api from '../api/client';
 import useCargaActiva from '../hooks/useCargaActiva';
+import { nombreCancha } from '../utils/formato';
 import TarjetaEstado from '../components/TarjetaEstado';
 
 // Color más intenso mientras mayor es la intensidad del encuentro.
@@ -246,7 +247,7 @@ export default function Designaciones() {
               <option value="">{t('campos.selecciona')}</option>
               {encuentrosDisponibles.map((en) => (
                 <option key={en.id} value={en.id}>
-                  {en.fecha?.slice(0, 10)} {en.hora?.slice(0, 5)} — {en.cancha} ({en.categoria})
+                  {en.fecha?.slice(0, 10)} {en.hora?.slice(0, 5)} — {nombreCancha(en.cancha)} ({en.categoria})
                 </option>
               ))}
             </select>
@@ -441,7 +442,7 @@ export default function Designaciones() {
                           <TarjetaEstado estado={d.estado} />
                         </div>
                         <p className="text-gray-500">
-                          {d.cancha} · {d.categoria} · <span className="capitalize">{d.rol_designacion}</span>
+                          {nombreCancha(d.cancha)} · {d.categoria} · <span className="capitalize">{d.rol_designacion}</span>
                         </p>
                       </Link>
                     ))}

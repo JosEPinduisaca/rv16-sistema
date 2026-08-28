@@ -13,16 +13,9 @@
   "acciones": {
     "colapsarTodos": "Colapsar todos",
     "expandirTodos": "Expandir todos",
-    "publicarParaArbitros": "Publicar para los árbitros",
-    "despublicar": "Despublicar",
     "designar": "Designar",
     "quitarDesignacionTitulo": "Quitar designación",
     "quitar": "Quitar"
-  },
-  "titulos": {
-    "publicarConFecha": "Publica todo lo revisado de {{fecha}}",
-    "publicarSinFecha": "Publica todo lo revisado (todas las fechas)",
-    "despublicar": "Permite volver a editar lo ya publicado, sin quitarlo de la vista del árbitro"
   },
   "panel": {
     "partidos_one": "{{count}} partido",
@@ -34,11 +27,7 @@
     "vacioConFecha": "No hay encuentros para esa fecha",
     "vacioSinFecha": "No hay encuentros registrados",
     "vacioArbitro": "Este árbitro no tiene designaciones para este filtro",
-    "errorQuitar": "Error al quitar la designación",
-    "sinPendientesPublicar": "No había designaciones pendientes de publicar.",
-    "errorPublicar": "Error al publicar",
-    "sinPublicadasDespublicar": "No había designaciones publicadas para revertir.",
-    "errorDespublicar": "Error al despublicar"
+    "errorQuitar": "Error al quitar la designación"
   },
   "modal": {
     "confirmarQuitarTitulo": "¿Quitar esta designación?"

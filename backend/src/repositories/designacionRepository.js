@@ -137,38 +137,6 @@ async function volverEncuentroProgramado(encuentroId) {
   await pool.query(`UPDATE encuentros SET estado = 'programado' WHERE id = $1`, [encuentroId]);
 }
 
-async function publicarEnBloque(fecha) {
-  const params = fecha ? [fecha] : [];
-  const filtroFecha = fecha ? 'AND e.fecha = $1' : '';
-  const resultado = await pool.query(`
-    UPDATE designaciones d SET estado = 'publicada', fecha_publicacion = NOW()
-    FROM encuentros e
-    WHERE d.encuentro_id = e.id AND d.estado = 'designado' ${filtroFecha}
-    RETURNING d.id, d.encuentro_id
-  `, params);
-  return resultado.rows;
-}
-
-async function marcarEncuentrosPublicados(encuentroIds) {
-  await pool.query(`UPDATE encuentros SET estado = 'publicado' WHERE id = ANY($1)`, [encuentroIds]);
-}
-
-async function despublicarEnBloque(fecha) {
-  const params = fecha ? [fecha] : [];
-  const filtroFecha = fecha ? 'AND e.fecha = $1' : '';
-  const resultado = await pool.query(`
-    UPDATE designaciones d SET estado = 'designado', fecha_publicacion = NULL
-    FROM encuentros e
-    WHERE d.encuentro_id = e.id AND d.estado = 'publicada' ${filtroFecha}
-    RETURNING d.id, d.encuentro_id
-  `, params);
-  return resultado.rows;
-}
-
-async function marcarEncuentrosDesignados(encuentroIds) {
-  await pool.query(`UPDATE encuentros SET estado = 'designado' WHERE id = ANY($1)`, [encuentroIds]);
-}
-
 module.exports = {
   obtenerEncuentroPorId,
   obtenerDisponibilidad,
@@ -187,8 +155,4 @@ module.exports = {
   eliminar,
   contarRestantesEnEncuentro,
   volverEncuentroProgramado,
-  publicarEnBloque,
-  marcarEncuentrosPublicados,
-  despublicarEnBloque,
-  marcarEncuentrosDesignados,
 };

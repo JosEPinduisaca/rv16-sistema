@@ -57,10 +57,10 @@
   },
   "modal": {
     "editarTitulo": "Editar encuentro",
-    "cancha": "Cancha"
+    "cancha": "Campeonato"
   },
   "validacion": {
-    "canchaInvalida": "Ingresa un nombre de cancha válido"
+    "canchaInvalida": "Ingresa un nombre de campeonato válido"
   },
   "eliminar": {
     "titulo": "¿Eliminar este encuentro?",

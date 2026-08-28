@@ -57,10 +57,10 @@
   },
   "modal": {
     "editarTitulo": "Edit match",
-    "cancha": "Court"
+    "cancha": "Championship"
   },
   "validacion": {
-    "canchaInvalida": "Enter a valid court name"
+    "canchaInvalida": "Enter a valid championship name"
   },
   "eliminar": {
     "titulo": "Delete this match?",

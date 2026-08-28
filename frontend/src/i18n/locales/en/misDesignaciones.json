@@ -9,7 +9,7 @@
     "torneo": "Championship",
     "fecha": "Date",
     "hora": "Time",
-    "cancha": "Field",
+    "campeonato": "Championship",
     "rol": "Role",
     "estado": "Status"
   },

@@ -130,35 +130,9 @@ async function eliminarDesignacion(id) {
   return { mensaje: 'Designación eliminada correctamente' };
 }
 
-// body: { fecha } (opcional, si no viene aplica a todas). Publica en bloque
-// todas las designaciones que estén en "designado" — ya no se podrán editar
-// hasta que se despubliquen. Los árbitros siguen viendo sus designaciones
-// igual en "Mis designaciones", publicadas o no.
-async function publicarTodas(fecha) {
-  const filas = await repo.publicarEnBloque(fecha);
-  const encuentroIds = [...new Set(filas.map((r) => r.encuentro_id))];
-  if (encuentroIds.length > 0) {
-    await repo.marcarEncuentrosPublicados(encuentroIds);
-  }
-  return { actualizadas: filas.length };
-}
-
-// Revierte una publicación en bloque: vuelven a estado "designado" y se
-// pueden editar de nuevo. No se borran ni dejan de ser visibles para el árbitro.
-async function despublicarTodas(fecha) {
-  const filas = await repo.despublicarEnBloque(fecha);
-  const encuentroIds = [...new Set(filas.map((r) => r.encuentro_id))];
-  if (encuentroIds.length > 0) {
-    await repo.marcarEncuentrosDesignados(encuentroIds);
-  }
-  return { actualizadas: filas.length };
-}
-
 module.exports = {
   crearDesignacion,
   publicarDesignacion,
   listarPorArbitro,
   eliminarDesignacion,
-  publicarTodas,
-  despublicarTodas,
 };
