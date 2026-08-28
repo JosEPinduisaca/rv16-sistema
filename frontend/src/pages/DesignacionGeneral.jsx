@@ -62,6 +62,18 @@ export default function DesignacionGeneral() {
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Los árbitros no pueden refrescar manualmente ni recibir cambios en vivo
+  // de otra forma, así que para ellos se refresca solo (en silencio, sin
+  // bloquear la pantalla) cada 5 segundos.
+  useEffect(() => {
+    if (puedeGestionar) return;
+    const intervalo = setInterval(() => {
+      const url = fecha ? `/encuentros/general?fecha=${fecha}` : '/encuentros/general';
+      api.get(url, { silencioso: true }).then((res) => setEncuentros(res.data));
+    }, 5000);
+    return () => clearInterval(intervalo);
+  }, [puedeGestionar, fecha]);
+
   // Se ejecuta al entrar y también cada vez que cambian "?fecha=" o "?arbitro="
   // en la URL (por ejemplo al llegar desde "Ver designaciones de un árbitro"),
   // incluso si el componente ya estaba montado en esta misma ruta.
@@ -109,7 +121,10 @@ export default function DesignacionGeneral() {
     }
   }
 
-  const grupos = encuentros.reduce((acc, e) => {
+  // Los árbitros solo ven los encuentros ya publicados; admin/directivo ven todo.
+  const encuentrosVisibles = puedeGestionar ? encuentros : encuentros.filter((e) => e.estado === 'publicado');
+
+  const grupos = encuentrosVisibles.reduce((acc, e) => {
     const clave = e.campeonato_nombre;
     if (!acc[clave]) acc[clave] = [];
     acc[clave].push(e);
@@ -175,7 +190,7 @@ export default function DesignacionGeneral() {
                   </div>
                 )}
               </div>
-              <TarjetaEstado estado={p.estado} />
+              {puedeGestionar && <TarjetaEstado estado={p.estado} />}
               {permitirAcciones && puedeGestionar && sinDesignar && (
                 <Link
                   to={`/designaciones?encuentro=${p.id}`}
@@ -206,10 +221,12 @@ export default function DesignacionGeneral() {
             {abierto ? <IconChevronDown size={16} /> : <IconChevronRight size={16} />}
             {torneo}
           </span>
-          <span className="text-[11px] opacity-90 whitespace-nowrap ml-2">
-            {t('panel.partidos', { count: grupos[torneo].length })}
-            {sinDesignarCount > 0 && <> · {t('panel.sinDesignarSufijo', { count: sinDesignarCount })}</>}
-          </span>
+          {puedeGestionar && (
+            <span className="text-[11px] opacity-90 whitespace-nowrap ml-2">
+              {t('panel.partidos', { count: grupos[torneo].length })}
+              {sinDesignarCount > 0 && <> · {t('panel.sinDesignarSufijo', { count: sinDesignarCount })}</>}
+            </span>
+          )}
         </button>
 
         {abierto && <FilasDelTorneo torneo={torneo} permitirAcciones />}
@@ -282,7 +299,7 @@ export default function DesignacionGeneral() {
               {nombresGrupos.every((tor) => expandidos[tor]) ? t('acciones.colapsarTodos') : t('acciones.expandirTodos')}
             </button>
           )}
-          {nombresGrupos.length > 0 && (
+          {nombresGrupos.length > 0 && usuario?.rol === 'administrador' && (
             <button
               onClick={exportarPdf}
               className="inline-flex items-center gap-1.5 bg-navy-900 hover:bg-navy-800 text-white px-3 py-1.5 rounded text-sm font-medium transition mb-0.5"
