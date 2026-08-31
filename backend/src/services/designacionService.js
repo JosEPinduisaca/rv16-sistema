@@ -1,5 +1,8 @@
+const pool = require('../config/db');
 const repo = require('../repositories/designacionRepository');
+const tarifaRepo = require('../repositories/tarifaRepository');
 const AppError = require('../utils/AppError');
+const { ejecutarEnTransaccion } = require('../utils/transaccion');
 
 const DURACION_PARTIDO_HORAS = 2; // ventana usada para detectar cruce de horario
 
@@ -75,16 +78,19 @@ async function crearDesignacion({
 
   // 6. Verificar que exista tarifa configurada para ese campeonato/categoria/rol
   //    (la intensidad NO afecta el pago, solo se usa para recomendar candidatos)
-  const tarifa = await repo.buscarTarifaVigente(encuentro.campeonato_id, encuentro.categoria, rolDesignacion);
+  const tarifa = await tarifaRepo.buscarVigente(pool, encuentro.campeonato_id, encuentro.categoria, rolDesignacion);
   if (!tarifa) {
     throw new AppError(409, 'No existe una tarifa configurada para esta combinación de campeonato, categoría y rol');
   }
 
-  // 7. Insertar la designacion
-  const nuevaDesignacion = await repo.insertar(encuentroId, arbitroId, rolDesignacion);
-
-  // Actualiza el estado del encuentro a "designado"
-  await repo.marcarEncuentroDesignado(encuentroId);
+  // 7. Insertar la designacion y marcar el encuentro como "designado" en una
+  //    sola transacción: si el segundo paso falla, no debe quedar una
+  //    designación insertada con el encuentro aún en "programado".
+  const nuevaDesignacion = await ejecutarEnTransaccion(async (client) => {
+    const creada = await repo.insertar(client, encuentroId, arbitroId, rolDesignacion);
+    await repo.marcarEncuentroDesignado(client, encuentroId);
+    return creada;
+  });
 
   return {
     designacion: nuevaDesignacion,
@@ -93,12 +99,14 @@ async function crearDesignacion({
 }
 
 async function publicarDesignacion(id) {
-  const actualizada = await repo.publicar(id);
-  if (!actualizada) {
-    throw new AppError(404, 'Designación no encontrada');
-  }
-  await repo.publicarEncuentroDe(id);
-  return actualizada;
+  return ejecutarEnTransaccion(async (client) => {
+    const actualizada = await repo.publicar(client, id);
+    if (!actualizada) {
+      throw new AppError(404, 'Designación no encontrada');
+    }
+    await repo.publicarEncuentroDe(client, id);
+    return actualizada;
+  });
 }
 
 async function listarPorArbitro(arbitroId) {
@@ -120,12 +128,16 @@ async function eliminarDesignacion(id) {
     throw new AppError(404, 'Designación no encontrada');
   }
 
-  await repo.eliminar(id);
-
-  const restantes = await repo.contarRestantesEnEncuentro(designacion.encuentro_id);
-  if (restantes === 0) {
-    await repo.volverEncuentroProgramado(designacion.encuentro_id);
-  }
+  // Eliminar y, si el encuentro se queda sin designaciones, reabrirlo: las
+  // tres consultas deben quedar como una sola unidad (si la reapertura
+  // fallara, la designación no debe quedar borrada de todas formas).
+  await ejecutarEnTransaccion(async (client) => {
+    await repo.eliminar(client, id);
+    const restantes = await repo.contarRestantesEnEncuentro(client, designacion.encuentro_id);
+    if (restantes === 0) {
+      await repo.volverEncuentroProgramado(client, designacion.encuentro_id);
+    }
+  });
 
   return { mensaje: 'Designación eliminada correctamente' };
 }

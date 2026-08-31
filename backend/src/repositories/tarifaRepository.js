@@ -48,4 +48,16 @@ async function eliminar(id) {
   return resultado.rows[0] || null;
 }
 
-module.exports = { listarCategoriasVigentes, buscarCentralVigente, upsert, listar, actualizar, eliminar };
+// Compartida por designacionService (al validar/estimar el pago de una
+// designación) y liquidacionService (al calcular el monto de cada detalle).
+// Recibe `db` (pool o un client de transacción) para poder usarse en ambos casos.
+async function buscarVigente(db, campeonatoId, categoria, rolArbitro) {
+  const resultado = await db.query(
+    `SELECT monto FROM tarifas
+     WHERE campeonato_id = $1 AND categoria = $2 AND rol_arbitro = $3 AND vigente = TRUE`,
+    [campeonatoId, categoria, rolArbitro]
+  );
+  return resultado.rows[0] || null;
+}
+
+module.exports = { listarCategoriasVigentes, buscarCentralVigente, upsert, listar, actualizar, eliminar, buscarVigente };

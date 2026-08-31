@@ -17,14 +17,6 @@ async function buscarDesignacionesPendientes(db, arbitroId, fechaInicio, fechaFi
   return resultado.rows;
 }
 
-async function buscarTarifaVigente(db, campeonatoId, categoria, rolArbitro) {
-  const resultado = await db.query(`
-    SELECT monto FROM tarifas
-    WHERE campeonato_id = $1 AND categoria = $2 AND rol_arbitro = $3 AND vigente = TRUE
-  `, [campeonatoId, categoria, rolArbitro]);
-  return resultado.rows[0] || null;
-}
-
 async function buscarNombreCampeonato(campeonatoId) {
   const resultado = await pool.query('SELECT nombre FROM campeonatos WHERE id = $1', [campeonatoId]);
   return resultado.rows[0]?.nombre || null;
@@ -134,16 +126,16 @@ async function obtenerRespuestaArbitro(id) {
   return resultado.rows[0] || null;
 }
 
-async function marcarComoPagada(id) {
-  const resultado = await pool.query(
+async function marcarComoPagada(db, id) {
+  const resultado = await db.query(
     `UPDATE liquidaciones SET estado = 'pagada', fecha_pago = NOW() WHERE id = $1 RETURNING *`,
     [id]
   );
   return resultado.rows[0] || null;
 }
 
-async function eliminarMensajes(liquidacionId) {
-  await pool.query('DELETE FROM liquidacion_mensajes WHERE liquidacion_id = $1', [liquidacionId]);
+async function eliminarMensajes(db, liquidacionId) {
+  await db.query('DELETE FROM liquidacion_mensajes WHERE liquidacion_id = $1', [liquidacionId]);
 }
 
 // Verifica que el usuario dueño de `usuarioId` sea el árbitro de la liquidación `id`.
@@ -157,8 +149,8 @@ async function buscarPropiedad(id, usuarioId) {
   return resultado.rows.length > 0;
 }
 
-async function actualizarRespuestaArbitro(id, respuesta, nota) {
-  const resultado = await pool.query(
+async function actualizarRespuestaArbitro(db, id, respuesta, nota) {
+  const resultado = await db.query(
     `UPDATE liquidaciones
      SET respuesta_arbitro = $1, nota_arbitro = $2, fecha_respuesta_arbitro = NOW(),
          respuesta_admin = NULL, fecha_respuesta_admin = NULL
@@ -178,7 +170,6 @@ async function actualizarRespuestaAdmin(id, respuestaAdmin) {
 
 module.exports = {
   buscarDesignacionesPendientes,
-  buscarTarifaVigente,
   buscarNombreCampeonato,
   buscarAdelantosPendientes,
   crearLiquidacion,

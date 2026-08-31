@@ -1,6 +1,8 @@
 const pool = require('../config/db');
 const repo = require('../repositories/arbitroRepository');
+const designacionRepo = require('../repositories/designacionRepository');
 const AppError = require('../utils/AppError');
+const { ejecutarEnTransaccion } = require('../utils/transaccion');
 const {
   validarCedulaEcuatoriana,
   validarEmail,
@@ -137,9 +139,11 @@ async function actualizarArbitro(id, datos) {
     throw new AppError(404, 'Árbitro no encontrado');
   }
 
+  const emailNormalizado = email.trim().toLowerCase();
+
   const [existeCedula, existeEmail] = await Promise.all([
     repo.buscarDuplicadoCedula(cedula, usuarioId),
-    repo.buscarDuplicadoEmail(email, usuarioId),
+    repo.buscarDuplicadoEmail(emailNormalizado, usuarioId),
   ]);
 
   const erroresDuplicado = [];
@@ -157,7 +161,7 @@ async function actualizarArbitro(id, datos) {
     cedula,
     nombres: nombres.trim(),
     apellidos: apellidos.trim(),
-    email: email.trim().toLowerCase(),
+    email: emailNormalizado,
     telefono: telefono || null,
   });
 }
@@ -201,13 +205,11 @@ async function eliminarArbitro(id, forzar) {
   }
 
   // Borrado FORZADO: elimina también todo el historial vinculado, en una transacción.
-  const client = await pool.connect();
-  try {
-    await client.query('BEGIN');
+  const encuentroIds = designaciones.map((d) => d.encuentro_id);
 
-    const encuentroIds = designaciones.map((d) => d.encuentro_id);
-
+  await ejecutarEnTransaccion(async (client) => {
     await repo.eliminarDetalleLiquidacionDeArbitro(client, id);
+    await repo.eliminarMensajesDeLiquidacionesDeArbitro(client, id);
     await repo.eliminarAdelantosDeArbitro(client, id);
     await repo.eliminarLiquidacionesDeArbitro(client, id);
     await repo.eliminarDesignacionesDeArbitro(client, id);
@@ -215,23 +217,17 @@ async function eliminarArbitro(id, forzar) {
 
     // Los encuentros que se quedaron sin ninguna designación regresan a "programado"
     for (const encuentroId of encuentroIds) {
-      const restantes = await repo.contarDesignacionesDeEncuentro(client, encuentroId);
+      const restantes = await designacionRepo.contarRestantesEnEncuentro(client, encuentroId);
       if (restantes === 0) {
-        await repo.reprogramarEncuentro(client, encuentroId);
+        await designacionRepo.volverEncuentroProgramado(client, encuentroId);
       }
     }
 
     // Borra el usuario (arrastra la fila de arbitros en cascada)
     await repo.eliminarUsuario(client, usuarioId);
+  });
 
-    await client.query('COMMIT');
-    return { mensaje: 'Árbitro y todo su historial fueron eliminados por completo' };
-  } catch (error) {
-    await client.query('ROLLBACK');
-    throw error;
-  } finally {
-    client.release();
-  }
+  return { mensaje: 'Árbitro y todo su historial fueron eliminados por completo' };
 }
 
 module.exports = {

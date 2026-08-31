@@ -288,7 +288,7 @@ export default function Designaciones() {
                           <span className="w-3.5 shrink-0" />
                         )}
                         <span className="flex-1 min-w-0 truncate text-navy-900">{c.nombres} {c.apellidos}</span>
-                        <span className="text-xs text-gray-400 capitalize shrink-0">{c.nivel?.replace('_', ' ')}</span>
+                        <span className="hidden sm:inline text-xs text-gray-400 capitalize shrink-0">{c.nivel?.replace('_', ' ')}</span>
                         {!c.disponible && <TarjetaEstado estado="cancelado">{t('badges.noDisponible')}</TarjetaEstado>}
                         {c.penalizacion_activa && <TarjetaEstado estado="cancelado">{t('badges.penalizacion')}</TarjetaEstado>}
                       </label>

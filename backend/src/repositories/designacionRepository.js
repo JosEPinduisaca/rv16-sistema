@@ -56,17 +56,8 @@ async function contarOcupadosRol(encuentroId, rolDesignacion) {
   return resultado.rows.length;
 }
 
-async function buscarTarifaVigente(campeonatoId, categoria, rolArbitro) {
-  const resultado = await pool.query(
-    `SELECT monto FROM tarifas
-     WHERE campeonato_id = $1 AND categoria = $2 AND rol_arbitro = $3 AND vigente = TRUE`,
-    [campeonatoId, categoria, rolArbitro]
-  );
-  return resultado.rows[0] || null;
-}
-
-async function insertar(encuentroId, arbitroId, rolDesignacion) {
-  const resultado = await pool.query(
+async function insertar(db, encuentroId, arbitroId, rolDesignacion) {
+  const resultado = await db.query(
     `INSERT INTO designaciones (encuentro_id, arbitro_id, rol_designacion, estado)
      VALUES ($1, $2, $3, 'confirmada') RETURNING *`,
     [encuentroId, arbitroId, rolDesignacion]
@@ -74,15 +65,15 @@ async function insertar(encuentroId, arbitroId, rolDesignacion) {
   return resultado.rows[0];
 }
 
-async function marcarEncuentroDesignado(encuentroId) {
-  await pool.query(
+async function marcarEncuentroDesignado(db, encuentroId) {
+  await db.query(
     `UPDATE encuentros SET estado = 'designado' WHERE id = $1 AND estado = 'programado'`,
     [encuentroId]
   );
 }
 
-async function publicar(id) {
-  const resultado = await pool.query(
+async function publicar(db, id) {
+  const resultado = await db.query(
     `UPDATE designaciones SET estado = 'publicada', fecha_publicacion = NOW()
      WHERE id = $1 RETURNING *`,
     [id]
@@ -90,8 +81,8 @@ async function publicar(id) {
   return resultado.rows[0] || null;
 }
 
-async function publicarEncuentroDe(designacionId) {
-  await pool.query(
+async function publicarEncuentroDe(db, designacionId) {
+  await db.query(
     `UPDATE encuentros SET estado = 'publicado'
      WHERE id = (SELECT encuentro_id FROM designaciones WHERE id = $1)`,
     [designacionId]
@@ -124,17 +115,17 @@ async function obtenerPorId(id) {
   return resultado.rows[0] || null;
 }
 
-async function eliminar(id) {
-  await pool.query('DELETE FROM designaciones WHERE id = $1', [id]);
+async function eliminar(db, id) {
+  await db.query('DELETE FROM designaciones WHERE id = $1', [id]);
 }
 
-async function contarRestantesEnEncuentro(encuentroId) {
-  const resultado = await pool.query('SELECT id FROM designaciones WHERE encuentro_id = $1', [encuentroId]);
+async function contarRestantesEnEncuentro(db, encuentroId) {
+  const resultado = await db.query('SELECT id FROM designaciones WHERE encuentro_id = $1', [encuentroId]);
   return resultado.rows.length;
 }
 
-async function volverEncuentroProgramado(encuentroId) {
-  await pool.query(`UPDATE encuentros SET estado = 'programado' WHERE id = $1`, [encuentroId]);
+async function volverEncuentroProgramado(db, encuentroId) {
+  await db.query(`UPDATE encuentros SET estado = 'programado' WHERE id = $1`, [encuentroId]);
 }
 
 module.exports = {
@@ -144,7 +135,6 @@ module.exports = {
   buscarCruceHorario,
   buscarDesignacionExacta,
   contarOcupadosRol,
-  buscarTarifaVigente,
   insertar,
   marcarEncuentroDesignado,
   publicar,

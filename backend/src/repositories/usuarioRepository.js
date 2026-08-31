@@ -24,11 +24,21 @@ async function crearPerfilArbitro(usuarioId) {
   await pool.query('INSERT INTO arbitros (usuario_id) VALUES ($1)', [usuarioId]);
 }
 
-// Usado tanto por login (necesita password_hash, bloqueado, intentos_fallidos)
-// como por olvidePassword (solo necesita id/nombres/email): misma condición
-// WHERE, se selecciona la fila completa y cada servicio toma lo que necesita.
+// Usado por login: necesita password_hash, bloqueado e intentos_fallidos
+// para decidir si la contraseña es correcta y si hay que bloquear la cuenta.
 async function buscarPorEmailActivo(email) {
   const resultado = await pool.query('SELECT * FROM usuarios WHERE email = $1 AND activo = TRUE', [email]);
+  return resultado.rows[0] || null;
+}
+
+// Usado por olvidePassword: solo necesita id/nombres/email para generar el
+// enlace de recuperación, así que no trae password_hash ni otras columnas
+// sensibles en un endpoint público que cualquiera puede llamar.
+async function buscarBasicoPorEmailActivo(email) {
+  const resultado = await pool.query(
+    'SELECT id, nombres, email FROM usuarios WHERE email = $1 AND activo = TRUE',
+    [email]
+  );
   return resultado.rows[0] || null;
 }
 
@@ -99,6 +109,7 @@ module.exports = {
   crearUsuario,
   crearPerfilArbitro,
   buscarPorEmailActivo,
+  buscarBasicoPorEmailActivo,
   actualizarIntentosFallidos,
   limpiarIntentosFallidos,
   guardarTokenRecuperacion,

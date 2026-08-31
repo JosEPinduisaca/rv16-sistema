@@ -146,7 +146,7 @@ export default function LiquidacionDetalle() {
         ← {esAdmin ? t('volver.liquidaciones') : t('volver.regresar')}
       </Link>
 
-      <div className="flex items-start justify-between mb-6">
+      <div className="flex items-start justify-between flex-wrap gap-2 mb-6">
         <div>
           <h1 className="font-display text-2xl font-semibold text-navy-900 capitalize">
             {t('titulo.liquidacionPeriodo', { periodo: liquidacion.periodo })}

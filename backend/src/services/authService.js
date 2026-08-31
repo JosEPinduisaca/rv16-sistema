@@ -159,7 +159,7 @@ async function olvidePassword({ email }) {
     throw new AppError(400, 'Ingresa un correo válido');
   }
 
-  const usuario = await repo.buscarPorEmailActivo(email.trim().toLowerCase());
+  const usuario = await repo.buscarBasicoPorEmailActivo(email.trim().toLowerCase());
 
   if (!usuario) {
     return mensajeGenerico;

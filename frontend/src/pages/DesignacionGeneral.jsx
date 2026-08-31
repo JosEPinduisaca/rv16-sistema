@@ -174,7 +174,7 @@ export default function DesignacionGeneral() {
               <span className="tabular-nums font-semibold text-navy-900 whitespace-nowrap pt-0.5">
                 {p.hora?.slice(0, 5)}
               </span>
-              <span className="text-gray-500 whitespace-nowrap pt-0.5">{nombreCancha(p.cancha)}</span>
+              <span className="text-gray-500 truncate max-w-[90px] sm:max-w-[160px] pt-0.5">{nombreCancha(p.cancha)}</span>
               <div className="flex-1 min-w-0">
                 {p.designados.length === 0 ? (
                   <span className="text-gray-300 italic">{t('panel.sinDesignarLabel')}</span>
@@ -230,9 +230,9 @@ export default function DesignacionGeneral() {
           onClick={() => alternarExpandido(torneo)}
           className={`${colorClase} text-white w-full px-3 py-2.5 flex items-center justify-between text-left`}
         >
-          <span className="font-display text-sm font-semibold tracking-wide truncate flex items-center gap-2">
-            {abierto ? <IconChevronDown size={16} /> : <IconChevronRight size={16} />}
-            {torneo}
+          <span className="font-display text-sm font-semibold tracking-wide flex items-center gap-2 min-w-0">
+            {abierto ? <IconChevronDown size={16} className="shrink-0" /> : <IconChevronRight size={16} className="shrink-0" />}
+            <span className="truncate">{torneo}</span>
           </span>
           {puedeGestionar && (
             <span className="text-[11px] opacity-90 whitespace-nowrap ml-2">

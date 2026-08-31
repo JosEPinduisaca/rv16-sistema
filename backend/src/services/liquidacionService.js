@@ -1,6 +1,16 @@
-const pool = require('../config/db');
 const repo = require('../repositories/liquidacionRepository');
+const tarifaRepo = require('../repositories/tarifaRepository');
 const AppError = require('../utils/AppError');
+const { ejecutarEnTransaccion } = require('../utils/transaccion');
+
+// Señal interna para las salidas "de negocio" dentro de la transacción de
+// generarParaUnArbitro (sin partidos pendientes, falta una tarifa...): se
+// distingue así de un error real e inesperado (ver el catch más abajo).
+class ResultadoNegocio {
+  constructor(motivo) {
+    this.motivo = motivo;
+  }
+}
 
 function validarRango(periodo, fechaInicio, fechaFin) {
   if (!['quincenal', 'mensual'].includes(periodo)) {
@@ -19,68 +29,77 @@ function validarRango(periodo, fechaInicio, fechaFin) {
 // Genera la liquidación de UN árbitro para un rango dado. Reutilizable tanto
 // para generar una sola (un árbitro) como para generar en lote (todos).
 // Cada llamada usa su propia transacción, así una falla no afecta a las demás.
+//
+// Distingue dos tipos de "no se pudo generar":
+// - de negocio (sin partidos pendientes, falta una tarifa): se lanza como
+//   ResultadoNegocio, la transacción se revierte igual que cualquier error,
+//   pero acá se atrapa aparte para devolverla como resultado normal.
+// - inesperada (falla de conexión, violación de una constraint, etc.): se
+//   deja distinguible con `esErrorInesperado` para que generarLiquidacion
+//   la reporte como un 500 real y no como un 409 de negocio.
 async function generarParaUnArbitro(arbitroId, periodo, fechaInicio, fechaFin) {
-  const client = await pool.connect();
   try {
-    await client.query('BEGIN');
+    const resultado = await ejecutarEnTransaccion(async (client) => {
+      const designaciones = await repo.buscarDesignacionesPendientes(client, arbitroId, fechaInicio, fechaFin);
 
-    const designaciones = await repo.buscarDesignacionesPendientes(client, arbitroId, fechaInicio, fechaFin);
-
-    if (designaciones.length === 0) {
-      await client.query('ROLLBACK');
-      return { ok: false, motivo: 'sin_partidos' };
-    }
-
-    let montoBruto = 0;
-    const detalles = [];
-
-    for (const d of designaciones) {
-      const tarifa = await repo.buscarTarifaVigente(client, d.campeonato_id, d.categoria, d.rol_designacion);
-
-      if (!tarifa) {
-        await client.query('ROLLBACK');
-        const nombreCampeonato = await repo.buscarNombreCampeonato(d.campeonato_id);
-        return {
-          ok: false,
-          motivo: `Falta tarifa de "${d.rol_designacion}" / "${d.categoria}" en "${nombreCampeonato || d.campeonato_id}"`,
-        };
+      if (designaciones.length === 0) {
+        throw new ResultadoNegocio('sin_partidos');
       }
 
-      const total = Number(tarifa.monto);
-      montoBruto += total;
-      detalles.push({ designacionId: d.designacion_id, monto: total });
-    }
+      let montoBruto = 0;
+      const detalles = [];
+      const tarifasVistas = new Map(); // cache por "campeonato/categoria/rol" dentro de esta liquidación
 
-    const adelantos = await repo.buscarAdelantosPendientes(client, arbitroId);
-    const totalAdelantos = adelantos.reduce((acc, a) => acc + Number(a.monto), 0);
-    const montoNeto = montoBruto - totalAdelantos;
+      for (const d of designaciones) {
+        const claveTarifa = `${d.campeonato_id}|${d.categoria}|${d.rol_designacion}`;
+        let tarifa = tarifasVistas.get(claveTarifa);
+        if (tarifa === undefined) {
+          tarifa = await tarifaRepo.buscarVigente(client, d.campeonato_id, d.categoria, d.rol_designacion);
+          tarifasVistas.set(claveTarifa, tarifa);
+        }
 
-    const liquidacion = await repo.crearLiquidacion(client, {
-      arbitroId, periodo, fechaInicio, fechaFin, montoBruto, totalAdelantos, montoNeto,
+        if (!tarifa) {
+          const nombreCampeonato = await repo.buscarNombreCampeonato(d.campeonato_id);
+          throw new ResultadoNegocio(
+            `Falta tarifa de "${d.rol_designacion}" / "${d.categoria}" en "${nombreCampeonato || d.campeonato_id}"`
+          );
+        }
+
+        const total = Number(tarifa.monto);
+        montoBruto += total;
+        detalles.push({ designacionId: d.designacion_id, monto: total });
+      }
+
+      const adelantos = await repo.buscarAdelantosPendientes(client, arbitroId);
+      const totalAdelantos = adelantos.reduce((acc, a) => acc + Number(a.monto), 0);
+      const montoNeto = montoBruto - totalAdelantos;
+
+      const liquidacion = await repo.crearLiquidacion(client, {
+        arbitroId, periodo, fechaInicio, fechaFin, montoBruto, totalAdelantos, montoNeto,
+      });
+
+      for (const detalle of detalles) {
+        await repo.crearDetalleLiquidacion(client, liquidacion.id, detalle.designacionId, detalle.monto);
+      }
+
+      for (const adelanto of adelantos) {
+        await repo.marcarAdelantoDescontado(client, adelanto.id, liquidacion.id);
+      }
+
+      return {
+        liquidacion,
+        partidos_incluidos: detalles.length,
+        adelantos_descontados: adelantos.length,
+      };
     });
 
-    for (const detalle of detalles) {
-      await repo.crearDetalleLiquidacion(client, liquidacion.id, detalle.designacionId, detalle.monto);
-    }
-
-    for (const adelanto of adelantos) {
-      await repo.marcarAdelantoDescontado(client, adelanto.id, liquidacion.id);
-    }
-
-    await client.query('COMMIT');
-
-    return {
-      ok: true,
-      liquidacion,
-      partidos_incluidos: detalles.length,
-      adelantos_descontados: adelantos.length,
-    };
+    return { ok: true, ...resultado };
   } catch (error) {
-    await client.query('ROLLBACK');
+    if (error instanceof ResultadoNegocio) {
+      return { ok: false, esErrorInesperado: false, motivo: error.motivo };
+    }
     console.error(error);
-    return { ok: false, motivo: 'Error inesperado al generar' };
-  } finally {
-    client.release();
+    return { ok: false, esErrorInesperado: true, motivo: 'Error inesperado al generar' };
   }
 }
 
@@ -96,6 +115,13 @@ async function generarLiquidacion({ arbitro_id: arbitroId, periodo, fecha_inicio
 
   const resultado = await generarParaUnArbitro(arbitroId, periodo, fechaInicio, fechaFin);
   if (!resultado.ok) {
+    if (resultado.esErrorInesperado) {
+      // Ya se logueó el error real dentro de generarParaUnArbitro; acá se
+      // deja escapar uno genérico para que manejarError lo trate como 500
+      // (no como un 409 de negocio, que induciría a pensar que fue algo
+      // esperado como "sin partidos" o "falta tarifa").
+      throw new Error('Error inesperado al generar la liquidación');
+    }
     const mensaje = resultado.motivo === 'sin_partidos'
       ? 'No hay designaciones pendientes de liquidar en ese rango de fechas'
       : resultado.motivo;
@@ -172,10 +198,14 @@ async function marcarComoPagada(id) {
     throw new AppError(409, 'El árbitro debe confirmar que está de acuerdo antes de marcar la liquidación como pagada');
   }
 
-  const actualizada = await repo.marcarComoPagada(id);
-  // Una vez pagada, la conversación ya cumplió su propósito.
-  await repo.eliminarMensajes(id);
-  return actualizada;
+  // Marcar como pagada y borrar la conversación son un solo paso: si el
+  // segundo fallara, no debe quedar la liquidación pagada con mensajes
+  // de una disputa que ya no tiene sentido conservar a medias.
+  return ejecutarEnTransaccion(async (client) => {
+    const actualizada = await repo.marcarComoPagada(client, id);
+    await repo.eliminarMensajes(client, id);
+    return actualizada;
+  });
 }
 
 // El árbitro dueño de la liquidación confirma que está todo correcto, o marca
@@ -191,15 +221,18 @@ async function responderLiquidacion(id, usuarioId, respuesta, nota) {
   }
 
   const notaFinal = respuesta === 'rechazada' ? (nota || '').trim() || null : null;
-  const actualizada = await repo.actualizarRespuestaArbitro(id, respuesta, notaFinal);
 
-  // Si el árbitro confirma que todo está correcto, ya no hace falta conservar
-  // la conversación anterior (si la había).
-  if (respuesta === 'aceptada') {
-    await repo.eliminarMensajes(id);
-  }
+  return ejecutarEnTransaccion(async (client) => {
+    const actualizada = await repo.actualizarRespuestaArbitro(client, id, respuesta, notaFinal);
 
-  return actualizada;
+    // Si el árbitro confirma que todo está correcto, ya no hace falta conservar
+    // la conversación anterior (si la había).
+    if (respuesta === 'aceptada') {
+      await repo.eliminarMensajes(client, id);
+    }
+
+    return actualizada;
+  });
 }
 
 // El administrador contesta la nota de desacuerdo del árbitro.

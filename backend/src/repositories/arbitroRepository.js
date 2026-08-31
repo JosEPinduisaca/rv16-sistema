@@ -189,6 +189,13 @@ async function eliminarDetalleLiquidacionDeArbitro(client, arbitroId) {
   );
 }
 
+async function eliminarMensajesDeLiquidacionesDeArbitro(client, arbitroId) {
+  await client.query(
+    `DELETE FROM liquidacion_mensajes WHERE liquidacion_id IN (SELECT id FROM liquidaciones WHERE arbitro_id = $1)`,
+    [arbitroId]
+  );
+}
+
 async function eliminarAdelantosDeArbitro(client, arbitroId) {
   await client.query('DELETE FROM adelantos WHERE arbitro_id = $1', [arbitroId]);
 }
@@ -203,15 +210,6 @@ async function eliminarDesignacionesDeArbitro(client, arbitroId) {
 
 async function eliminarDisponibilidadDeArbitro(client, arbitroId) {
   await client.query('DELETE FROM disponibilidad WHERE arbitro_id = $1', [arbitroId]);
-}
-
-async function contarDesignacionesDeEncuentro(client, encuentroId) {
-  const resultado = await client.query('SELECT id FROM designaciones WHERE encuentro_id = $1', [encuentroId]);
-  return resultado.rows.length;
-}
-
-async function reprogramarEncuentro(client, encuentroId) {
-  await client.query(`UPDATE encuentros SET estado = 'programado' WHERE id = $1`, [encuentroId]);
 }
 
 module.exports = {
@@ -235,10 +233,9 @@ module.exports = {
   buscarDisponibilidadDeArbitro,
   eliminarUsuario,
   eliminarDetalleLiquidacionDeArbitro,
+  eliminarMensajesDeLiquidacionesDeArbitro,
   eliminarAdelantosDeArbitro,
   eliminarLiquidacionesDeArbitro,
   eliminarDesignacionesDeArbitro,
   eliminarDisponibilidadDeArbitro,
-  contarDesignacionesDeEncuentro,
-  reprogramarEncuentro,
 };
