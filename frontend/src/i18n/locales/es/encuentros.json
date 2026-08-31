@@ -72,6 +72,7 @@
     "errorIngresar": "Error al ingresar el encuentro",
     "horaInvalida": "La hora no puede ser 00:00, elige una hora real del partido",
     "horaPasada": "Esa hora ya pasó hoy. Elige una hora futura",
+    "fechaFueraDeRango": "La fecha debe estar dentro de la duración del campeonato",
     "errorActualizar": "Error al actualizar el encuentro",
     "errorEliminar": "Error al eliminar el encuentro"
   }

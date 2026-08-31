@@ -22,6 +22,7 @@ function esPasado(fecha, hora) {
 
 export default function MisDesignaciones() {
   const { t } = useTranslation(['misDesignaciones', 'common']);
+  const [arbitroId, setArbitroId] = useState(null);
   const [designaciones, setDesignaciones] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [modo, setModo] = useState('proximas'); // 'proximas' | 'historial'
@@ -30,12 +31,24 @@ export default function MisDesignaciones() {
 
   useEffect(() => {
     api.get('/arbitros/me').then((res) => {
+      setArbitroId(res.data.id);
       api.get(`/designaciones/arbitro/${res.data.id}`).then((r) => {
         setDesignaciones(r.data);
         setCargando(false);
       });
     });
   }, []);
+
+  // El árbitro no tiene forma de enterarse en vivo cuando lo designan a un
+  // partido nuevo, así que esta lista se refresca sola (en silencio, sin
+  // bloquear pantalla) cada 5 segundos.
+  useEffect(() => {
+    if (!arbitroId) return;
+    const intervalo = setInterval(() => {
+      api.get(`/designaciones/arbitro/${arbitroId}`, { silencioso: true }).then((res) => setDesignaciones(res.data));
+    }, 5000);
+    return () => clearInterval(intervalo);
+  }, [arbitroId]);
 
   // Le asigna un color fijo a cada torneo (el mismo cada vez que aparece)
   const torneosUnicos = [...new Set(designaciones.map((d) => d.campeonato_nombre))];

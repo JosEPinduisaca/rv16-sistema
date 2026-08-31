@@ -127,6 +127,20 @@ export default function Encuentros() {
     return campeonatos.find((c) => String(c.id) === String(id))?.nombre || '';
   }
 
+  function campeonatoPorId(id) {
+    return campeonatos.find((c) => String(c.id) === String(id)) || null;
+  }
+
+  // Rango de fechas permitido para un encuentro nuevo: no antes de hoy ni
+  // antes de que arranque el campeonato, y no después de que termine.
+  function rangoFechaIngresar(campeonatoId) {
+    const campeonato = campeonatoPorId(campeonatoId);
+    const inicioCampeonato = campeonato?.fecha_inicio?.slice(0, 10);
+    const finCampeonato = campeonato?.fecha_fin?.slice(0, 10);
+    const min = inicioCampeonato && inicioCampeonato > hoyISO() ? inicioCampeonato : hoyISO();
+    return { min, max: finCampeonato || undefined };
+  }
+
   function abrirIngresar() {
     setForm(FORM_VACIO);
     setErroresForm({});
@@ -157,8 +171,22 @@ export default function Encuentros() {
     return null;
   }
 
+  // La fecha del encuentro debe caer dentro de la duración del campeonato
+  // elegido (y no antes de hoy).
+  function validarFechaIngresar(campeonatoId, fecha) {
+    if (!fecha) return null;
+    const { min, max } = rangoFechaIngresar(campeonatoId);
+    if (min && fecha < min) return t('mensajes.fechaFueraDeRango');
+    if (max && fecha > max) return t('mensajes.fechaFueraDeRango');
+    return null;
+  }
+
   function alPerderFocoHora() {
     setErroresForm((prev) => ({ ...prev, hora: validarHora(form.fecha, form.hora) }));
+  }
+
+  function alPerderFocoFecha() {
+    setErroresForm((prev) => ({ ...prev, fecha: validarFechaIngresar(form.campeonato_id, form.fecha) }));
   }
 
   function alPerderFocoEditar(campo) {
@@ -175,6 +203,12 @@ export default function Encuentros() {
     e.preventDefault();
     setError(null);
     setMensaje(null);
+
+    const errorFecha = validarFechaIngresar(form.campeonato_id, form.fecha);
+    if (errorFecha) {
+      setError(errorFecha);
+      return;
+    }
 
     const errorHora = validarHora(form.fecha, form.hora);
     if (errorHora) {
@@ -583,11 +617,14 @@ export default function Encuentros() {
               <label className="block text-xs text-gray-600 mb-1">{t('form.fecha')}</label>
               <input
                 type="date" required
-                min={hoyISO()}
+                min={rangoFechaIngresar(form.campeonato_id).min}
+                max={rangoFechaIngresar(form.campeonato_id).max}
                 value={form.fecha}
                 onChange={(e) => setForm({ ...form, fecha: e.target.value })}
-                className="w-full border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-navy-600"
+                onBlur={alPerderFocoFecha}
+                className={`w-full border rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-navy-600 ${erroresForm.fecha ? 'border-card-red' : 'border-gray-300'}`}
               />
+              {erroresForm.fecha && <p className="text-[11px] text-card-red-dark mt-1">{erroresForm.fecha}</p>}
             </div>
             <div>
               <label className="block text-xs text-gray-600 mb-1">{t('form.hora')}</label>

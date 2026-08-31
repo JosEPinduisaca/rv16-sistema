@@ -60,6 +60,16 @@ export default function Adelantos() {
     cargarTodos();
   }, []);
 
+  // El admin no tiene forma de enterarse en vivo cuando un árbitro pide un
+  // adelanto nuevo, así que esta lista se refresca sola (en silencio, sin
+  // bloquear pantalla) cada 5 segundos.
+  useEffect(() => {
+    const intervalo = setInterval(() => {
+      api.get('/adelantos', { silencioso: true }).then((res) => setTodos(res.data));
+    }, 5000);
+    return () => clearInterval(intervalo);
+  }, []);
+
   function abrirRegistrar() {
     setArbitroSeleccionado('');
     setMonto('');
