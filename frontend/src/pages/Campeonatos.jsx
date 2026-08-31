@@ -180,7 +180,6 @@ export default function Campeonatos() {
       await api.put(`/campeonatos/${modalEditar.id}`, {
         nombre: modalEditar.nombre,
         liga: modalEditar.nombre,
-        fecha_inicio: modalEditar.fecha_inicio,
         fecha_fin: modalEditar.fecha_fin,
       });
       setModalEditar(null);
@@ -423,10 +422,10 @@ export default function Campeonatos() {
               <div>
                 <label className="block text-xs text-gray-600 mb-1">{t('campos.fechaInicio')}</label>
                 <input
-                  type="date" required
+                  type="date"
+                  disabled
                   value={modalEditar.fecha_inicio}
-                  onChange={(e) => setModalEditar({ ...modalEditar, fecha_inicio: e.target.value })}
-                  className="w-full border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-navy-600"
+                  className="w-full border border-gray-200 rounded px-3 py-1.5 text-sm bg-gray-100 text-gray-500 cursor-not-allowed"
                 />
               </div>
               <div>

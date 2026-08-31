@@ -71,6 +71,7 @@
     "ingresadosVarios": "{{creados}} encuentros ingresados (uno por cada cancha) en el mismo horario",
     "errorIngresar": "Error al ingresar el encuentro",
     "horaInvalida": "La hora no puede ser 00:00, elige una hora real del partido",
+    "horaPasada": "Esa hora ya pasó hoy. Elige una hora futura",
     "errorActualizar": "Error al actualizar el encuentro",
     "errorEliminar": "Error al eliminar el encuentro"
   }

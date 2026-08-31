@@ -71,6 +71,7 @@
     "ingresadosVarios": "{{creados}} matches added (one per court) at the same time",
     "errorIngresar": "Error adding the match",
     "horaInvalida": "The time can't be 00:00, choose the actual kickoff time",
+    "horaPasada": "That time has already passed today. Choose a future time",
     "errorActualizar": "Error updating the match",
     "errorEliminar": "Error deleting the match"
   }

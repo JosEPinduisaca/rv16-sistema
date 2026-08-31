@@ -14,11 +14,18 @@ async function listar() {
   return resultado.rows;
 }
 
-async function actualizar(id, { nombre, liga, fechaInicio, fechaFin }) {
+async function obtenerPorId(id) {
+  const resultado = await pool.query('SELECT * FROM campeonatos WHERE id = $1', [id]);
+  return resultado.rows[0] || null;
+}
+
+// La fecha de inicio no es editable una vez creado el campeonato (ver
+// campeonatoService.actualizarCampeonato), así que no se toca aquí.
+async function actualizar(id, { nombre, liga, fechaFin }) {
   const resultado = await pool.query(
-    `UPDATE campeonatos SET nombre = $1, liga = $2, fecha_inicio = $3, fecha_fin = $4
-     WHERE id = $5 RETURNING *`,
-    [nombre, liga, fechaInicio, fechaFin, id]
+    `UPDATE campeonatos SET nombre = $1, liga = $2, fecha_fin = $3
+     WHERE id = $4 RETURNING *`,
+    [nombre, liga, fechaFin, id]
   );
   return resultado.rows[0] || null;
 }
@@ -33,4 +40,4 @@ async function eliminar(id) {
   return resultado.rows[0] || null;
 }
 
-module.exports = { crear, listar, actualizar, tieneEncuentros, eliminar };
+module.exports = { crear, listar, obtenerPorId, actualizar, tieneEncuentros, eliminar };

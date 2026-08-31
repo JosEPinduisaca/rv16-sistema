@@ -17,6 +17,10 @@ const MODOS_ENCUENTRO = [
   { v: 'dos_centrales', l: 'modos.dosCentrales' },
 ];
 const hoyISO = () => new Date().toISOString().slice(0, 10);
+const horaActualHHMM = () => {
+  const ahora = new Date();
+  return `${String(ahora.getHours()).padStart(2, '0')}:${String(ahora.getMinutes()).padStart(2, '0')}`;
+};
 
 const FORM_VACIO = {
   campeonato_id: '', categoria: '', intensidad: INTENSIDADES[0], fecha: '', hora: '',
@@ -145,12 +149,22 @@ export default function Encuentros() {
     setTarifasCampeonato([]);
   }
 
+  // Si el encuentro es hoy, la hora tampoco puede ya haber pasado (la fecha
+  // en sí no puede ser pasada gracias al min={hoyISO()} del input nativo).
+  function validarHora(fecha, hora) {
+    if (hora === '00:00') return t('mensajes.horaInvalida');
+    if (fecha === hoyISO() && hora <= horaActualHHMM()) return t('mensajes.horaPasada');
+    return null;
+  }
+
   function alPerderFocoHora() {
-    setErroresForm((prev) => ({ ...prev, hora: form.hora === '00:00' ? t('mensajes.horaInvalida') : null }));
+    setErroresForm((prev) => ({ ...prev, hora: validarHora(form.fecha, form.hora) }));
   }
 
   function alPerderFocoEditar(campo) {
     if (campo === 'hora') {
+      // Aquí solo se valida "00:00": al editar (a diferencia de ingresar) se
+      // permite mantener o corregir un encuentro que ya es del pasado.
       setErroresEditar((prev) => ({ ...prev, hora: modalEditar.hora === '00:00' ? t('mensajes.horaInvalida') : null }));
     } else if (campo === 'cancha') {
       setErroresEditar((prev) => ({ ...prev, cancha: textoValido(modalEditar.cancha) ? null : t('validacion.canchaInvalida') }));
@@ -162,8 +176,9 @@ export default function Encuentros() {
     setError(null);
     setMensaje(null);
 
-    if (form.hora === '00:00') {
-      setError(t('mensajes.horaInvalida'));
+    const errorHora = validarHora(form.fecha, form.hora);
+    if (errorHora) {
+      setError(errorHora);
       return;
     }
 
@@ -578,6 +593,7 @@ export default function Encuentros() {
               <label className="block text-xs text-gray-600 mb-1">{t('form.hora')}</label>
               <input
                 type="time" required
+                min={form.fecha === hoyISO() ? horaActualHHMM() : undefined}
                 value={form.hora}
                 onChange={(e) => setForm({ ...form, hora: e.target.value })}
                 onBlur={alPerderFocoHora}

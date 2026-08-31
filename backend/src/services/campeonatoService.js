@@ -54,24 +54,30 @@ async function listarCampeonatos() {
   return repo.listar();
 }
 
-// No se valida "fecha no pasada" aquí: un campeonato ya existente puede
+// La fecha de inicio NO es editable: una vez creado el campeonato queda fija
+// (evita, por ejemplo, correr encuentros/liquidaciones ya generados fuera del
+// rango original). Solo nombre, liga y fecha de fin se pueden cambiar. Tampoco
+// se valida "fecha no pasada" aquí: un campeonato ya existente puede
 // legítimamente haber comenzado en el pasado.
-async function actualizarCampeonato(id, { nombre, liga, fecha_inicio, fecha_fin }) {
+async function actualizarCampeonato(id, { nombre, liga, fecha_fin }) {
   const errorNombreLiga = validarNombreYLiga(nombre, liga);
   if (errorNombreLiga) {
     throw new AppError(400, errorNombreLiga);
   }
-  const errorFechas = validarFechas(fecha_inicio, fecha_fin);
+
+  const actual = await repo.obtenerPorId(id);
+  if (!actual) {
+    throw new AppError(404, 'Campeonato no encontrado');
+  }
+
+  const errorFechas = validarFechas(actual.fecha_inicio, fecha_fin);
   if (errorFechas) {
     throw new AppError(400, errorFechas);
   }
 
   const actualizado = await repo.actualizar(id, {
-    nombre: nombre.trim(), liga: liga.trim(), fechaInicio: fecha_inicio, fechaFin: fecha_fin,
+    nombre: nombre.trim(), liga: liga.trim(), fechaFin: fecha_fin,
   });
-  if (!actualizado) {
-    throw new AppError(404, 'Campeonato no encontrado');
-  }
   return actualizado;
 }
 
