@@ -22,6 +22,10 @@ function formatearFechaLarga(fechaISO, idioma) {
     : `${parte('weekday')} ${parte('day')} de ${parte('month')}`;
 }
 
+function capitalizar(texto) {
+  return texto ? texto.charAt(0).toUpperCase() + texto.slice(1) : texto;
+}
+
 const PALETA = [
   'bg-accent-navy',
   'bg-pitch-green',
@@ -266,7 +270,13 @@ export default function DesignacionGeneral() {
       <div className="flex items-end justify-between mb-5 flex-wrap gap-3">
         <div>
           <h1 className="font-display text-2xl font-semibold text-navy-900">{t('titulo')}</h1>
-          <p className="text-sm text-gray-500 mt-1">{t('subtitulo')}</p>
+          {puedeGestionar && fecha ? (
+            <p className="font-display text-lg font-semibold text-navy-700 mt-1">
+              {capitalizar(formatearFechaLarga(fecha, i18n.resolvedLanguage))}
+            </p>
+          ) : (
+            <p className="text-sm text-gray-500 mt-1">{t('subtitulo')}</p>
+          )}
           {puedeGestionar && (
             <p className="text-xs text-gray-500 mt-1.5">
               <span className="inline-block w-3 h-3 rounded-sm bg-card-red/25 align-middle mr-1" />
