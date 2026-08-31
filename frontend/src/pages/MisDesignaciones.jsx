@@ -26,7 +26,7 @@ export default function MisDesignaciones() {
   const [cargando, setCargando] = useState(true);
   const [modo, setModo] = useState('proximas'); // 'proximas' | 'historial'
   const [fechaFiltro, setFechaFiltro] = useState('');
-  const [filtroDia, setFiltroDia] = useState(null); // null | 'hoy' | 'manana' (solo aplica en 'proximas')
+  const [filtroDia, setFiltroDia] = useState('hoy'); // 'hoy' | 'manana' (solo aplica en 'proximas')
 
   useEffect(() => {
     api.get('/arbitros/me').then((res) => {
@@ -46,14 +46,14 @@ export default function MisDesignaciones() {
     (a, b) => new Date(`${a.fecha}T${a.hora}`) - new Date(`${b.fecha}T${b.hora}`)
   );
 
-  const fechaFiltroDia = filtroDia === 'hoy' ? hoyISO() : filtroDia === 'manana' ? mananaISO() : null;
+  const fechaFiltroDia = filtroDia === 'manana' ? mananaISO() : hoyISO();
 
+  // "Próximas" muestra solo las designaciones del día elegido (hoy o mañana):
+  // no un listado abierto de todo lo futuro. "Historial" muestra todo, sin
+  // importar la fecha, con la búsqueda por fecha como filtro opcional.
   const designacionesMostradas = modo === 'proximas'
-    ? designacionesOrdenadas
-        .filter((d) => !esPasado(d.fecha, d.hora))
-        .filter((d) => !fechaFiltroDia || d.fecha?.slice(0, 10) === fechaFiltroDia)
+    ? designacionesOrdenadas.filter((d) => d.fecha?.slice(0, 10) === fechaFiltroDia)
     : designacionesOrdenadas
-        .filter((d) => esPasado(d.fecha, d.hora))
         .filter((d) => !fechaFiltro || d.fecha?.slice(0, 10) === fechaFiltro)
         .reverse(); // en historial, lo más reciente primero
 
@@ -69,7 +69,7 @@ export default function MisDesignaciones() {
             ].map((op) => (
               <button
                 key={op.value}
-                onClick={() => { setModo(op.value); setFechaFiltro(''); setFiltroDia(null); }}
+                onClick={() => { setModo(op.value); setFechaFiltro(''); setFiltroDia('hoy'); }}
                 className={`px-3 py-1.5 font-medium transition ${
                   modo === op.value ? 'bg-navy-900 text-white' : 'bg-white text-gray-600 hover:bg-gray-50'
                 }`}
@@ -86,7 +86,7 @@ export default function MisDesignaciones() {
                   <button
                     key={valor}
                     type="button"
-                    onClick={() => setFiltroDia((prev) => (prev === valor ? null : valor))}
+                    onClick={() => setFiltroDia(valor)}
                     className={`px-3 py-1.5 font-medium transition ${
                       filtroDia === valor ? 'bg-navy-900 text-white' : 'bg-white text-gray-600 hover:bg-gray-50'
                     }`}
@@ -168,9 +168,7 @@ export default function MisDesignaciones() {
               <tr>
                 <td colSpan={6} className="px-4 py-8 text-center text-gray-400 text-sm">
                   {modo === 'proximas'
-                    ? filtroDia
-                      ? t('vacio.diaEspecifico')
-                      : t('vacio.proximas')
+                    ? t(filtroDia === 'manana' ? 'vacio.manana' : 'vacio.hoy')
                     : fechaFiltro
                       ? t('vacio.fechaEspecifica')
                       : t('vacio.historial')}

@@ -18,9 +18,9 @@
   },
   "cumplido": "Completed",
   "vacio": {
-    "proximas": "You have no upcoming assignments",
-    "diaEspecifico": "You have no assignments for that day",
+    "hoy": "You have no assignments for today",
+    "manana": "You have no assignments for tomorrow",
     "fechaEspecifica": "There are no assignments on that date",
-    "historial": "You have no past assignments yet"
+    "historial": "You have no assignments registered yet"
   }
 }

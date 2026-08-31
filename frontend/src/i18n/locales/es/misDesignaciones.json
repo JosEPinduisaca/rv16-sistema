@@ -18,9 +18,9 @@
   },
   "cumplido": "Cumplido",
   "vacio": {
-    "proximas": "No tienes designaciones próximas",
-    "diaEspecifico": "No tienes designaciones para ese día",
+    "hoy": "No tienes designaciones para hoy",
+    "manana": "No tienes designaciones para mañana",
     "fechaEspecifica": "No hay designaciones en esa fecha",
-    "historial": "Aún no tienes designaciones anteriores"
+    "historial": "Aún no tienes designaciones registradas"
   }
 }
